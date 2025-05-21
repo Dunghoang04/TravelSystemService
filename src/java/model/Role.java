@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package dao;
+package model;
 
 /**
  *
@@ -38,4 +38,11 @@ public class Role {
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
+
+    @Override
+    public String toString() {
+        return "Role{" + "roleID=" + roleID + ", roleName=" + roleName + '}';
+    }
+    
+    
 }
