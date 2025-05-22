@@ -25,7 +25,7 @@
                 <div class="col-lg-3 col-md-6">
                     <h4 class="text-white mb-3">Liên hệ</h4>
                     <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
-                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 678900</p>
                     <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>   
                 </div>
                 
