@@ -42,7 +42,11 @@
                         <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
-                
+                <div class="col-lg-12 col-md-12">
+                    <div class="d-flex pt-2 text-center" >
+                        <p>© 2014-2025 Du Lich Viet. All Rights Reserved.</p>
+                    </div>
+                </div>
             </div>
         </div>
         
