@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 
 package controller.admin;
 
@@ -7,14 +11,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.websocket.Session;
 
 /**
  *
- * @author ad
+ * @author Hung
  */
-public class adminServlet extends HttpServlet {
+public class Statical extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -31,10 +33,10 @@ public class adminServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet adminServlet</title>");  
+            out.println("<title>Servlet Statical</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet adminServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet Statical at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -51,7 +53,7 @@ public class adminServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/admin/UserManagement.jsp").forward(request, response);
+        request.getRequestDispatcher("view/admin/Statical.jsp").forward(request, response);
     } 
 
     /** 
