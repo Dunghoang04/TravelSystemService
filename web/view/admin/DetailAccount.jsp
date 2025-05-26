@@ -1,7 +1,7 @@
 <%-- 
-    Document   : admin
-    Created on : May 21, 2025, 2:42:06 PM
-    Author     : ad
+    Document   : DetailAccount
+    Created on : May 23, 2025, 4:35:05 PM
+    Author     : Hung
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -12,6 +12,6 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>admin</h1>
+        <h1>Hello World!</h1>
     </body>
 </html>
