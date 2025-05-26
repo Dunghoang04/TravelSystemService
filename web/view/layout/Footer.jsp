@@ -18,23 +18,27 @@
                     <h4 class="text-white mb-3">Hỗ trợ</h4>
                     <a class="btn btn-link" href="">Chúng tôi</a>
                     <a class="btn btn-link" href="">Liên hệ</a>
-                    <a class="btn btn-link" href="">Chính sách hợp tác</a>
+                    <a class="btn btn-link" href="">Câu hỏi thường gặp</a>
                     <a class="btn btn-link" href="">Điều khoản</a>
                     
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <h4 class="text-white mb-3">Liên hệ</h4>
-                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
-                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 678911899</p>
-                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>   
+                    <h4 class="text-white mb-3">Hợp tác</h4>
+                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Đăng ký công ty lữ hành</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>Hướng dẫn sử dụng hệ thống</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>Chính sách hợp tác</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>Liên hệ bộ phận hỗ trợ</p>
                 </div>
                 
                 <div class="col-lg-3 col-md-6">
-                    <h4 class="text-white mb-3">Công ty</h4>
-                    <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
-                    
+                    <h4 class="text-white mb-3">Liên hệ</h4>
+                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Thạch Thất,Thạch Hòa, Hà Nội</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>0911892004</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>dunghthe182368@fpt.edu.vn</p>   
                 </div>
+                
                 <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-3">Theo dõi chúng tôi</h4>
                     <div class="d-flex pt-2">
                         <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
                         <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
@@ -43,8 +47,8 @@
                     </div>
                 </div>
                 <div class="col-lg-12 col-md-12">
-                    <div class="d-flex pt-2 text-center" >
-                        <p>© 2014-2025 Du Lich Viet. All Rights Reserved.</p>
+                    <div class="d-flex justify-content-center align-items-center pt-2" >
+                        <p>© 2014-2025 GoViet. All Rights Reserved.</p>
                     </div>
                 </div>
             </div>
