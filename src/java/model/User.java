@@ -12,24 +12,36 @@ import java.sql.Date;
  */
 public class User {
     private int userID;
+    private String gmail;
+    private int roleID;
+    private String password;
     private String firstName;
     private String lastName;
     private Date dob;
     private String gender;
     private String address;
     private String phone;
+    private Date createDate;
+    private Date updateDate;
+    private int status;
 
     public User() {
     }
 
-    public User(int userID, String firstName, String lastName, Date dob, String gender, String address, String phone) {
+    public User(int userID, String gmail, int roleID, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate, Date updateDate, int status) {
         this.userID = userID;
+        this.gmail = gmail;
+        this.roleID = roleID;
+        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dob = dob;
         this.gender = gender;
         this.address = address;
         this.phone = phone;
+        this.createDate = createDate;
+        this.updateDate = updateDate;
+        this.status = status;
     }
 
     public int getUserID() {
@@ -38,6 +50,30 @@ public class User {
 
     public void setUserID(int userID) {
         this.userID = userID;
+    }
+
+    public String getGmail() {
+        return gmail;
+    }
+
+    public void setGmail(String gmail) {
+        this.gmail = gmail;
+    }
+
+    public int getRoleID() {
+        return roleID;
+    }
+
+    public void setRoleID(int roleID) {
+        this.roleID = roleID;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getFirstName() {
@@ -87,6 +123,34 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-    
-    
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" + "userID=" + userID + ", gmail=" + gmail + ", roleID=" + roleID + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", dob=" + dob + ", gender=" + gender + ", address=" + address + ", phone=" + phone + ", createDate=" + createDate + ", updateDate=" + updateDate + ", status=" + status + '}';
+    }
+
 }

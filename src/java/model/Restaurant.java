@@ -11,22 +11,30 @@ import java.sql.Time;
  */
 public class Restaurant {
     private int serviceID;
-    private String description;
-    private String address;
+    private String name;
     private String image;
+    private String address;
+    private String phone;
+    private String description;
+    private float rate;
     private String type;
-    private Time timeOpen;
-    private Time timeClose;
+    private int status;
+    private String timeOpen;
+    private String timeClose;
 
     public Restaurant() {
     }
 
-    public Restaurant(int serviceID, String description, String address, String image, String type, Time timeOpen, Time timeClose) {
+    public Restaurant(int serviceID, String name, String image, String address, String phone, String description, float rate, String type, int status, String timeOpen, String timeClose) {
         this.serviceID = serviceID;
-        this.description = description;
-        this.address = address;
+        this.name = name;
         this.image = image;
+        this.address = address;
+        this.phone = phone;
+        this.description = description;
+        this.rate = rate;
         this.type = type;
+        this.status = status;
         this.timeOpen = timeOpen;
         this.timeClose = timeClose;
     }
@@ -39,20 +47,12 @@ public class Restaurant {
         this.serviceID = serviceID;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getImage() {
@@ -63,6 +63,38 @@ public class Restaurant {
         this.image = image;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public float getRate() {
+        return rate;
+    }
+
+    public void setRate(float rate) {
+        this.rate = rate;
+    }
+
     public String getType() {
         return type;
     }
@@ -71,21 +103,34 @@ public class Restaurant {
         this.type = type;
     }
 
-    public Time getTimeOpen() {
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getTimeOpen() {
         return timeOpen;
     }
 
-    public void setTimeOpen(Time timeOpen) {
+    public void setTimeOpen(String timeOpen) {
         this.timeOpen = timeOpen;
     }
 
-    public Time getTimeClose() {
+    public String getTimeClose() {
         return timeClose;
     }
 
-    public void setTimeClose(Time timeClose) {
+    public void setTimeClose(String timeClose) {
         this.timeClose = timeClose;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Restaurant{" + "serviceID=" + serviceID + ", name=" + name + ", image=" + image + ", address=" + address + ", phone=" + phone + ", description=" + description + ", rate=" + rate + ", type=" + type + ", status=" + status + ", timeOpen=" + timeOpen + ", timeClose=" + timeClose + '}';
+    }
+
     
 }

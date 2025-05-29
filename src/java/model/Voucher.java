@@ -19,12 +19,12 @@ public class Voucher {
     private Date endDate;
     private float maxDiscountAmount;
     private float minAmountApply;
-    private boolean status;
+    private int status;
 
     public Voucher() {
     }
 
-    public Voucher(int voucherID, String voucherCode, String voucherName, float percentDiscount, Date startDate, Date endDate, float maxDiscountAmount, float minAmountApply, boolean status) {
+    public Voucher(int voucherID, String voucherCode, String voucherName, float percentDiscount, Date startDate, Date endDate, float maxDiscountAmount, float minAmountApply, int status) {
         this.voucherID = voucherID;
         this.voucherCode = voucherCode;
         this.voucherName = voucherName;
@@ -100,13 +100,18 @@ public class Voucher {
         this.minAmountApply = minAmountApply;
     }
 
-    public boolean isStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Voucher{" + "voucherID=" + voucherID + ", voucherCode=" + voucherCode + ", voucherName=" + voucherName + ", percentDiscount=" + percentDiscount + ", startDate=" + startDate + ", endDate=" + endDate + ", maxDiscountAmount=" + maxDiscountAmount + ", minAmountApply=" + minAmountApply + ", status=" + status + '}';
+    }
+
     
 }

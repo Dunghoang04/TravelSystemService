@@ -22,12 +22,12 @@ public class BookDetail {
     private String gmail;
     private String note;
     private float totalPrice;
-    private String status;
+    private int status;
 
     public BookDetail() {
     }
 
-    public BookDetail(int bookID, int userID, int tourID, Date bookDate, int numberAdult, int numberChildren, String payMethod, String phone, String gmail, String note, float totalPrice, String status) {
+    public BookDetail(int bookID, int userID, int tourID, Date bookDate, int numberAdult, int numberChildren, String payMethod, String phone, String gmail, String note, float totalPrice, int status) {
         this.bookID = bookID;
         this.userID = userID;
         this.tourID = tourID;
@@ -130,13 +130,19 @@ public class BookDetail {
         this.totalPrice = totalPrice;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
-    
+
+   
+
+    @Override
+    public String toString() {
+        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren + ", payMethod=" + payMethod + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", totalPrice=" + totalPrice + ", status=" + status + '}';
+    }  
     
 }

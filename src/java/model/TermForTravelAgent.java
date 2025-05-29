@@ -8,34 +8,14 @@ package model;
  *
  * @author Nhat Anh
  */
-public class Vehicle {
-    private int serviceID;
-    private String type;
+public class TermForTravelAgent {
     private String description;
 
-    public Vehicle() {
+    public TermForTravelAgent() {
     }
 
-    public Vehicle(int serviceID, String type, String description) {
-        this.serviceID = serviceID;
-        this.type = type;
+    public TermForTravelAgent(String description) {
         this.description = description;
-    }
-
-    public int getServiceID() {
-        return serviceID;
-    }
-
-    public void setServiceID(int serviceID) {
-        this.serviceID = serviceID;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getDescription() {
@@ -45,6 +25,7 @@ public class Vehicle {
     public void setDescription(String description) {
         this.description = description;
     }
+
     
     
 }

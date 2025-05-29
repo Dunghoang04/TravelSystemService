@@ -15,14 +15,14 @@ public class Feedback {
     private float rate;
     private String content;
     private Date createDate;
-    private boolean status;
+    private int status;
     private int tourID;
     private int userID;
 
     public Feedback() {
     }
 
-    public Feedback(int feedbackID, float rate, String content, Date createDate, boolean status, int tourID, int userID) {
+    public Feedback(int feedbackID, float rate, String content, Date createDate, int status, int tourID, int userID) {
         this.feedbackID = feedbackID;
         this.rate = rate;
         this.content = content;
@@ -64,11 +64,11 @@ public class Feedback {
         this.createDate = createDate;
     }
 
-    public boolean isStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -87,6 +87,11 @@ public class Feedback {
     public void setUserID(int userID) {
         this.userID = userID;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Feedback{" + "feedbackID=" + feedbackID + ", rate=" + rate + ", content=" + content + ", createDate=" + createDate + ", status=" + status + ", tourID=" + tourID + ", userID=" + userID + '}';
+    }
+
     
 }
