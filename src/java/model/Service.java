@@ -11,17 +11,16 @@ package model;
 public class Service {
     private int serviceID;
     private int serviceCategoryID;
-    private String serviceName;
-    private boolean status;
+    private String name;
+    
 
     public Service() {
     }
 
-    public Service(int serviceID, int serviceCategoryID, String serviceName, boolean status) {
+    public Service(int serviceID, int serviceCategoryID, String name) {
         this.serviceID = serviceID;
         this.serviceCategoryID = serviceCategoryID;
-        this.serviceName = serviceName;
-        this.status = status;
+        this.name = name;
     }
 
     public int getServiceID() {
@@ -40,21 +39,18 @@ public class Service {
         this.serviceCategoryID = serviceCategoryID;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getName() {
+        return name;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public boolean isStatus() {
-        return status;
+    @Override
+    public String toString() {
+        return "Service{" + "serviceID=" + serviceID + ", serviceCategoryID=" + serviceCategoryID + ", name=" + name + '}';
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-    
     
 }

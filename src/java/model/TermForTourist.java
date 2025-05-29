@@ -8,13 +8,13 @@ package model;
  *
  * @author Nhat Anh
  */
-public class CommonTerm {
+public class TermForTourist {
     private String description;
 
-    public CommonTerm() {
+    public TermForTourist() {
     }
 
-    public CommonTerm(String description) {
+    public TermForTourist(String description) {
         this.description = description;
     }
 

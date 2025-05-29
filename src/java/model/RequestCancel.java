@@ -12,22 +12,24 @@ import java.sql.Date;
  */
 public class RequestCancel {
     private int requestCancelID;
-    private String description;
-    private Date requestDate;
-    private String status;
-    private String reasonCancel;
     private int bookID;
+    private int cancelReasonID;
+    private Date requestDate;
+    private String reason;
+    private String not;
+    private int status;
 
     public RequestCancel() {
     }
 
-    public RequestCancel(int requestCancelID, String description, Date requestDate, String status, String reasonCancel, int bookID) {
+    public RequestCancel(int requestCancelID, int bookID, int cancelReasonID, Date requestDate, String reason, String not, int status) {
         this.requestCancelID = requestCancelID;
-        this.description = description;
-        this.requestDate = requestDate;
-        this.status = status;
-        this.reasonCancel = reasonCancel;
         this.bookID = bookID;
+        this.cancelReasonID = cancelReasonID;
+        this.requestDate = requestDate;
+        this.reason = reason;
+        this.not = not;
+        this.status = status;
     }
 
     public int getRequestCancelID() {
@@ -38,12 +40,20 @@ public class RequestCancel {
         this.requestCancelID = requestCancelID;
     }
 
-    public String getDescription() {
-        return description;
+    public int getBookID() {
+        return bookID;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setBookID(int bookID) {
+        this.bookID = bookID;
+    }
+
+    public int getCancelReasonID() {
+        return cancelReasonID;
+    }
+
+    public void setCancelReasonID(int cancelReasonID) {
+        this.cancelReasonID = cancelReasonID;
     }
 
     public Date getRequestDate() {
@@ -54,30 +64,34 @@ public class RequestCancel {
         this.requestDate = requestDate;
     }
 
-    public String getStatus() {
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public String getNot() {
+        return not;
+    }
+
+    public void setNot(String not) {
+        this.not = not;
+    }
+
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
-    public String getReasonCancel() {
-        return reasonCancel;
+    @Override
+    public String toString() {
+        return "RequestCancel{" + "requestCancelID=" + requestCancelID + ", bookID=" + bookID + ", cancelReasonID=" + cancelReasonID + ", requestDate=" + requestDate + ", reason=" + reason + ", not=" + not + ", status=" + status + '}';
     }
 
-    public void setReasonCancel(String reasonCancel) {
-        this.reasonCancel = reasonCancel;
-    }
-
-    public int getBookID() {
-        return bookID;
-    }
-
-    public void setBookID(int bookID) {
-        this.bookID = bookID;
-    }
-    
-    
     
 }

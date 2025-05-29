@@ -10,23 +10,37 @@ import java.sql.Time;
  * @author Nhat Anh
  */
 public class Entertainment {
-    private int serviceID;
+     private int serviceID;
+    private String name;
+    private String image;
+    private String address;
+    private String phone;
     private String description;
+    private float rate;
     private String type;
-    private Time timeOpen;
-    private Time timeClose;
+    private int status;
+    private String timeOpen;
+    private String timeClose;
     private String dayOfWeekOpen;
+    private double ticketPrice;
 
     public Entertainment() {
     }
 
-    public Entertainment(int serviceID, String description, String type, Time timeOpen, Time timeClose, String dayOfWeekOpen) {
+    public Entertainment(int serviceID, String name, String image, String address, String phone, String description, float rate, String type, int status, String timeOpen, String timeClose, String dayOfWeekOpen, double ticketPrice) {
         this.serviceID = serviceID;
+        this.name = name;
+        this.image = image;
+        this.address = address;
+        this.phone = phone;
         this.description = description;
+        this.rate = rate;
         this.type = type;
+        this.status = status;
         this.timeOpen = timeOpen;
         this.timeClose = timeClose;
         this.dayOfWeekOpen = dayOfWeekOpen;
+        this.ticketPrice = ticketPrice;
     }
 
     public int getServiceID() {
@@ -37,12 +51,52 @@ public class Entertainment {
         this.serviceID = serviceID;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public float getRate() {
+        return rate;
+    }
+
+    public void setRate(float rate) {
+        this.rate = rate;
     }
 
     public String getType() {
@@ -53,19 +107,27 @@ public class Entertainment {
         this.type = type;
     }
 
-    public Time getTimeOpen() {
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getTimeOpen() {
         return timeOpen;
     }
 
-    public void setTimeOpen(Time timeOpen) {
+    public void setTimeOpen(String timeOpen) {
         this.timeOpen = timeOpen;
     }
 
-    public Time getTimeClose() {
+    public String getTimeClose() {
         return timeClose;
     }
 
-    public void setTimeClose(Time timeClose) {
+    public void setTimeClose(String timeClose) {
         this.timeClose = timeClose;
     }
 
@@ -76,6 +138,19 @@ public class Entertainment {
     public void setDayOfWeekOpen(String dayOfWeekOpen) {
         this.dayOfWeekOpen = dayOfWeekOpen;
     }
-    
+
+    public double getTicketPrice() {
+        return ticketPrice;
+    }
+
+    public void setTicketPrice(double ticketPrice) {
+        this.ticketPrice = ticketPrice;
+    }
+
+    @Override
+    public String toString() {
+        return "Entertainment{" + "serviceID=" + serviceID + ", name=" + name + ", image=" + image + ", address=" + address + ", phone=" + phone + ", description=" + description + ", rate=" + rate + ", type=" + type + ", status=" + status + ", timeOpen=" + timeOpen + ", timeClose=" + timeClose + ", dayOfWeekOpen=" + dayOfWeekOpen + ", ticketPrice=" + ticketPrice + '}';
+    }
+
     
 }

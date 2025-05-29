@@ -9,15 +9,27 @@ package model;
  * @author Nhat Anh
  */
 public class TourServiceDetail {
+    private int detailID;
     private int tourID;
     private int serviceID;
+    private String serviceName;
 
     public TourServiceDetail() {
     }
 
-    public TourServiceDetail(int tourID, int serviceID) {
+    public TourServiceDetail(int detailID, int tourID, int serviceID, String serviceName) {
+        this.detailID = detailID;
         this.tourID = tourID;
         this.serviceID = serviceID;
+        this.serviceName = serviceName;
+    }
+
+    public int getDetailID() {
+        return detailID;
+    }
+
+    public void setDetailID(int detailID) {
+        this.detailID = detailID;
     }
 
     public int getTourID() {
@@ -36,5 +48,19 @@ public class TourServiceDetail {
         this.serviceID = serviceID;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    @Override
+    public String toString() {
+        return "TourServiceDetail{" + "detailID=" + detailID + ", tourID=" + tourID + ", serviceID=" + serviceID + ", serviceName=" + serviceName + '}';
+    }
+    
+    
     
 }
