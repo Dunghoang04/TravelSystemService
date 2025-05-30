@@ -14,6 +14,7 @@ public class BookDetail {
     private int bookID;
     private int userID;
     private int tourID;
+    private int voucherID;
     private Date bookDate;
     private int numberAdult;
     private int numberChildren;
@@ -27,10 +28,11 @@ public class BookDetail {
     public BookDetail() {
     }
 
-    public BookDetail(int bookID, int userID, int tourID, Date bookDate, int numberAdult, int numberChildren, String payMethod, String phone, String gmail, String note, float totalPrice, int status) {
+    public BookDetail(int bookID, int userID, int tourID, int voucherID, Date bookDate, int numberAdult, int numberChildren, String payMethod, String phone, String gmail, String note, float totalPrice, int status) {
         this.bookID = bookID;
         this.userID = userID;
         this.tourID = tourID;
+        this.voucherID = voucherID;
         this.bookDate = bookDate;
         this.numberAdult = numberAdult;
         this.numberChildren = numberChildren;
@@ -41,6 +43,8 @@ public class BookDetail {
         this.totalPrice = totalPrice;
         this.status = status;
     }
+
+    
 
     public int getBookID() {
         return bookID;
@@ -138,11 +142,20 @@ public class BookDetail {
         this.status = status;
     }
 
-   
+    public int getVoucherID() {
+        return voucherID;
+    }
+
+    public void setVoucherID(int voucherID) {
+        this.voucherID = voucherID;
+    }
 
     @Override
     public String toString() {
-        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren + ", payMethod=" + payMethod + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", totalPrice=" + totalPrice + ", status=" + status + '}';
-    }  
-    
+        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren + ", payMethod=" + payMethod + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", totalPrice=" + totalPrice + ", status=" + status + '}';
+    }
+
+   
+
+   
 }

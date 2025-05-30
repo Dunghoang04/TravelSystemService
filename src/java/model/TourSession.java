@@ -5,30 +5,26 @@
 package model;
 
 import java.sql.Date;
-import java.sql.Time;
+
 
 /**
  *
  * @author Nhat Anh
  */
-public class TourTime {
+public class TourSession {
     private int tourId;
     private Date startDay;
     private Date endDay;
-    private Time startTime;
-    private Time endTime;
     private double adultPrice;
     private double childrenPrice;
 
-    public TourTime() {
+    public TourSession() {
     }
 
-    public TourTime(int tourId, Date startDay, Date endDay, Time startTime, Time endTime, double adultPrice, double childrenPrice) {
+    public TourSession(int tourId, Date startDay, Date endDay,double adultPrice, double childrenPrice) {
         this.tourId = tourId;
         this.startDay = startDay;
         this.endDay = endDay;
-        this.startTime = startTime;
-        this.endTime = endTime;
         this.adultPrice = adultPrice;
         this.childrenPrice = childrenPrice;
     }
@@ -57,21 +53,7 @@ public class TourTime {
         this.endDay = endDay;
     }
 
-    public Time getStartTime() {
-        return startTime;
-    }
 
-    public void setStartTime(Time startTime) {
-        this.startTime = startTime;
-    }
-
-    public Time getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Time endTime) {
-        this.endTime = endTime;
-    }
 
     public double getAdultPrice() {
         return adultPrice;
@@ -91,7 +73,7 @@ public class TourTime {
 
     @Override
     public String toString() {
-        return "TourTime{" + "tourId=" + tourId + ", startDay=" + startDay + ", endDay=" + endDay + ", startTime=" + startTime + ", endTime=" + endTime + ", adultPrice=" + adultPrice + ", childrenPrice=" + childrenPrice + '}';
+        return "TourTime{" + "tourId=" + tourId + ", startDay=" + startDay + ", endDay=" + endDay + ", adultPrice=" + adultPrice + ", childrenPrice=" + childrenPrice + '}';
     }
     
     
