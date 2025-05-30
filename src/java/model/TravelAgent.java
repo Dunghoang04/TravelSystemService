@@ -10,7 +10,7 @@ import java.sql.Date;
  *
  * @author Nhat Anh
  */
-public class TravelAgent {
+public class TravelAgent extends User{
     private int travelAgentID;
     private int userID;
     private String travelAgentName;
