@@ -15,8 +15,7 @@ public class Tour {
     private int tourCategoryID;
     private int travelAgentID;
     private String tourName;
-    private Date numberOfDay;
-    private Date numberOfNight;
+    private int numberOfDay;
     private String startPlace;
     private String endPlace;
     private int quantity;
@@ -31,13 +30,12 @@ public class Tour {
     public Tour() {
     }
 
-    public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, Date numberOfDay, Date numberOfNight, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status) {
+    public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status) {
         this.tourID = tourID;
         this.tourCategoryID = tourCategoryID;
         this.travelAgentID = travelAgentID;
         this.tourName = tourName;
         this.numberOfDay = numberOfDay;
-        this.numberOfNight = numberOfNight;
         this.startPlace = startPlace;
         this.endPlace = endPlace;
         this.quantity = quantity;
@@ -82,21 +80,14 @@ public class Tour {
         this.tourName = tourName;
     }
 
-    public Date getNumberOfDay() {
+    public int getNumberOfDay() {
         return numberOfDay;
     }
 
-    public void setNumberOfDay(Date numberOfDay) {
+    public void setNumberOfDay(int numberOfDay) {
         this.numberOfDay = numberOfDay;
     }
 
-    public Date getNumberOfNight() {
-        return numberOfNight;
-    }
-
-    public void setNumberOfNight(Date numberOfNight) {
-        this.numberOfNight = numberOfNight;
-    }
 
     public String getStartPlace() {
         return startPlace;
@@ -180,7 +171,7 @@ public class Tour {
 
     @Override
     public String toString() {
-        return "Tour{" + "tourID=" + tourID + ", tourCategoryID=" + tourCategoryID + ", travelAgentID=" + travelAgentID + ", tourName=" + tourName + ", numberOfDay=" + numberOfDay + ", numberOfNight=" + numberOfNight + ", startPlace=" + startPlace + ", endPlace=" + endPlace + ", quantity=" + quantity + ", image=" + image + ", tourIntroduce=" + tourIntroduce + ", tourSchedule=" + tourSchedule + ", tourInclude=" + tourInclude + ", tourNonInclude=" + tourNonInclude + ", rate=" + rate + ", status=" + status + '}';
+        return "Tour{" + "tourID=" + tourID + ", tourCategoryID=" + tourCategoryID + ", travelAgentID=" + travelAgentID + ", tourName=" + tourName + ", numberOfDay=" + numberOfDay + ", startPlace=" + startPlace + ", endPlace=" + endPlace + ", quantity=" + quantity + ", image=" + image + ", tourIntroduce=" + tourIntroduce + ", tourSchedule=" + tourSchedule + ", tourInclude=" + tourInclude + ", tourNonInclude=" + tourNonInclude + ", rate=" + rate + ", status=" + status + '}';
     }
     
     

@@ -147,6 +147,8 @@ public class User {
     public void setStatus(int status) {
         this.status = status;
     }
+    
+    
 
     @Override
     public String toString() {

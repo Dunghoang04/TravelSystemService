@@ -10,6 +10,8 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
+        
+        
     </head>
     <body>
         <div id="layoutSidenav_nav">
@@ -41,6 +43,10 @@
                             <a class="nav-link" href="managementertainment">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-face-smile"></i></i></div>
                                 Quản lí giải trí
+                            </a>
+                            <a class="nav-link" href="${pageContext.request.contextPath}/ManageTravelAgentProfile">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></i></div>
+                                Thông tin cá nhân
                             </a>
 
 
