@@ -59,7 +59,25 @@ public class Login extends HttpServlet {
 
             if (u != null) {
                 session.setAttribute("loginUser", u);
-                response.sendRedirect(request.getContextPath() + "/home");
+                int role = u.getRoleID(); // Lấy vai trò người dùng
+
+                // Điều hướng theo vai trò
+                switch (role) {
+                    case 1:
+                        response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
+                        break;
+                    case 2:
+                        response.sendRedirect(request.getContextPath() + "/staff/dashboard.jsp");
+                        break;
+                    case 3:
+                        response.sendRedirect(request.getContextPath() + "/home");
+                        break;
+                    case 4:
+                        response.sendRedirect(request.getContextPath() + "/agent/home.jsp");
+                        break;
+                    default:
+                        response.sendRedirect(request.getContextPath() + "/home");
+                }
                 return;
             }else{
                 request.setAttribute("error", "Email hoặc mật khẩu không đúng!");
@@ -75,7 +93,7 @@ public class Login extends HttpServlet {
                 session.invalidate();
             }
             
-            response.sendRedirect(request.getContextPath()+"/LoginLogout");
+            response.sendRedirect(request.getContextPath()+"/home");
             return;
         }
     }

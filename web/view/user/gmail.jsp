@@ -167,7 +167,7 @@
                     <div style="color: red; margin-top:10px;">${error}</div>
                 </c:if>
                 <div class="login">
-                    Đã có tài khoản? <a href="Login?service=login">Đăng nhập</a>
+                    Đã có tài khoản? <a href="${pageContext.request.contextPath}/LoginLogout">Đăng nhập</a>
                 </div>
             </div>
             <div class="right"></div>
