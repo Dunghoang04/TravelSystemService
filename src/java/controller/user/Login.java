@@ -46,7 +46,6 @@ public class Login extends HttpServlet {
         if (service.equals("loginUser")) {
             String gmail = request.getParameter("gmail");
             String password = request.getParameter("password");
-            
 
             String error = validate(gmail, password);
             if (error != null) {
@@ -79,27 +78,27 @@ public class Login extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/home");
                 }
                 return;
-            }else{
-                request.setAttribute("error", "Email hoặc mật khẩu không đúng!");
+            } else {
+                request.setAttribute("error", "Email hoặc mật khẩu không đúng hoặc tài khoản đã bị khóa!");
                 request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
                 return;
             }
         }
-        
-        
-        if(service.equals("logoutUser")){
-            session= request.getSession(false);
-            if(session!=null){
+
+        if (service.equals("logoutUser")) {
+            session = request.getSession(false);
+            if (session != null) {
                 session.invalidate();
             }
-            
-            response.sendRedirect(request.getContextPath()+"/home");
+
+            response.sendRedirect(request.getContextPath() + "/home");
             return;
         }
     }
-    public String validate(String gmail, String password){
-        if(gmail == null || gmail.trim().isEmpty()|| password == null || password.trim().isEmpty()){
-            return  "Vui lòng điền đầy đủ thông tin!";
+
+    public String validate(String gmail, String password) {
+        if (gmail == null || gmail.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            return "Vui lòng điền đầy đủ thông tin!";
         }
         return null;
     }

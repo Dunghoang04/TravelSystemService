@@ -82,9 +82,10 @@
             <c:if test="${not empty error}">
                 <div class="alert alert-danger">${error}</div>
             </c:if>
-            <c:if test="${not empty successMessage}">
-                <div class="alert alert-success">${success}</div>
+            <c:if test="${not empty sucsess}">
+                <div class="alert alert-success">${sucsess}</div>
             </c:if>
+
 
             <c:if test="${not empty sessionScope.loginUser}">
                 <form action="${pageContext.request.contextPath}/ProfileUser" method="post">
@@ -106,7 +107,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Giới tính:</label>
                             <select class="form-control" name="gender">
-                                
+
                                 <option value="">-- Chọn giới tính --</option>
                                 <option value="Male" ${sessionScope.loginUser.gender.toString().equalsIgnoreCase("Male") ? 'selected' : ''}>Nam</option>
                                 <option value="Female" ${sessionScope.loginUser.gender.toString().equalsIgnoreCase("Female") ? 'selected' : ''}>Nữ</option>

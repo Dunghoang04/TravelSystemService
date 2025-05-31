@@ -105,24 +105,27 @@ public class UserDAO extends DBContext {
         return false;
     }
 
-    public User checkLogin(String gmail, String password){
-        String sql = "SELECT * FROM [User] WHERE gmail = ? AND password=?";
-        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
-            ptm.setString(1, gmail);
-            ptm.setString(2, password);
-            ResultSet rs = ptm.executeQuery();
-            if(rs.next()){
-                return new User(rs.getInt("userID"), rs.getString("gmail"), rs.getString("password"),
-                    rs.getString("firstName"), rs.getString("lastName"), rs.getDate("dob"),
-                    rs.getString("gender"), rs.getString("address"), rs.getString("phone"),
-                    rs.getDate("create_at"), rs.getDate("update_at"), rs.getInt("status"),
-                    rs.getInt("roleID"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+   public User checkLogin(String gmail, String password){
+    String sql = "SELECT * FROM [User] WHERE gmail = ? AND password = ? AND status = 1";
+    try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+        ptm.setString(1, gmail);
+        ptm.setString(2, password);
+        ResultSet rs = ptm.executeQuery();
+        if (rs.next()) {
+            return new User(
+                rs.getInt("userID"), rs.getString("gmail"), rs.getString("password"),
+                rs.getString("firstName"), rs.getString("lastName"), rs.getDate("dob"),
+                rs.getString("gender"), rs.getString("address"), rs.getString("phone"),
+                rs.getDate("create_at"), rs.getDate("update_at"),
+                rs.getInt("status"), rs.getInt("roleID")
+            );
         }
-        return null;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return null;
+}
+
     public static void main(String[] args) {
        String sql = "SELECT * FROM [User]";
         UserDAO udao = new UserDAO();
