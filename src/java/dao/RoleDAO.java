@@ -37,9 +37,12 @@ public class RoleDAO extends DBContext {
         Vector<Role> list = rdao.getAllRole(sql);
 
         list = rdao.getAllRole(sql);
+
         for (Role role : list) {
             System.out.println(role);
         }
     }
 
+    
 }
+

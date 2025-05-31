@@ -72,7 +72,7 @@
                     <a href="service.html" class="nav-item nav-link">Dịch vụ</a>
                     <a href="package.html" class="nav-item nav-link">Nổi bật</a>
                     <a href="booking.html" class="nav-item nav-link">Đặt lịch</a>  
-                    <a href="package.html" class="nav-item nav-link">Đối tác</a>
+                    <a href="${pageContext.request.contextPath}/RegisterTravelAgentServlet" class="nav-item nav-link">Đối tác</a>
                     <a href="contact.html" class="nav-item nav-link">Liên hệ</a>
 
                     <c:choose>

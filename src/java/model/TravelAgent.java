@@ -12,9 +12,8 @@ import java.sql.Date;
  */
 public class TravelAgent extends User{
     private int travelAgentID;
-    private int userID;
     private String travelAgentName;
-    private String address;
+    private String travelAgentAddress;
     private String travelAgentGmail;
     private String hotLine;
     private String taxCode;
@@ -25,11 +24,40 @@ public class TravelAgent extends User{
     public TravelAgent() {
     }
 
+    public TravelAgent(int travelAgentID, String travelAgentName, String travelAgentAddress, String travelAgentGmail, String hotLine, String taxCode, Date establishmentDate, String representativeIDCard, Date dateOfIssue, int userID, String gmail, int roleID, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate, Date updateDate, int status) {
+        super(userID, gmail, roleID, password, firstName, lastName, dob, gender, address, phone, createDate, updateDate, status);
+        this.travelAgentID = travelAgentID;
+        this.travelAgentName = travelAgentName;
+        this.travelAgentAddress = travelAgentAddress;
+        this.travelAgentGmail = travelAgentGmail;
+        this.hotLine = hotLine;
+        this.taxCode = taxCode;
+        this.establishmentDate = establishmentDate;
+        this.representativeIDCard = representativeIDCard;
+        this.dateOfIssue = dateOfIssue;
+    }
+    
+    
+    
+    
+    public TravelAgent(String travelAgentName, String travelAgentAddress, String travelAgentGmail, String hotLine, String taxCode, Date establishmentDate, String representativeIDCard, Date dateOfIssue, int userID, String gmail, int roleID, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate, Date updateDate, int status) {
+        super(userID, gmail, roleID, password, firstName, lastName, dob, gender, address, phone, createDate, updateDate, status);
+        this.travelAgentName = travelAgentName;
+        this.travelAgentAddress = travelAgentAddress;
+        this.travelAgentGmail = travelAgentGmail;
+        this.hotLine = hotLine;
+        this.taxCode = taxCode;
+        this.establishmentDate = establishmentDate;
+        this.representativeIDCard = representativeIDCard;
+        this.dateOfIssue = dateOfIssue;
+    }
+    
+    
+
     public TravelAgent(int travelAgentID, int userID, String travelAgentName, String address, String travelAgentGmail, String hotLine, String taxCode, Date establishmentDate, String representativeIDCard, Date dateOfIssue) {
         this.travelAgentID = travelAgentID;
-        this.userID = userID;
         this.travelAgentName = travelAgentName;
-        this.address = address;
+        this.travelAgentAddress = travelAgentAddress;
         this.travelAgentGmail = travelAgentGmail;
         this.hotLine = hotLine;
         this.taxCode = taxCode;
@@ -46,13 +74,6 @@ public class TravelAgent extends User{
         this.travelAgentID = travelAgentID;
     }
 
-    public int getUserID() {
-        return userID;
-    }
-
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
 
     public String getTravelAgentName() {
         return travelAgentName;
@@ -62,12 +83,12 @@ public class TravelAgent extends User{
         this.travelAgentName = travelAgentName;
     }
 
-    public String getAddress() {
-        return address;
+    public String getTravelAgentAddress() {
+        return travelAgentAddress;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setTravelAgentAddress(String travelAgentAddress) {
+        this.travelAgentAddress = travelAgentAddress;
     }
 
     public String getTravelAgentGmail() {
@@ -120,8 +141,10 @@ public class TravelAgent extends User{
 
     @Override
     public String toString() {
-        return "TravelAgent{" + "travelAgentID=" + travelAgentID + ", userID=" + userID + ", travelAgentName=" + travelAgentName + ", address=" + address + ", travelAgentGmail=" + travelAgentGmail + ", hotLine=" + hotLine + ", taxCode=" + taxCode + ", establishmentDate=" + establishmentDate + ", representativeIDCard=" + representativeIDCard + ", dateOfIssue=" + dateOfIssue + '}';
+        return super.toString() + "TravelAgent{" + "travelAgentID=" + travelAgentID + ", travelAgentName=" + travelAgentName + ", travelAgentAddress=" + travelAgentAddress + ", travelAgentGmail=" + travelAgentGmail + ", hotLine=" + hotLine + ", taxCode=" + taxCode + ", establishmentDate=" + establishmentDate + ", representativeIDCard=" + representativeIDCard + ", dateOfIssue=" + dateOfIssue + '}';
     }
+
+    
     
     
 }
