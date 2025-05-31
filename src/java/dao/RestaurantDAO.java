@@ -23,9 +23,14 @@ public class RestaurantDAO extends DBContext {
 
     public int insertService(String serviceName) throws SQLException {
 
-        String sql = "INSERT INTO Service (serviceCategoryID) VALUES (?)";
+        String sql = "INSERT INTO [dbo].[Service]\n"
+                + "           ([serviceCategoryID]\n"
+                + "           ,[serviceName])\n"
+                + "     VALUES\n"
+                + "           (?,?)";
         PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, 1); // có thể nhận từ người dùng
+        ps.setString(2, serviceName);
         ps.executeUpdate();
 
         ResultSet rs = ps.getGeneratedKeys();
@@ -151,7 +156,7 @@ public class RestaurantDAO extends DBContext {
                 + "      ,[timeClose] = ?\n"
                 + " WHERE [serviceID]=?";
         try {
-            ps=connection.prepareCall(sql);
+            ps = connection.prepareCall(sql);
             ps.setString(1, name);
             ps.setString(2, image);
             ps.setString(3, address);
@@ -169,8 +174,6 @@ public class RestaurantDAO extends DBContext {
         }
 
     }
-    
- 
 
     public List<Restaurant> getRestaurantByType(String type) {
         String sql = "select * from Restaurant where type like '%" + type + "%'";

@@ -19,11 +19,13 @@ public class EntertainmentDAO extends DBContext {
 
     public int insertService(String serviceName) throws SQLException {
         String sql = "INSERT INTO [dbo].[Service]\n"
-                + "           ([serviceCategoryID])\n"
+                + "           ([serviceCategoryID]\n"
+                + "           ,[serviceName])\n"
                 + "     VALUES\n"
-                + "           (?)";
+                + "           (?,?)";
         PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, 2); // Ví dụ: 2 là mã dịch vụ giải trí
+        ps.setString(2, serviceName);
         ps.executeUpdate();
 
         ResultSet rs = ps.getGeneratedKeys();
@@ -143,7 +145,7 @@ public class EntertainmentDAO extends DBContext {
     }
 
     public void updateEntertainment(int serviceId, String name, String image, String address, String phone,
-            String description,float rate, String type, int status, String timeOpen,
+            String description, float rate, String type, int status, String timeOpen,
             String timeClose, String dayOfWeekOpen, double ticketPrice) {
         String sql = "UPDATE [dbo].[Entertainment]\n"
                 + "   SET [name] = ?\n"
@@ -197,7 +199,7 @@ public class EntertainmentDAO extends DBContext {
     }
 
     public List<Entertainment> searchEntertainmentByName(String name) {
-        String sql = "select * from Entertainment where type like N'%"+name+"%'";
+        String sql = "select * from Entertainment where type like N'%" + name + "%'";
         List<Entertainment> list = new ArrayList<>();
         try {
             ps = connection.prepareStatement(sql);
