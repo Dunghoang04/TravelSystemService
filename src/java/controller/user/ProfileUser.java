@@ -70,14 +70,13 @@ public class ProfileUser extends HttpServlet {
                 repassword = password; // Không yêu cầu nhập lại nếu không thay đổi
             }
 
-            String error = validateInput(lastName, firstName, password, repassword, gmail, dobStr, gender, address);
-            if (error == null) {
-                request.setAttribute("error", error);
-                request.getRequestDispatcher("/view/user/profileUser.jsp").forward(request, response);
-                return;
-            }
             try {
-                
+                String error = validateInput(lastName, firstName, password, phone,  dobStr, gender, address);
+                if (error != null) {
+                    request.setAttribute("error", error);
+                    request.getRequestDispatcher("/view/user/profileUser.jsp").forward(request, response);
+                    return;
+                }
 
                 Date dob = Date.valueOf(dobStr);
                 LocalDate now = LocalDate.now();
@@ -100,7 +99,7 @@ public class ProfileUser extends HttpServlet {
                 session.setAttribute("loginUser", loginUser);
 
                 //Hiển thị cập nhật thành công
-                request.setAttribute("sucsess", "Cập nhật thông tin thành công!");
+                request.setAttribute("success", "Cập nhật thông tin thành công!");
                 request.getRequestDispatcher("/view/user/profileUser.jsp").forward(request, response);
                 return;
             } catch (Exception e) {
@@ -113,13 +112,12 @@ public class ProfileUser extends HttpServlet {
         }
     }
 
-    private String validateInput(String lastName, String firstName, String password, String repassword,
+    private String validateInput(String lastName, String firstName, String password,
             String phone, String dobStr, String gender, String address) {
 // Kiểm tra các trường không được để trống
         if (lastName == null || lastName.trim().isEmpty()
                 || firstName == null || firstName.trim().isEmpty()
                 || password == null || password.trim().isEmpty()
-                || repassword == null || repassword.trim().isEmpty()
                 || phone == null || phone.trim().isEmpty()
                 || dobStr == null || dobStr.trim().isEmpty()
                 || gender == null || gender.trim().isEmpty()
@@ -128,10 +126,7 @@ public class ProfileUser extends HttpServlet {
         }
         if (!lastName.matches("^[\\p{L} ]{2,50}$") || !firstName.matches("^[\\p{L} ]{2,50}$")) {
             return "Họ và tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!";
-        }
-
-        if (!password.equals(repassword)) {
-            return "Mật khẩu không khớp";
+           
         }
 
         if (!phone.matches("^0\\d{9}$")) {
