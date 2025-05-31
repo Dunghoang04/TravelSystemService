@@ -82,7 +82,11 @@
             <c:if test="${not empty error}">
                 <div class="alert alert-danger">${error}</div>
             </c:if>
+<<<<<<< OURS
+            <c:if test="${not empty success}">
+=======
             <c:if test="${not empty successMessage}">
+>>>>>>> THEIRS
                 <div class="alert alert-success">${success}</div>
             </c:if>
 
