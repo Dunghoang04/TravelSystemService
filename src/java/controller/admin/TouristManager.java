@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Hung
  */
-public class TourManagement extends HttpServlet {
+public class TouristManager extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,10 +33,10 @@ public class TourManagement extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TourManagement</title>");  
+            out.println("<title>Servlet TouristManager</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TourManagement at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet TouristManager at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -53,7 +53,7 @@ public class TourManagement extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/admin/AccountManagement.jsp").forward(request, response);
+        processRequest(request, response);
     } 
 
     /** 

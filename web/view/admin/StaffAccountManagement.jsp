@@ -4,6 +4,7 @@
     Author     : ad
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,53 +39,53 @@
         }
 
         html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
+            height: 100%;
+            margin: 0;
+            padding: 0;
 
-                overflow-x: hidden; /* Ngăn chặn tràn ngang */
-            }
+            overflow-x: hidden; /* Ngăn chặn tràn ngang */
+        }
 
-            .container-xxl {
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
+        .container-xxl {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-            .sidebar {
-                height: 100vh;
-                position: fixed;
-                left: 0;
-                top: 0;
-                width: 250px;
-                background: #f8f9fa;
-                overflow-y: auto;
-            }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            background: #f8f9fa;
+            overflow-y: auto;
+        }
 
-            .content {
-                margin-left: 250px;
-                padding: 20px;
-                width: calc(100% - 250px);
-                flex: 1;
-                overflow-x: auto;
-            }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+            flex: 1;
+            overflow-x: auto;
+        }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                word-break: break-word; /* Để chữ tự xuống dòng nếu quá dài */
-            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            word-break: break-word; /* Để chữ tự xuống dòng nếu quá dài */
+        }
 
-            table th, table td {
-                padding: 8px;
-                border: 1px solid #ddd;
-                text-align: left;
-                font-size: 13px; /* Giảm chữ trong bảng */
-            }
+        table th, table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 13px; /* Giảm chữ trong bảng */
+        }
 
-            table th {
-                background-color: #f1f1f1;
-            }
+        table th {
+            background-color: #f1f1f1;
+        }
 
 
 
@@ -102,18 +103,18 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Thống kê
                             </a>
-                            <a class="nav-link" href="admin">
+                            <a class="nav-link" href="liststaffaccount">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Quản lí tài khoản
+                                Tài khoản tài khoản nhân viên
                             </a>
 
                             <a class="nav-link" href="tourmanagement">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Quản lí chuyến đi
+                                Quản lí du khách
                             </a>
                             <a class="nav-link" href="requestuploadtour">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Yêu cầu xét duyệt
+                                Quản lí đại lý
                             </a>
 
 
@@ -125,7 +126,7 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Quản lí chuyến đi</h1>
+                        <h1 class="mt-4">Quản lí tài khoản nhân viên</h1>
 
                         <form action="finduser" method="GET" class="d-flex align-items-center">
                             <input 
@@ -139,6 +140,7 @@
                                 <i class="bi bi-search me-2"></i> Tìm kiếm
                             </button>
                         </form>
+
                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <label class="form-label">Lọc theo trạng thái:</label>
@@ -149,59 +151,60 @@
                                     <option value="">Tất cả</option>
                                 </select>
                             </div>
+                            <a href="addstaffaccount">
+                                <button class="btn btn-primary">Thêm tài khoản nhân viên</button>
+                            </a>
                         </div>
+
+
                         <div class="col-xl-12 col-md-6">
-
                             <div class="card-body">
-
                                 <table style="border: 1px solid">
                                     <thead>
                                         <tr>
                                             <th>Id</th>
                                             <th>Tên</th>
-                                            <th>Tài Khoản</th>
                                             <th>Email</th>
+                                            <th>Địa chỉ</th>
                                             <th>SĐT</th>
                                             <th>Giới tính</th>
                                             <th>Vai Trò</th>
                                             <th>Ngày tạo</th>
-                                            <th>Ngày sửa</th>
                                             <th>Hoạt Động</th>
                                         </tr>
-                                        </thead>
-                                    <tr>
-                                        <td>ID</td>
-                                        <td>Name</td>
-                                        <td>Account</td>
-                                        <td>Email</td>
-                                        <td>Phone</td>
-                                        <td>Gender</td>
-                                        <td>Role</td>
-                                        <td>Create at</td>
-                                        <td>Update At</td>
-                                        <td >
-                                            <a href="updateuser?id=${u.id}" class="btn btn-primary btn-sm">
-                                                Cập Nhật <i class="bi bi-pencil-square"></i>
-                                            </a>
+                                    </thead>
 
-                                            <a href="detailuser?id=${u.id}" class="btn btn-primary btn-sm">
-                                                Chi Tiết <i class="bi bi-pencil-square"></i>
-                                            </a>
-
-                                            <button class="btn ${u.status == 1 ? 'btn-danger' : 'btn-success'} btn-sm"
-                                                    onclick="changeStatus(${u.id}, ${u.status})">
-                                                ${u.status == 1 ? 'Ẩn' : 'Hiện'} 
-                                                <i class="bi ${u.status == 1 ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
-                                            </button>
-
-                                        </td>
-                                    </tr>
-
+                                    <c:forEach items="${requestScope.listStaffAccount}" var="u">
+                                        <tr>
+                                            <td>${u.userID}</td>
+                                            <td>${u.lastName}</td>
+                                            <td>${u.gmail}</td> 
+                                            <td>${u.address}</td>
+                                            <td>${u.phone}</td>
+                                            <td>${u.gender}</td>
+                                            <td>${u.roleID == 1 ? "Admin" : "User"}</td>
+                                            <td>${u.createDate}</td>
+                                            <td>
+                                                <a href="updateuser?id=${u.userID}" class="btn btn-primary btn-sm">
+                                                    Cập Nhật <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                                <a href="detailuser?id=${u.userID}" class="btn btn-primary btn-sm">
+                                                    Chi Tiết <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                                <button class="btn ${u.status == 1 ? 'btn-danger' : 'btn-success'} btn-sm"
+                                                        onclick="changeStatus(${u.userID}, ${u.status})">
+                                                    ${u.status == 1 ? 'Ẩn' : 'Hiện'} 
+                                                    <i class="bi ${u.status == 1 ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
                                 </table>
 
                             </div>
                         </div>
                     </div>
+
                 </main>
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
@@ -224,5 +227,34 @@
         <script src="./assets/demo/chart-bar-demo.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="./assets/js/datatables-simple-demo.js"></script>
+
+        <script>
+                                                            function changeStatus(id, status) {
+                                                                if (!confirm("Bạn có chắc chắn muốn thay đổi trạng thái?")) {
+                                                                    return;
+                                                                }
+
+                                                                $.ajax({
+                                                                    url: 'loaduser', // Servlet xử lý
+                                                                    type: 'POST',
+                                                                    data: {id: id, status: status},
+                                                                    success: function (response) {
+                                                                        if (response === "success") {
+                                                                            location.reload();
+                                                                        } else {
+                                                                            alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+                                                                        }
+                                                                    },
+                                                                    error: function () {
+                                                                        alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+                                                                    }
+                                                                });
+                                                            }
+                                                            function filterUsers() {
+                                                                let status = document.getElementById("statusFilter").value;
+                                                                let url = "userManager?status=" + status;
+                                                                window.location.href = url;
+                                                            }
+        </script>
     </body>
 </html>

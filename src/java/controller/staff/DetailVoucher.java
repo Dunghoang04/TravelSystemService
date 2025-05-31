@@ -3,20 +3,22 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.admin;
+package controller.staff;
 
+import dao.VoucherDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Voucher;
 
 /**
  *
  * @author Hung
  */
-public class TourManagement extends HttpServlet {
+public class DetailVoucher extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,10 +35,10 @@ public class TourManagement extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TourManagement</title>");  
+            out.println("<title>Servlet DetailVoucher</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TourManagement at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet DetailVoucher at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -53,7 +55,21 @@ public class TourManagement extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/admin/AccountManagement.jsp").forward(request, response);
+        String id_raw = request.getParameter("voucherId");
+        try {
+            int id = Integer.parseInt(id_raw);
+            VoucherDAO voucherDao = new VoucherDAO();
+            Voucher voucher = voucherDao.getVoucherById(id);
+            if (voucher == null) {
+                request.setAttribute("erro", "Voucher không tồn tại!");
+            } else {
+                request.setAttribute("voucher", voucher);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        request.getRequestDispatcher("view/Staff/DetailVoucher.jsp").forward(request, response);
     } 
 
     /** 
