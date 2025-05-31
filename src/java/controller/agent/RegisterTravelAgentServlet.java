@@ -110,7 +110,7 @@ public class RegisterTravelAgentServlet extends HttpServlet {
                     firstName, lastName, phone, address, dobStr, representativeIDCard, gender, dateOfIssueStr);
             if (result.equals("success")) {
                 session.invalidate();
-                response.sendRedirect("login.jsp");
+                response.sendRedirect("LoginLogout");
             } else {
                 request.setAttribute("errorMessage", result);
                 request.getRequestDispatcher("view/agent/Register2.jsp").forward(request, response);
@@ -209,6 +209,16 @@ public class RegisterTravelAgentServlet extends HttpServlet {
         if (dateOfIssueStr == null || dateOfIssueStr.trim().isEmpty()) {
             return "Ngày cấp căn cước không được để trống!";
         }
+        
+        if (!lastName.matches("^[\\p{L} ]{2,50}$") || !firstName.matches("^[\\p{L} ]{2,50}$")) {
+            return "Họ và tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!";
+        }
+        
+        if (address.length() < 5 || address.length() > 200) {
+            return "Địa chỉ phải từ 5 đến 200 ký tự!";
+        }
+        
+        
         if (!hotline.matches("^0\\d{9}$") || !phone.matches("^0\\d{9}$")) {
             return "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số. ";
         }   
