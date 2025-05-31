@@ -8,21 +8,19 @@ package model;
  *
  * @author Nhat Anh
  */
-public class TypeRoom {
+public class Room {
     private int roomID;
     private String roomTypes;
     private int numberOfRooms;
-    private int maxOccupancyPerRoom;
     private double priceOfRoom;
 
-    public TypeRoom() {
+    public Room() {
     }
 
-    public TypeRoom(int roomID, String roomTypes, int numberOfRooms, int maxOccupancyPerRoom, double priceOfRoom) {
+    public Room(int roomID, String roomTypes, int numberOfRooms,  double priceOfRoom) {
         this.roomID = roomID;
         this.roomTypes = roomTypes;
         this.numberOfRooms = numberOfRooms;
-        this.maxOccupancyPerRoom = maxOccupancyPerRoom;
         this.priceOfRoom = priceOfRoom;
     }
 
@@ -50,13 +48,7 @@ public class TypeRoom {
         this.numberOfRooms = numberOfRooms;
     }
 
-    public int getMaxOccupancyPerRoom() {
-        return maxOccupancyPerRoom;
-    }
 
-    public void setMaxOccupancyPerRoom(int maxOccupancyPerRoom) {
-        this.maxOccupancyPerRoom = maxOccupancyPerRoom;
-    }
 
     public double getPriceOfRoom() {
         return priceOfRoom;
@@ -68,7 +60,7 @@ public class TypeRoom {
 
     @Override
     public String toString() {
-        return "TypeRoom{" + "roomID=" + roomID + ", roomTypes=" + roomTypes + ", numberOfRooms=" + numberOfRooms + ", maxOccupancyPerRoom=" + maxOccupancyPerRoom + ", priceOfRoom=" + priceOfRoom + '}';
+        return "TypeRoom{" + "roomID=" + roomID + ", roomTypes=" + roomTypes + ", numberOfRooms=" + numberOfRooms + ", priceOfRoom=" + priceOfRoom + '}';
     }
     
     
