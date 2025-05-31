@@ -18,7 +18,7 @@ public class DBContext {
 
     protected Connection connection;
 
-    public DBContext() {
+    public Connection getConnection() {
         //@Students: You are allowed to edit user, pass, url variables to fit 
         //your system configuration
         //You can also add more methods for Database Interaction tasks. 
@@ -34,6 +34,7 @@ public class DBContext {
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return connection;
     }
     
      public boolean isConnected() {

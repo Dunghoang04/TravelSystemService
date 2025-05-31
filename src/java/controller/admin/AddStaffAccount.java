@@ -11,12 +11,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  *
  * @author Hung
  */
-public class TourManagement extends HttpServlet {
+public class AddStaffAccount extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,10 +36,10 @@ public class TourManagement extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TourManagement</title>");  
+            out.println("<title>Servlet AddStaffAccount</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TourManagement at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet AddStaffAccount at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -50,10 +53,34 @@ public class TourManagement extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+   
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/admin/AccountManagement.jsp").forward(request, response);
+        String email = request.getParameter("gmail");
+        String password = request.getParameter("password");
+        String firstName =request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String dob_raw = request.getParameter("dob");
+        String gender = request.getParameter("gender");
+        String address = request.getParameter("address");
+        String phone = request.getParameter("phone");
+        String status_raw = request.getParameter("status");
+        String role_raw = request.getParameter("role");
+        int role = (role_raw.equals("admin"))? 1:2;
+        
+        try{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            Date date = (Date) formatter.parse(dob_raw);
+            int status = Integer.parseInt(status_raw);
+            
+            
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        request.getRequestDispatcher("view/admin/AddStaffAccount.jsp").forward(request, response);
     } 
 
     /** 

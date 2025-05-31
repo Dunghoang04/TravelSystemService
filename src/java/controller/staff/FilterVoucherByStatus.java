@@ -3,20 +3,23 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.admin;
+package controller.staff;
 
+import dao.VoucherDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import model.Voucher;
 
 /**
  *
  * @author Hung
  */
-public class TourManagement extends HttpServlet {
+public class FilterVoucherByStatus extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,10 +36,10 @@ public class TourManagement extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TourManagement</title>");  
+            out.println("<title>Servlet FilterVoucherByStatus</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TourManagement at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet FilterVoucherByStatus at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -53,7 +56,7 @@ public class TourManagement extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/admin/AccountManagement.jsp").forward(request, response);
+        request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
     } 
 
     /** 
@@ -66,7 +69,35 @@ public class TourManagement extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        String status_raw = request.getParameter("status");
+        VoucherDAO voucherDao = new VoucherDAO();
+        ArrayList<Voucher> listVoucher = new ArrayList<>();
+        try {
+            int status = Integer.parseInt(status_raw);
+            request.setAttribute("status", status);
+            if(status==1){
+                listVoucher = voucherDao.getVoucherByStatus(status);
+                request.setAttribute("listVoucher", listVoucher);
+                request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
+                return;
+            }
+            if(status==0){
+                listVoucher = voucherDao.getVoucherByStatus(status);
+                request.setAttribute("listVoucher", listVoucher);
+                request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
+                return;
+            }
+            if(status==2){
+                listVoucher = voucherDao.getAllVoucher();
+                request.setAttribute("listVoucher", listVoucher);
+                request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
+                return;
+            }
+            request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
+            
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
     }
 
     /** 

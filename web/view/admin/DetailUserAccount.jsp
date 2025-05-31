@@ -1,6 +1,6 @@
 <%-- 
-    Document   : DetailAccount
-    Created on : May 23, 2025, 4:35:05 PM
+    Document   : DetailTouristAccount
+    Created on : May 27, 2025, 4:27:02 PM
     Author     : Hung
 --%>
 

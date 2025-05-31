@@ -1,6 +1,11 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
 import dal.DBContext;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,8 +15,9 @@ import model.User;
 
 /**
  *
- * @author ad
+ * @author Hung
  */
+
 public class UserDAO extends DBContext {
 
     public Vector<User> getAllUsers(String sql) {
