@@ -11241,3 +11241,6 @@ body {
 .finduser{
     margin-bottom: 50px;
 }
+#tableList tr.box-button-action a{
+    margin-left: 10px;
+}

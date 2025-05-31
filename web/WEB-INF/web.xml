@@ -42,11 +42,51 @@
     </servlet>
     <servlet>
         <servlet-name>ManagementRestaurant</servlet-name>
-        <servlet-class>controller.agent.ManagementRestaurant</servlet-class>
+        <servlet-class>controller.agent.restaurant.ManagementRestaurant</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ManagementEntertainment</servlet-name>
-        <servlet-class>controller.agent.ManagementEntertainment</servlet-class>
+        <servlet-class>controller.agent.entertainment.ManagementEntertainment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddRestaurant</servlet-name>
+        <servlet-class>controller.agent.restaurant.AddRestaurant</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FindRestaurant</servlet-name>
+        <servlet-class>controller.agent.restaurant.FindRestaurant</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateRestaurant</servlet-name>
+        <servlet-class>controller.agent.restaurant.UpdateRestaurant</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteRestaurant</servlet-name>
+        <servlet-class>controller.agent.restaurant.DeleteRestaurant</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DetailRestaurant</servlet-name>
+        <servlet-class>controller.agent.restaurant.DetailRestaurant</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddEntertainment</servlet-name>
+        <servlet-class>controller.agent.entertainment.AddEntertainment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FindEntertainment</servlet-name>
+        <servlet-class>controller.agent.entertainment.FindEntertainment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteEntertainment</servlet-name>
+        <servlet-class>controller.agent.entertainment.DeleteEntertainment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DetailEntertainment</servlet-name>
+        <servlet-class>controller.agent.entertainment.DetailEntertainment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateEntertainment</servlet-name>
+        <servlet-class>controller.agent.entertainment.UpdateEntertainment</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>adminServlet</servlet-name>
@@ -96,7 +136,53 @@
         <servlet-name>ManagementEntertainment</servlet-name>
         <url-pattern>/managementertainment</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddRestaurant</servlet-name>
+        <url-pattern>/addrestaurant</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FindRestaurant</servlet-name>
+        <url-pattern>/findrestaurant</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateRestaurant</servlet-name>
+        <url-pattern>/updaterestaurant</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteRestaurant</servlet-name>
+        <url-pattern>/deleterestaurant</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DetailRestaurant</servlet-name>
+        <url-pattern>/detailrestaurant</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddEntertainment</servlet-name>
+        <url-pattern>/addentertainment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FindEntertainment</servlet-name>
+        <url-pattern>/findentertainment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteEntertainment</servlet-name>
+        <url-pattern>/deleteentertainment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DetailEntertainment</servlet-name>
+        <url-pattern>/detailentertainment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateEntertainment</servlet-name>
+        <url-pattern>/updateentertainment</url-pattern>
+    </servlet-mapping>
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
+    <multipart-config>
+        <max-file-size>5242880</max-file-size>
+        <!-- 5MB -->
+        <max-request-size>20971520</max-request-size>
+        <!-- 20MB -->
+    </multipart-config>
 </web-app>
