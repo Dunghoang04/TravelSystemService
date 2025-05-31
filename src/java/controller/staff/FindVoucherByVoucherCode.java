@@ -1,18 +1,25 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 
-package controller.agent;
+package controller.staff;
 
+import dao.VoucherDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import model.Voucher;
 
 /**
  *
- * @author ad
+ * @author Hung
  */
-public class ManagementEntertainment extends HttpServlet {
+public class FindVoucherByVoucherCode extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -29,10 +36,10 @@ public class ManagementEntertainment extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ManagementEntertainment</title>");  
+            out.println("<title>Servlet FindVoucherByVoucherCode</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ManagementEntertainment at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet FindVoucherByVoucherCode at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -49,7 +56,7 @@ public class ManagementEntertainment extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/agent/AgentEntertainment.jsp").forward(request, response);
+        request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
     } 
 
     /** 
@@ -62,7 +69,11 @@ public class ManagementEntertainment extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        String voucherCode = request.getParameter("voucherCode");
+        VoucherDAO voucherDao = new VoucherDAO();
+        ArrayList<Voucher> listVoucher = voucherDao.getVoucherByVoucherCode(voucherCode);
+        request.setAttribute("listVoucher", listVoucher);
+        request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
     }
 
     /** 

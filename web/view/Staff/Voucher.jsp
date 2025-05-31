@@ -4,6 +4,7 @@
     Author     : ad
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +27,7 @@
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
+            padding: 10px;
         }
 
         form input, form select, form button {
@@ -86,7 +88,11 @@
             background-color: #f1f1f1;
         }
 
-
+        .badge {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 12px;
+        }
 
 
     </style>
@@ -125,36 +131,44 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Quản lí tài khoản</h1>
+                        <h1 class="mt-4">Quản lí thẻ khuyến mãi</h1>
 
-                        <form action="finduser" method="GET" class="d-flex align-items-center">
-                            <input 
-                                type="text" 
-                                name="name" 
-                                class="form-control me-2 shadow-sm" 
-                                placeholder="Nhập tên người dùng.." 
-                                style="max-width: 300px; border-radius: 20px;" 
-                                />
-                            <button type="submit" class="btn btn-primary d-flex align-items-center px-3" style="border-radius: 20px;">
-                                <i class="bi bi-search me-2"></i> Tìm kiếm
-                            </button>
-                        </form>
-                       
-                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="form-label">Lọc theo trạng thái:</label>
-                                <select class="form-select" name="status" id="statusFilter" onchange="filterUsers()">
-                                    <option value="">-Chọn-</option>
-                                    <option value="1">Hoạt động</option>
-                                    <option value="0">Không hoạt động</option>
-                                    <option value="">Tất cả</option>
-                                </select>
-                            </div>
-                            <a href="adduser">
-                        <button class="btn btn-primary">Thêm tài khoản nhân viên</button>
-                    </a>
+
+                        <div class="mb-3">
+                            <form action="findvoucherbyvouchercode" method="post" >
+                                <input 
+                                    type="text" 
+                                    name="voucherCode" 
+                                    class="form-control shadow-sm" 
+                                    placeholder="Nhập mã thẻ.." 
+                                    style="max-width: 300px; border-radius: 8px;" 
+                                    />
+                                <button type="submit" class="btn btn-primary d-flex align-items-center px-3" style="border-radius: 8px;">
+                                    <i class="fas fa-search me-1"></i> Tìm kiếm
+                                </button>
+                            </form>
                         </div>
-                        
+
+
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <form action="filtervoucherbystatus" method="post" >
+                                <div class="d-flex align-items-center gap-2">
+                                    <label class="form-label mb-0">Lọc theo trạng thái:</label>
+                                    <select class="form-select" name="status" id="statusFilter" onchange="this.form.submit()" style="width: 180px;">
+                                        <option value="2" ${param.status == '2' ? 'selected' : ''}>Tất cả</option>
+                                        <option value="1" ${param.status == '1' ? 'selected' : ''}>Hoạt động</option>
+                                        <option value="0" ${param.status == '0' ? 'selected' : ''}>Không hoạt động</option>
+                                    </select>
+                                </div>
+                            </form>
+
+                            <a href="addvoucher" class="btn btn-success d-flex align-items-center gap-1">
+                                <i class="fas fa-user-plus"></i> Thêm thẻ khuyến mãi
+                            </a>
+                        </div>
+                        <c:if test="${not empty statusError}">
+                            <div class="alert alert-danger">${statusError}</div>
+                        </c:if>
                         <div class="col-xl-12 col-md-6">
 
                             <div class="card-body">
@@ -163,44 +177,52 @@
                                     <thead>
                                         <tr>
                                             <th>Id</th>
+                                            <th>Mã</th>
                                             <th>Tên</th>
-                                            <th>Tài Khoản</th>
-                                            <th>Email</th>
-                                            <th>SĐT</th>
-                                            <th>Giới tính</th>
-                                            <th>Vai Trò</th>
-                                            <th>Ngày tạo</th>
-                                            <th>Ngày sửa</th>
+
+                                            <th>Khuyến mãi</th>
+                                            <th>Tối đa</th>
+                                            <th>Giá tối thiểu</th>
+                                            <th>Ngày bắt đầu</th>
+                                            <th>Ngày kết thúc</th>
+                                            <th>Số lượng</th>
+                                            <th>Trạng thái</th>
                                             <th>Hoạt Động</th>
                                         </tr>
                                     </thead>
-                                    <tr>
-                                        <td>ID</td>
-                                        <td>Name</td>
-                                        <td>Account</td>
-                                        <td>Email</td>
-                                        <td>Phone</td>
-                                        <td>Gender</td>
-                                        <td>Role</td>
-                                        <td>Create at</td>
-                                        <td>Update At</td>
-                                        <td >
-                                            <a href="updateuser?id=${u.id}" class="btn btn-primary btn-sm">
-                                                Cập Nhật <i class="bi bi-pencil-square"></i>
-                                            </a>
+                                    <c:forEach var="v" items="${requestScope.listVoucher}">
+                                        <tr>
+                                            <td>${v.voucherId}</td>
+                                            <td>${v.voucherCode}</td>
+                                            <td>${v.voucherName}</td>                                      
+                                            <td>${v.percentDiscount}%</td>
+                                            <td>${v.maxDiscountAmount}</td>
+                                            <td>${v.minAmountApply}</td>
+                                            <td>${v.startDate}</td>
+                                            <td>${v.endDate}</td>
+                                            <td>${v.quantity}</td>
+                                            <td>${v.status}</td>
+                                            <td >
+                                                <a href="updatevoucher?voucherId=${v.voucherId}" class="btn btn-primary btn-sm">
+                                                    Cập Nhật <i class="bi bi-pencil-square"></i>
+                                                </a>
 
-                                            <a href="detailuser?id=${u.id}" class="btn btn-primary btn-sm">
-                                                Chi Tiết <i class="bi bi-pencil-square"></i>
-                                            </a>
+                                                <a href="detailvoucher?voucherId=${v.voucherId}" class="btn btn-primary btn-sm">
+                                                    Chi Tiết <i class="bi bi-pencil-square"></i>
+                                                </a>
 
-                                            <button class="btn ${u.status == 1 ? 'btn-danger' : 'btn-success'} btn-sm"
-                                                    onclick="changeStatus(${u.id}, ${u.status})">
-                                                ${u.status == 1 ? 'Ẩn' : 'Hiện'} 
-                                                <i class="bi ${u.status == 1 ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
-                                            </button>
+                                                <form action="changestatusvoucher" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="${v.voucherId}" />
+                                                    <input type="hidden" name="status" value="${v.status}" />
+                                                    <button type="submit" class="btn ${v.status == 1 ? 'btn-danger' : 'btn-success'} btn-sm">
+                                                        ${v.status == 1 ? 'Ẩn' : 'Hiện'} 
+                                                        <i class="bi ${v.status == 1 ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                                    </button>
+                                                </form>
 
-                                        </td>
-                                    </tr>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
 
                                 </table>
 
@@ -230,4 +252,5 @@
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="./assets/js/datatables-simple-demo.js"></script>
     </body>
+    
 </html>

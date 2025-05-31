@@ -3,8 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.admin;
+package controller.staff;
 
+import dao.VoucherDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Hung
  */
-public class TourManagement extends HttpServlet {
+public class ChangeStatusVoucher extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,10 +34,10 @@ public class TourManagement extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TourManagement</title>");  
+            out.println("<title>Servlet ChangeStatusVoucher</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TourManagement at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet ChangeStatusVoucher at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -53,7 +54,7 @@ public class TourManagement extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/admin/AccountManagement.jsp").forward(request, response);
+        request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
     } 
 
     /** 
@@ -66,7 +67,23 @@ public class TourManagement extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        int id = Integer.parseInt(request.getParameter("id"));
+        try{
+            int currentStatus = Integer.parseInt(request.getParameter("status"));
+            int newStatus = (currentStatus == 1) ? 0 : 1;
+
+            VoucherDAO dao = new VoucherDAO();
+            boolean updated = dao.changeStatusById(id, newStatus);
+
+            if (updated) {
+                response.sendRedirect("listvoucher");
+            } else {
+                request.setAttribute("statusError", "Không thể cập nhật trạng thái.");
+                request.getRequestDispatcher("listvoucher").forward(request, response);
+        }
+        }catch(NumberFormatException e){
+            e.printStackTrace();
+        }
     }
 
     /** 

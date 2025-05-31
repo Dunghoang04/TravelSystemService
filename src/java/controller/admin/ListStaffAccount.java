@@ -1,20 +1,23 @@
 
 package controller.admin;
 
+
+import dao.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.websocket.Session;
+import java.util.ArrayList;
+import model.User;
+
 
 /**
  *
  * @author ad
  */
-public class adminServlet extends HttpServlet {
+public class ListStaffAccount extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -51,7 +54,10 @@ public class adminServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/admin/UserManagement.jsp").forward(request, response);
+        UserDAO userDao = new UserDAO();
+        ArrayList<User> listStaffAccount = userDao.getStaffAccount();
+        request.setAttribute("listStaffAccount", listStaffAccount);
+        request.getRequestDispatcher("view/admin/StaffAccountManagement.jsp").forward(request, response);
     } 
 
     /** 
