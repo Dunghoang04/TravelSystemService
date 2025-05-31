@@ -1,7 +1,7 @@
 <%-- 
-    Document   : user
-    Created on : May 21, 2025, 2:44:03 PM
-    Author     : ad
+    Document   : AgentHome
+    Created on : May 30, 2025, 8:45:34 AM
+    Author     : Nhat Anh
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -12,6 +12,6 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>user</h1>
+        <h1>Hello World!</h1>
     </body>
 </html>

@@ -132,7 +132,7 @@ public class Voucher {
     public String toString() {
         return "Voucher{" + "voucherId=" + voucherId + ", voucherCode=" + voucherCode + ", voucherName=" + voucherName + ", description=" + description + ", percentDiscount=" + percentDiscount + ", maxDiscountAmount=" + maxDiscountAmount + ", minAmountApply=" + minAmountApply + ", startDate=" + startDate + ", endDate=" + endDate + ", quantity=" + quantity + ", status=" + status + '}';
     }
-
+    
     
     
     

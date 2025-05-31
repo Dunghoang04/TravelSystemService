@@ -5,82 +5,141 @@
 package dao;
 
 import dal.DBContext;
-import java.sql.*;
-import java.util.ArrayList;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Date;
+import java.util.Vector;
 import model.User;
 
 /**
  *
  * @author Hung
  */
-public class UserDAO {
 
-    private Connection conn;
+public class UserDAO extends DBContext {
 
-    public UserDAO() {
-        DBContext con = new DBContext();
-        this.conn = con.getConnection();
+    public Vector<User> getAllUsers(String sql) {
+        Vector<User> listUser = new Vector<>();
+        try (PreparedStatement ptm = connection.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
+            while (rs.next()) {
+                User u = new User(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getDate(6), rs.getString(7), rs.getString(8),
+                        rs.getString(9), rs.getDate(10), rs.getDate(11), rs.getInt(12), rs.getInt(13));
+                listUser.add(u);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return listUser;
     }
 
-    public ArrayList<User> getStaffAccount() {
-        String sql = "Select * from [User] u where u.roleID in(1,2); ";
-        ArrayList<User> list = new ArrayList<>();
-        try {
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                User user = new User();
-                user.setUserID(rs.getInt(1));
-                user.setGmail((rs.getString(2)));
-                user.setPassword(rs.getString(3));
-                user.setFirstName(rs.getString(4));
-                user.setLastName(rs.getString(5));
-                user.setDob(rs.getDate(6));
-                user.setGender(rs.getString(7));
-                user.setAddress(rs.getString(8));
-                user.setPhone(rs.getString(9));
-                user.setCreateDate(rs.getDate(10));
-                user.setUpdateDate((rs.getDate(11)));
-                user.setStatus(rs.getInt(12));
-                user.setRoleID(rs.getInt(13));
-                list.add(user);
+    public void insertUser(User u) {
+        String sql = "INSERT INTO [dbo].[User]\n"
+                + "           ([gmail]\n"
+                + "           ,[password]\n"
+                + "           ,[firstName]\n"
+                + "           ,[lastName]\n"
+                + "           ,[dob]\n"
+                + "           ,[gender]\n"
+                + "           ,[address]\n"
+                + "           ,[phone]\n"
+                + "           ,[create_at]\n"
+                + "           ,[update_at]\n"
+                + "           ,[status]\n"
+                + "           ,[roleID])\n"
+                + "     VALUES\n"
+                + "           (?,?,?,?,?,?,?,?,GETDATE(), GETDATE(),?,?)";
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setString(1, u.getGmail());
+            ptm.setString(2, u.getPassword());
+            ptm.setString(3, u.getFirstName());
+            ptm.setString(4, u.getLastName());
+            ptm.setDate(5, u.getDob());
+            ptm.setString(6, u.getGender());
+            ptm.setString(7, u.getAddress());
+            ptm.setString(8, u.getPhone());
+            ptm.setInt(9, u.getStatus());
+            ptm.setInt(10, u.getRoleID());
+            ptm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateUser(User u) {
+        String sql = "UPDATE [dbo].[User]\n"
+                + "   SET [gmail] = ?\n"
+                + "      ,[password] = ?\n"
+                + "      ,[firstName] = ?\n"
+                + "      ,[lastName] = ?\n"
+                + "      ,[dob] = ?\n"
+                + "      ,[gender] = ?\n"
+                + "      ,[address] = ?\n"
+                + "      ,[phone] = ?\n"
+                + "      ,[update_at] = GETDATE()\n"
+                + "      ,[status] = ?\n"
+                + "      ,[roleID] = ?\n"
+                + " WHERE userID=?";
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setString(1, u.getGmail());
+            ptm.setString(2, u.getPassword());
+            ptm.setString(3, u.getFirstName());
+            ptm.setString(4, u.getLastName());
+            ptm.setDate(5, u.getDob());
+            ptm.setString(6, u.getGender());
+            ptm.setString(7, u.getAddress());
+            ptm.setString(8, u.getPhone());
+            ptm.setInt(9, u.getStatus());
+            ptm.setInt(10, u.getRoleID());
+            ptm.setInt(11, u.getUserID());
+            ptm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isGmailRegister(String gmail) {
+        String sql = "SELECT 1 FROM [User] WHERE gmail = ?";
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setString(1, gmail);
+            ResultSet rs = ptm.executeQuery();
+            return rs.next(); // nếu dòng nào khớp => gmail đã tồn tại 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public User checkLogin(String gmail, String password){
+        String sql = "SELECT * FROM [User] WHERE gmail = ? AND password=?";
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setString(1, gmail);
+            ptm.setString(2, password);
+            ResultSet rs = ptm.executeQuery();
+            if(rs.next()){
+                return new User(rs.getInt("userID"), rs.getString("gmail"), rs.getString("password"),
+                    rs.getString("firstName"), rs.getString("lastName"), rs.getDate("dob"),
+                    rs.getString("gender"), rs.getString("address"), rs.getString("phone"),
+                    rs.getDate("create_at"), rs.getDate("update_at"), rs.getInt("status"),
+                    rs.getInt("roleID"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list;
+        return null;
     }
-
-    public boolean addStaff(String email, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, int status, int roleId) {
-        String sql = "INSERT INTO [User] (gmail, password, firstName, lastName, dob, gender, address, phone, status, roleID) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, email);
-            stmt.setString(2, password);
-            stmt.setString(3, firstName);
-            stmt.setString(4, lastName);
-            stmt.setDate(5, new java.sql.Date(dob.getTime())); 
-            stmt.setString(6, gender);
-            stmt.setString(7, address);
-            stmt.setString(8, phone);
-            stmt.setInt(9, status);
-            stmt.setInt(10, roleId);
-            
-            int check = stmt.executeUpdate();
-            return check>0;
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public static void main(String[] args) {
-        UserDAO userDAO = new UserDAO();
-        ArrayList<User> listUser = userDAO.getStaffAccount();
-        for (User user : listUser) {
-            System.out.println(user);
+       String sql = "SELECT * FROM [User]";
+        UserDAO udao = new UserDAO();
+        
+        Vector<User> list = udao.getAllUsers(sql);
+
+         list = udao.getAllUsers(sql);
+        for (User user : list) {
+             System.out.println(user);
         }
+        
     }
+   
 }

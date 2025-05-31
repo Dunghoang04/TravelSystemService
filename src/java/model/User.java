@@ -11,6 +11,7 @@ import java.sql.Date;
  * @author Nhat Anh
  */
 public class User {
+
     private int userID;
     private String gmail;
     private int roleID;
@@ -30,6 +31,38 @@ public class User {
 
     public User(int userID, String gmail, int roleID, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate, Date updateDate, int status) {
         this.userID = userID;
+        this.gmail = gmail;
+        this.roleID = roleID;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dob = dob;
+        this.gender = gender;
+        this.address = address;
+        this.phone = phone;
+        this.createDate = createDate;
+        this.updateDate = updateDate;
+        this.status = status;
+    }
+
+    public User(int userID, String gmail, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate, Date updateDate, int status, int roleID) {
+        this.userID = userID;
+        this.gmail = gmail;
+        this.roleID = roleID;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dob = dob;
+        this.gender = gender;
+        this.address = address;
+        this.phone = phone;
+        this.createDate = createDate;
+        this.updateDate = updateDate;
+        this.status = status;
+    }
+
+    public User(String gmail, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate, Date updateDate, int status, int roleID) {
+
         this.gmail = gmail;
         this.roleID = roleID;
         this.password = password;
@@ -147,6 +180,8 @@ public class User {
     public void setStatus(int status) {
         this.status = status;
     }
+    
+    
 
     @Override
     public String toString() {

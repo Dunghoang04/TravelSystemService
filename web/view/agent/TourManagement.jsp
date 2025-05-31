@@ -164,7 +164,6 @@
                                             <a href="detailuser?id=${u.id}" class="btn btn-primary btn-sm">
                                                 Chi Tiết <i class="bi bi-pencil-square"></i>
                                             </a>
-
                                             <button class="btn ${u.status == 1 ? 'btn-danger' : 'btn-success'} btn-sm"
                                                     onclick="changeStatus(${u.id}, ${u.status})">
                                                 ${u.status == 1 ? 'Ẩn' : 'Hiện'} 

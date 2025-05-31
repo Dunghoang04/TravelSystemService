@@ -24,7 +24,7 @@
                         <li><a class="dropdown-item" href="#!">Trang cá nhân</a></li>
                         <li><a class="dropdown-item" href="#!">Cài đặt</a></li>
                         <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="#!">Đăng xuất</a></li>
+                        <li><a class="dropdown-item" href="LoginLogout?service=logoutUser">Đăng xuất</a></li>
                     </ul>
                 </li>
             </ul>

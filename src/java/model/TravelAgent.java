@@ -38,6 +38,10 @@ public class TravelAgent extends User{
     }
     
     
+
+    
+    
+
     public TravelAgent(String travelAgentName, String travelAgentAddress, String travelAgentGmail, String hotLine, String taxCode, Date establishmentDate, String representativeIDCard, Date dateOfIssue, int userID, String gmail, int roleID, String password, String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate, Date updateDate, int status) {
         super(userID, gmail, roleID, password, firstName, lastName, dob, gender, address, phone, createDate, updateDate, status);
         this.travelAgentName = travelAgentName;

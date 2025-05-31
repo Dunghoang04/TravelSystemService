@@ -24,3 +24,12 @@ window.addEventListener('DOMContentLoaded', event => {
     }
 
 });
+
+const btnDelete=document.querySelector(".deleteBtn");
+btnDelete.addEventListener("click",(e)=>{
+    const confirmed = confirm("Bạn có chắc chắn muốn xóa?");
+        if (confirmed) {
+            // Nếu đồng ý thì mới chuyển trang
+            window.location.href = btnDelete.href;
+        }
+});
