@@ -1,18 +1,22 @@
 
-package controller.agent;
+package controller.agent.restaurant;
 
+import dao.RestaurantDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import model.Restaurant;
 
 /**
  *
  * @author ad
  */
-public class ManagementRestaurant extends HttpServlet {
+public class FindRestaurant extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -29,10 +33,10 @@ public class ManagementRestaurant extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ManagementRestaurant</title>");  
+            out.println("<title>Servlet FindRestaurant</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ManagementRestaurant at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet FindRestaurant at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -49,7 +53,13 @@ public class ManagementRestaurant extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-       request.getRequestDispatcher("view/agent/AgentRestaurant.jsp").forward(request, response);
+        HttpSession session=request.getSession();
+        String name=request.getParameter("name");
+        RestaurantDAO resDao=new RestaurantDAO();
+        List<Restaurant>listRestaurant=resDao.searchRestaurantByName(name);
+        session.setAttribute("nameSearchRestaurant", name);
+        session.setAttribute("listRes", listRestaurant);
+        request.getRequestDispatcher("view/agent/restaurant/AgentRestaurant.jsp").forward(request, response);
     } 
 
     /** 
@@ -62,7 +72,8 @@ public class ManagementRestaurant extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        
+        
     }
 
     /** 
