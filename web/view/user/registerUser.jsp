@@ -257,7 +257,7 @@
                     <c:if test="${not empty successMessage}">
                         <div class="success">${successMessage}</div>
                     </c:if>
-                    <p>Bạn đã có tài khoản? <a href="Login?service=login">Đăng nhập</a></p>
+                    <p>Bạn đã có tài khoản? <a href="${pageContext.request.contextPath}/LoginLogout">Đăng nhập</a></p>
                 </form>
             </div>
         </div>

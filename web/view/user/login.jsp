@@ -100,7 +100,7 @@
 
             .link {
                 text-align: center;
-                margin-top: 25px;
+                margin-top: 20px;
             }
 
             .link a {
@@ -139,13 +139,16 @@
 
                 .button {
                     flex-direction: column;
+                    
                 }
 
                 .button input{
                     width: 100%;
                     margin-top: 10px;
+                    
                 }
-            }
+                
+                
         </style>
     </head>
     <body>
@@ -168,14 +171,13 @@
 
                     <div class="button">
                         <input class="submit" type="submit" name="submit" value="Đăng nhập">
-
                     </div>
-                    <c:if test="${not empty error}">
-                        <div style="color: red; text-align: center; margin-bottom: 15px;">
-                            ${error}
-                        </div>
-                    </c:if>
                 </form>
+                <c:if test="${not empty error}">
+                    <div class="err" style="color: red; text-align: center;margin-top: 15px;">
+                        ${error}
+                    </div>
+                </c:if>
 
                 <!-- Liên kết -->
                 <div class="link">

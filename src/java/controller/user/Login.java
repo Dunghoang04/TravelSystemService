@@ -64,6 +64,7 @@ public class Login extends HttpServlet {
                 int role = u.getRoleID(); // Lấy vai trò người dùng
                 session.setAttribute("gmail", gmail);
 
+
                 // Điều hướng theo vai trò
                 switch (role) {
                     case 1:
@@ -79,6 +80,7 @@ public class Login extends HttpServlet {
                         TravelAgent a = aDAO.searchByTravelAgentGmail(gmail);
                         session.setAttribute("agent", a);
                         response.sendRedirect(request.getContextPath() + "/ManageTravelAgentProfile");
+
                         break;
                     default:
                         response.sendRedirect(request.getContextPath() + "/home");
@@ -96,8 +98,8 @@ public class Login extends HttpServlet {
             if (session != null) {
                 session.invalidate();
             }
-
             response.sendRedirect(request.getContextPath() + "/home");
+
             return;
         }
     }
