@@ -41,7 +41,7 @@ public class ManageTravelAgentProfile extends HttpServlet {
         HttpSession session = request.getSession();
         String gmail = (String) session.getAttribute("gmail");
         if (gmail == null) {
-            response.sendRedirect("LoginLogoutServlet?service=loginUser");
+            response.sendRedirect("LoginLogout?service=loginUser");
             return;
         }
 

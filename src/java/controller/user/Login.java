@@ -4,6 +4,7 @@
  */
 package controller.user;
 
+import dao.TravelAgentDAO;
 import dao.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
+import model.TravelAgent;
 
 /**
  *
@@ -36,6 +38,7 @@ public class Login extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession(true);
         UserDAO uDAO = new UserDAO();
+        TravelAgentDAO aDAO = new TravelAgentDAO();
         String service = request.getParameter("service");
         if (service == null) {
             // Hiển thị trang login nếu không có service
@@ -46,7 +49,6 @@ public class Login extends HttpServlet {
         if (service.equals("loginUser")) {
             String gmail = request.getParameter("gmail");
             String password = request.getParameter("password");
-            
 
             String error = validate(gmail, password);
             if (error != null) {
@@ -60,6 +62,8 @@ public class Login extends HttpServlet {
             if (u != null) {
                 session.setAttribute("loginUser", u);
                 int role = u.getRoleID(); // Lấy vai trò người dùng
+                session.setAttribute("gmail", gmail);
+
 
                 // Điều hướng theo vai trò
                 switch (role) {
@@ -73,34 +77,42 @@ public class Login extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/home");
                         break;
                     case 4:
-                        response.sendRedirect(request.getContextPath() + "/agent/home.jsp");
+                        TravelAgent a = aDAO.searchByTravelAgentGmail(gmail);
+                        session.setAttribute("agent", a);
+                        response.sendRedirect(request.getContextPath() + "/ManageTravelAgentProfile");
+
                         break;
                     default:
                         response.sendRedirect(request.getContextPath() + "/home");
                 }
                 return;
-            }else{
+            } else {
                 request.setAttribute("error", "Email hoặc mật khẩu không đúng!");
                 request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
                 return;
             }
         }
-        
-        
-        if(service.equals("logoutUser")){
-            session= request.getSession(false);
-            if(session!=null){
+
+        if (service.equals("logoutUser")) {
+            session = request.getSession(false);
+            if (session != null) {
                 session.invalidate();
             }
-            
-            response.sendRedirect(request.getContextPath()+"/home");
+            response.sendRedirect(request.getContextPath() + "/home");
+
             return;
         }
     }
-    public String validate(String gmail, String password){
-        if(gmail == null || gmail.trim().isEmpty()|| password == null || password.trim().isEmpty()){
-            return  "Vui lòng điền đầy đủ thông tin!";
+
+    public String validate(String gmail, String password) {
+        if (gmail == null || gmail.trim().isEmpty()) {
+            return "Vui lòng điền gmail!";
         }
+
+        if (password == null || password.trim().isEmpty()) {
+            return "Vui lòng điền password!";
+        }
+
         return null;
     }
 

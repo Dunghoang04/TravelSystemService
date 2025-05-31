@@ -298,9 +298,11 @@ public class TravelAgentDAO extends DBContext {
     public static void main(String[] args) {
         TravelAgentDAO dao = new TravelAgentDAO();
         //dao.updateTravelAgent(new TravelAgent("sdfnlqw", "sdn qwl", "jd@gmail.com", "0984383828", "0984383828", Date.valueOf("2025-05-23"), "098438382804", Date.valueOf("2025-05-23"), 3, "234@fpt.edu.vn", 4, "sdfjkqf", "Hoang", "Lan", Date.valueOf("2025-05-23"), "Nam", "sjkqn", "0928192912", Date.valueOf("2025-05-23"), Date.valueOf("2025-05-23"), 2));
-        TravelAgent a = dao.searchByTravelAgentGmail("234@fpt.edu.vn");
+        /*TravelAgent a = dao.searchByTravelAgentGmail("234@fpt.edu.vn");
         a.setLastName("sjkdqw kslfnw lkasndq kwfnq");
         a.setHotLine("0000000001");
-        dao.updateTravelAgent(a);
+        dao.updateTravelAgent(a);*/
+        TravelAgent b = dao.searchByTravelAgentGmail("manvqhe186816@fpt.edu.vn");
+        System.out.println(b);
     }
 }

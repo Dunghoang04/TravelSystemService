@@ -153,7 +153,13 @@
         .error, .success {
             text-align: center;
             font-size: 14px;
-            margin-top: 10px;
+            margin: 0; /* Loại bỏ margin mặc định để không đẩy bảng */
+            padding-top: 20px;
+            width: 70%; /* Giữ độ rộng khớp với bảng */
+            margin-left: auto; /* Căn giữa */
+            margin-right: auto; /* Căn giữa */
+            position: relative; /* Định vị tương đối */
+            top: 0; /* Đặt trên cùng */
         }
 
         .error {
@@ -190,183 +196,201 @@
                 <div id="layoutSidenav_content">
                     <main>                        
                         <div class="container-fluid px-4">
-
-                            <form id="registerForm" action="${pageContext.request.contextPath}/ManageTravelAgentProfile" method="POST" >
+                            <form id="registerForm" action="${pageContext.request.contextPath}/ManageTravelAgentProfile" method="POST">
                             <input type="hidden" name="service" value="save">
-
+                            <c:if test="${not empty requestScope.error}">
+                                <p class="error">${requestScope.error}</p>
+                            </c:if>
+                            <c:if test="${not empty requestScope.success}">
+                                <p class="success">${requestScope.success}</p>
+                            </c:if>
                             <table style="margin-top: 30px">
-                                <thead>
                                 <thead>
                                     <tr>
                                         <th colspan="2" style="text-align:center; font-size:18px; color:#28A745;">Thông tin đại lý du lịch</th>
                                     </tr>
                                 </thead>
-                                </thead>
                                 <tbody>
-                                    <tr >
-                                        <td colspan="2"><div class="form-group">
-                                                <label for="travelAgentName">Tên công ty:</label>
-                                                <input class="input" type="text" id="travelAgentName" name="travelAgentName" value="${sessionScope.agent.travelAgentName}" placeholder=""  required readonly="">
-                                            </div></td>
-
-
-                                    </tr>
                                     <tr>
-                                        <td><div class="form-group">
-                                                <label for="travelAgentEmail">Email:</label>
-                                                <input class="input" type="email" id="travelAgentEmail" name="travelAgentEmail" value="${sessionScope.agent.travelAgentEmail}" placeholder=""  required >
-                                            </div></td>
-                                        <td><div class="form-group">
-                                                <label for="hotLine">Số HotLine:</label>
-                                                <input class="input" type="tel" id="hotLine" name="hotLine" value="${sessionScope.agent.hotLine}" pattern="[0-9]{10}"  required>
-                                            </div></td>
-                                    </tr>                    
-                                    <tr >
                                         <td colspan="2">
                                             <div class="form-group">
-                                                <label for="address">Địa chỉ:</label>
-                                                <input class="input" type="text" id="address" name="address" value="${sessionScope.agent.address}"  required>
+                                                <label for="travelAgentName">Tên công ty:</label>
+                                                <input class="input" type="text" id="travelAgentName" name="travelAgentName" value="${sessionScope.agent.travelAgentName}" placeholder="" required readonly="">
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><div class="form-group">
+                                        <td>
+                                            <div class="form-group">
+                                                <label for="travelAgentEmail">Email:</label>
+                                                <input class="input" type="email" id="travelAgentEmail" name="travelAgentEmail" value="${sessionScope.agent.travelAgentGmail}" placeholder="" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
+                                                <label for="hotLine">Số HotLine:</label>
+                                                <input class="input" type="tel" id="hotLine" name="hotLine" value="${sessionScope.agent.hotLine}" pattern="[0-9]{10}" required>
+                                            </div>
+                                        </td>
+                                    </tr>                    
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="form-group">
+                                                <label for="address">Địa chỉ:</label>
+                                                <input class="input" type="text" id="address" name="address" value="${sessionScope.agent.travelAgentAddress}" required>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-group">
                                                 <label for="establishmentDate">Ngày thành lập:</label>
                                                 <input class="input" type="date" id="establishmentDate" name="establishmentDate" value="${sessionScope.agent.establishmentDate}" required readonly="">
-                                            </div></td>
-                                        <td><div class="form-group">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
                                                 <label for="taxCode">Mã số thuế:</label>
                                                 <input class="input" type="text" id="taxCode" name="taxCode" placeholder="" value="${sessionScope.agent.taxCode}" required readonly="">
-                                            </div></td>
-
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
 
                             <table>
-                                <thead>
                                 <thead>
                                     <tr>
                                         <th colspan="2" style="text-align:center; font-size:18px; color:#28A745;">Người đại diện</th>
                                     </tr>
                                 </thead>
-                                </thead>
                                 <tbody>
                                     <tr>
-                                        <td><div class="form-group">
-                                                <label for="representativeFirstName">Họ:</label>
-                                                <input class="input" type="text" id="representativeFirstName" name="representativeFirstName" value="${sessionScope.agent.representativeFirstName}" placeholder=""  required >
-                                            </div></td>
-                                        <td><div class="form-group">
-                                                <label for="representativeLastName">Tên:</label>
-                                                <input class="input" type="text" id="representativeLastName" name="representativeLastName" value="${sessionScope.agent.representativeLastName}" placeholder=""  required>
-                                            </div></td>
-                                    </tr>
-                                    <tr><td><div class="form-group">
-                                                <label for="email">Email:</label>
-                                                <input class="input" type="email" id="email" name="email" placeholder=""  value="${sessionScope.agent.email != null ? sessionScope.agent.email : ''}" readonly>
-                                            </div></td>
-                                        <td><div class="form-group">
-                                                <label for="representativePhone">Số điện thoại:</label>
-                                                <input class="input" type="tel" id="representativePhone" name="representativePhone" value="${sessionScope.agent.representativePhone}" pattern="[0-9]{10}"  required>
-                                            </div></td>
-                                    </tr>
-                                    <tr >
-                                        <td colspan="2">
+                                        <td>
                                             <div class="form-group">
-                                                <label for="representativeAddress">Địa chỉ:</label>
-                                                <input class="input" type="text" id="representativeAddress" name="representativeAddress" value="${sessionScope.agent.representativeAddress}" required>
+                                                <label for="representativeFirstName">Họ:</label>
+                                                <input class="input" type="text" id="representativeFirstName" name="representativeFirstName" value="${sessionScope.agent.firstName}" placeholder="" required>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
+                                                <label for="representativeLastName">Tên:</label>
+                                                <input class="input" type="text" id="representativeLastName" name="representativeLastName" value="${sessionScope.agent.lastName}" placeholder="" required>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><div class="form-group">
+                                        <td>
+                                            <div class="form-group">
+                                                <label for="email">Email:</label>
+                                                <input class="input" type="email" id="email" name="email" value="${sessionScope.agent.gmail != null ? sessionScope.agent.gmail : ''}" readonly>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
+                                                <label for="representativePhone">Số điện thoại:</label>
+                                                <input class="input" type="tel" id="representativePhone" name="representativePhone" value="${sessionScope.agent.phone}" pattern="[0-9]{10}" required>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="form-group">
+                                                <label for="representativeAddress">Địa chỉ:</label>
+                                                <input class="input" type="text" id="representativeAddress" name="representativeAddress" value="${sessionScope.agent.address}" required>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-group">
                                                 <label for="dob">Ngày sinh:</label>
                                                 <input class="input" type="date" id="dob" name="dob" value="${sessionScope.agent.dob}" required>
-                                            </div></td>
-                                        <td ><div class="form-group" >
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
                                                 <label>Giới tính:</label>
                                                 <div style="display: flex;justify-content: space-around">
-                                                    <div><input  type="radio" id="male" name="gender" value="Nam" ${sessionScope.agent.gender eq 'Nam' || sessionScope.agent.gender == null ? 'checked' : ''} >Nam</div>
+                                                    <div><input type="radio" id="male" name="gender" value="Nam" ${sessionScope.agent.gender eq 'Nam' || sessionScope.agent.gender == null ? 'checked' : ''}>Nam</div>
                                                     <div><input type="radio" id="female" name="gender" value="Nữ" ${sessionScope.agent.gender eq 'Nữ' ? 'checked':''}>Nữ</div>
                                                 </div>
                                             </div>
                                         </td>
                                     </tr>
-
                                     <tr>
-
-                                        <td ><div class="form-group">
+                                        <td>
+                                            <div class="form-group">
                                                 <label for="representativeIDCard">Số căn cước công dân:</label>
-                                                <input class="input" type="idCard" id="representativeIDCard" name="representativeIDCard" value="${sessionScope.agent.representativeIDCard}" required readonly=""></div>
+                                                <input class="input" type="idCard" id="representativeIDCard" name="representativeIDCard" value="${sessionScope.agent.representativeIDCard}" required readonly="">
+                                            </div>
                                         </td>
-                                        <td><div class="form-group">
+                                        <td>
+                                            <div class="form-group">
                                                 <label for="dateOfIssue">Ngày cấp:</label>
-                                                <input class="input" type="date" id="dateOfIssue" name="dateOfIssue" value="${sessionScope.agent.dateOfIssue}" required >
-                                            </div></td>
+                                                <input class="input" type="date" id="dateOfIssue" name="dateOfIssue" value="${sessionScope.agent.dateOfIssue}" required>
+                                            </div>
+                                        </td>
                                     </tr>
-
-
                                 </tbody>
                             </table>
+
                             <table>
-                                <thead>
                                 <thead>
                                     <tr>
                                         <th colspan="2" style="text-align:center; font-size:18px; color:#28A745;">Thông tin tài khoản</th>
                                     </tr>
                                 </thead>
-                                </thead>
                                 <tbody>
                                     <tr>
-                                        <td><div class="form-group">
+                                        <td>
+                                            <div class="form-group">
                                                 <label for="email">Email:</label>
-                                                <input class="input" type="email" id="email" name="email" placeholder=""  value="${sessionScope.agent.email != null ? sessionScope.agent.email : ''}" readonly>
-                                            </div></td>
-                                        <td><div class="form-group">
+                                                <input class="input" type="email" id="email" name="email" placeholder="" value="${sessionScope.agent.gmail != null ? sessionScope.agent.gmail : ''}" readonly>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
                                                 <label for="password">Mật khẩu</label>
-                                                <input class="input" style="padding-right: 40px" type="password" id="password" name="password" placeholder=""  value="${sessionScope.agent.password != null ? sessionScope.agent.password : ''}" >
+                                                <input class="input" style="padding-right: 40px" type="password" id="password" name="password" placeholder="" value="${sessionScope.agent.password != null ? sessionScope.agent.password : ''}">
                                                 <span class="toggle-password"><i class="fas fa-eye"></i></span>
-                                            </div></td>
+                                            </div>
+                                        </td>
                                     </tr>
-
+                                </tbody>
                             </table>
-                            <button class="button" type="submit" formaction="${pageContext.request.contextPath}/UpdateTravelAgentProfileServlet">Lưu thông tin</button>
-
+                            <button class="button" type="submit" formaction="${pageContext.request.contextPath}/ManageTravelAgentProfile">Lưu thông tin</button>
                         </form>
-
                     </div>
+                </main>
             </div>
-        </main>
+        </div>
+        <script>
+            // Lấy tất cả các phần tử có class toggle-password
+            const togglePasswordButtons = document.querySelectorAll(".toggle-password");
 
-    </div>
-</div>
-<script>
-    // Lấy tất cả các phần tử có class toggle-password
-    const togglePasswordButtons = document.querySelectorAll(".toggle-password");
-
-    togglePasswordButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            // Tìm input gần nhất trong cùng một form-group
-            const passwordInput = button.previousElementSibling;
-            // Chuyển đổi giữa type="password" và type="text"
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                button.innerHTML = '<i class="fas fa-eye-slash"></i>';
-            } else {
-                passwordInput.type = "password";
-                button.innerHTML = '<i class="fas fa-eye"></i>';
-            }
-        });
-    });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="./assets/js/scripts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-<script src="./assets/demo/chart-area-demo.js"></script>
-<script src="./assets/demo/chart-bar-demo.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-<script src="./assets/js/datatables-simple-demo.js"></script>
-</body>
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    // Tìm input gần nhất trong cùng một form-group
+                    const passwordInput = button.previousElementSibling;
+                    // Chuyển đổi giữa type="password" và type="text"
+                    if (passwordInput.type === "password") {
+                        passwordInput.type = "text";
+                        button.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    } else {
+                        passwordInput.type = "password";
+                        button.innerHTML = '<i class="fas fa-eye"></i>';
+                    }
+                });
+            });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="./assets/js/scripts.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+        <script src="./assets/demo/chart-area-demo.js"></script>
+        <script src="./assets/demo/chart-bar-demo.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <script src="./assets/js/datatables-simple-demo.js"></script>
+    </body>
 </html>
 
