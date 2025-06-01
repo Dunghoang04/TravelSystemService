@@ -244,7 +244,7 @@
                                                 const provinceSelect = document.getElementById('province');
                                                 data.forEach(province => {
                                                     let opt = document.createElement('option');
-                                                    opt.value = province.code;
+                                                    opt.value = province.name;
                                                     opt.textContent = province.name;
                                                     provinceSelect.appendChild(opt);
                                                 });

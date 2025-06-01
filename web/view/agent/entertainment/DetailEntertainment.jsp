@@ -160,26 +160,7 @@
                                 </div>
 
                                 <div class="col-12 rate">
-                                    <b class="mb-1">Loại hình</b>
-                                    <c:if test="${requestScope.entertainmentDetail.getType()=='5 sao'}">
-                                        <div class="star">
-                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </c:if>
-                                    <c:if test="${requestScope.entertainmentDetail.getType()=='4 sao'}">
-                                        <div class="star">
-                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </c:if>
-                                    <c:if test="${requestScope.entertainmentDetail.getType()=='3 sao'}">
-                                        <div class="star">
-                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                            <i class="fa-solid fa-star"></i>
-                                        </div>
-                                    </c:if>
+                                    <h3>Loại hình <span >${requestScope.entertainmentDetail.getType()}</span></h3>
                                 </div>
 
                                 <div class="col-12 address">
