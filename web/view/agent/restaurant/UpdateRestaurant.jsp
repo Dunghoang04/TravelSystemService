@@ -225,7 +225,7 @@
                                         </div>
                                         <br>
                                         <div class="d-flex justify-content-end">
-                                            <button type="submit" class="btn btn-info me-2" name="action" value="Cập nhập">Cập nha</button>
+                                            <button type="submit" class="btn btn-info me-2" name="action" value="Cập nhập">Cập nhập</button>
                                             <button type="button" class="btn btn-danger caceladd" data-bs-dismiss="modal" aria-label="Close">Huỷ bỏ</button>
                                         </div>
 

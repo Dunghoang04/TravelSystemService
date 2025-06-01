@@ -270,7 +270,7 @@
 
                                         <br>
                                         <div class="d-flex justify-content-end">
-                                            <button type="submit" class="btn btn-info me-2" name="action" value="update">Cập nhật dịch vụ giải trí</button>
+                                            <button type="submit" class="btn btn-info me-2" name="action" value="update">Cập nhập</button>
                                             <button type="button" class="btn btn-danger caceladd" data-bs-dismiss="modal" aria-label="Close">Huỷ bỏ</button>
                                         </div>
                                     </form>
