@@ -1,0 +1,423 @@
+/*
+ * Click https://netbeans.org/project/licenses/ to change this license
+ * Click https://netbeans.org/features/ to edit this template
+ */
+/*
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService
+ * Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Quynh Mai         First implementation
+ */
+package controller.agent;
+
+import dao.ITravelAgentDAO;
+import dao.TravelAgentDAO;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import model.TravelAgent;
+import service.EmailSender;
+
+/**
+ * RegisterTravelAgentServlet handles the registration process for travel agents.
+ * This servlet processes multi-step registration including file uploads and data validation.
+ * It handles exceptions thrown from the DAO layer and forwards errors to view/common/error.jsp.
+ * The registration is split into two steps: email/password validation and agent details with file uploads.
+ * <p>Bugs: Potential issues with file upload failures or email sending timeouts not fully handled
+ * @author Quynh Mai
+ */
+@WebServlet(name = "RegisterTravelAgentServlet", urlPatterns = {"/RegisterTravelAgentServlet"})
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB threshold
+        maxFileSize = 1024 * 1024 * 10,      // 10MB max file size
+        maxRequestSize = 1024 * 1024 * 50    // 50MB max request size
+)
+public class RegisterTravelAgentServlet extends HttpServlet {
+
+    private static final String UPLOAD_DIR = "assets/img/registerAgent"; // Directory for uploaded files
+    private ITravelAgentDAO travelAgentDAO = new TravelAgentDAO(); // DAO instance with interface
+    private HttpSession session;    
+    /**
+     * Handles the HTTP GET method.
+     * Initializes session and forwards to the first registration step (register1.jsp).
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        session = request.getSession(); // Initialize session
+        try {
+            request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response); // Forward to registration step 1
+        } catch (Exception e) {
+            request.setAttribute("errorMessage", "Error loading registration page: " + e.getMessage()); // Set error message
+            request.getRequestDispatcher("view/common/error.jsp").forward(request, response); // Forward to error page
+        }
+    }
+    
+
+    /**
+     * Handles the HTTP POST method.
+     * Processes multi-step registration based on the 'service' parameter (step1 or addAgent).
+     * Manages file uploads, data validation, database insertion, and email notification.
+     * Checks session validity only for step 2 to ensure data from step 1 is still valid.
+     *
+     * @param request servlet request containing service parameters and uploaded files
+     * @param response servlet response to send back to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        session = request.getSession(); // Initialize session
+        String service = request.getParameter("service");
+
+        try {
+            if ("step1".equals(service)) {
+                // Process step 1 of registration (email and password)
+                String email = request.getParameter("email").trim();
+                String password = request.getParameter("password").trim();
+                String confirmPassword = request.getParameter("confirmPassword").trim();
+                String result = processStep1(email, password, confirmPassword);
+
+                if (result.equals("success")) {
+                    session.setAttribute("email", email); // Store email in session
+                    session.setAttribute("password", password); // Store password in session
+                    response.sendRedirect("view/agent/register2.jsp"); // Redirect to step 2
+                } else {
+                    request.setAttribute("errorMessage", result); // Set error message if validation fails
+                    request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response);
+                }
+            } else if ("addAgent".equals(service)) {
+                // Check session validity for step 2
+                String email = (String) session.getAttribute("email");
+                if (email == null) {
+                    request.setAttribute("errorMessage", "Phiên đăng ký hết hạn. Vui lòng nhập lại email."); // Use errorMessage to match JSP
+                    request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response); // Forward to register1 with error
+                    return;
+                }
+
+                // Process step 2 of registration (agent details and file uploads)
+                String appPath = request.getServletContext().getRealPath(""); // Get application path
+                String savePath = appPath + File.separator + UPLOAD_DIR; // Construct save path
+                File fileSaveDir = new File(savePath);
+                if (!fileSaveDir.exists()) {
+                    fileSaveDir.mkdir(); // Create directory if it doesn't exist
+                }
+
+                // Check if request is multipart
+                String contentType = request.getContentType();
+                if (contentType == null || !contentType.toLowerCase().startsWith("multipart/")) {
+                    request.setAttribute("errorMessage", "Yêu cầu không chứa dữ liệu multipart. Vui lòng chọn file và gửi lại!");
+                    request.getRequestDispatcher("view/agent/register2.jsp").forward(request, response);
+                    return;
+                }
+
+                // Retrieve or initialize uploaded files map from session
+                @SuppressWarnings("unchecked")
+                Map<String, String> uploadedFiles = (Map<String, String>) session.getAttribute("uploadedFiles");
+                if (uploadedFiles == null) {
+                    uploadedFiles = new HashMap<>(); // Initialize map for uploaded files
+                }
+
+                // Process uploaded files
+                for (Part part : request.getParts()) {
+                    String fileName = extractFileName(part); // Extract file name
+                    if (fileName != null && !fileName.isEmpty()) {
+                        String filePath = savePath + File.separator + fileName; // Construct full file path
+                        part.write(filePath); // Save file to disk
+                        if (part.getName().equals("businessLicense")) {
+                            uploadedFiles.put("businessLicensePath", UPLOAD_DIR + "/" + fileName); // Store business license path
+                        } else if (part.getName().equals("frontIDCard")) {
+                            uploadedFiles.put("frontIDCardPath", UPLOAD_DIR + "/" + fileName); // Store front ID card path
+                        } else if (part.getName().equals("backIDCard")) {
+                            uploadedFiles.put("backIDCardPath", UPLOAD_DIR + "/" + fileName); // Store back ID card path
+                        }
+                    }
+                }
+                session.setAttribute("uploadedFiles", uploadedFiles); // Store uploaded file paths
+
+                String businessLicensePath = uploadedFiles.get("businessLicensePath");
+                String frontIDCardPath = uploadedFiles.get("frontIDCardPath");
+                String backIDCardPath = uploadedFiles.get("backIDCardPath");
+
+                if (businessLicensePath == null || frontIDCardPath == null || backIDCardPath == null) {
+                    request.setAttribute("errorMessage", "Vui lòng tải lên đầy đủ các file hình ảnh!");
+                    request.getRequestDispatcher("view/agent/register2.jsp").forward(request, response);
+                    return;
+                }
+
+                // Extract form data
+                String travelAgentName = request.getParameter("travelAgentName").trim();
+                String travelAgentEmail = request.getParameter("travelAgentEmail").trim();
+                String hotline = request.getParameter("hotLine").trim();
+                String travelAgentAddress = request.getParameter("address").trim();
+                String establishmentDateStr = request.getParameter("establishmentDate");
+                String taxCode = request.getParameter("taxCode").trim();
+                String firstName = request.getParameter("representativeFirstName").trim();
+                String lastName = request.getParameter("representativeLastName").trim();
+                String phone = request.getParameter("representativePhone").trim();
+                String address = request.getParameter("representativeAddress").trim();
+                String dobStr = request.getParameter("dob");
+                String representativeIDCard = request.getParameter("representativeIDCard").trim();
+                String gender = request.getParameter("gender").trim();
+                String dateOfIssueStr = request.getParameter("dateOfIssue");
+                email = (String) session.getAttribute("email");
+                String password = (String) session.getAttribute("password");
+
+                // Convert dates
+                Date establishmentDate = Date.valueOf(establishmentDateStr); // Convert establishment date
+                Date dob = Date.valueOf(dobStr); // Convert date of birth
+                Date dateOfIssue = Date.valueOf(dateOfIssueStr); // Convert date of issue
+                LocalDate currentDate = LocalDate.now();
+                TravelAgent travelAgent = new TravelAgent(
+                        travelAgentName,
+                        travelAgentAddress,
+                        travelAgentEmail,
+                        hotline,
+                        taxCode,
+                        establishmentDate,
+                        representativeIDCard,
+                        dateOfIssue,
+                        frontIDCardPath,
+                        backIDCardPath,
+                        businessLicensePath,
+                        0, // userID
+                        email,
+                        4, // roleID
+                        password,
+                        firstName,
+                        lastName,
+                        dob,
+                        gender,
+                        address,
+                        phone,
+                        Date.valueOf(currentDate),
+                        Date.valueOf(currentDate),
+                        2 // status: pending approval
+                );
+
+                // Process step 2
+                String result = processStep2(travelAgent, savePath);
+                if (result.equals("success")) {
+                    session.invalidate(); // Clear session on success
+                    request.setAttribute("successMessage", "Đăng ký thành công! Vui lòng chờ duyệt trong 48h.");
+                    request.getRequestDispatcher("view/agent/register2.jsp").forward(request, response);
+                } else {
+                    request.setAttribute("errorMessage", result); // Set error message if validation fails
+                    session.setAttribute("travelAgentName", travelAgentName);
+                    session.setAttribute("travelAgentEmail", travelAgentEmail);
+                    session.setAttribute("hotline", hotline);
+                    session.setAttribute("travelAgentAddress", travelAgentAddress);
+                    session.setAttribute("establishmentDate", establishmentDateStr);
+                    session.setAttribute("taxCode", taxCode);
+                    session.setAttribute("firstName", firstName);
+                    session.setAttribute("lastName", lastName);
+                    session.setAttribute("phone", phone);
+                    session.setAttribute("address", address);
+                    session.setAttribute("dob", dobStr);
+                    session.setAttribute("representativeIDCard", representativeIDCard);
+                    session.setAttribute("gender", gender);
+                    session.setAttribute("dateOfIssue", dateOfIssueStr);
+                    request.getRequestDispatcher("view/agent/register2.jsp").forward(request, response);
+                }
+            } else {
+                response.sendRedirect("view/agent/register1.jsp"); // Redirect to step 1 if service is invalid
+            }
+        } catch (SQLException e) {
+            request.setAttribute("errorMessage", "Database error during registration: " + e.getMessage()); // Set SQL error message
+            request.getRequestDispatcher("view/common/error.jsp").forward(request, response); // Forward to error page
+        } catch (Exception e) {
+            request.setAttribute("errorMessage", "Error processing registration: " + e.getMessage()); // Set general error message
+            request.getRequestDispatcher("view/common/error.jsp").forward(request, response); // Forward to error page
+        }
+    }
+
+    /**
+     * Processes step 1 of registration (email and password validation).
+     * Validates email format, uniqueness, and password requirements.
+     *
+     * @param email User email
+     * @param password User password
+     * @param confirmPassword Password confirmation
+     * @return "success" if valid, error message otherwise
+     * @throws SQLException if database operation fails
+     */
+    private String processStep1(String email, String password, String confirmPassword) throws SQLException {
+        // Validate email
+        if (email == null || email.trim().isEmpty()) {
+            return "Email không được để trống!"; // Check if email is empty
+        }
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@(gmail\\.com|[a-zA-Z0-9.-]+\\.(com|net|org|vn|edu|edu\\.vn|ac\\.vn))$")) {
+            return "Chỉ chấp nhận email hợp lệ như @gmail.com, @abc.edu, @company.com..."; // Validate email format
+        }
+        if (travelAgentDAO.isEmailExists(email)) {
+            return "Email đã được sử dụng!"; // Check email uniqueness
+        }
+
+        // Validate password
+        if (password == null || password.trim().isEmpty() || confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            return "Mật khẩu không được để trống!"; // Check if password fields are empty
+        }
+        if (!password.equals(confirmPassword)) {
+            return "Mật khẩu không khớp!"; // Check password match
+        }
+        String passwordRegex = "^[A-Z](?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={}:\";'<>?,./]).{7,}$";
+        if (!password.matches(passwordRegex)) {
+            return "Mật khẩu phải bắt đầu bằng chữ hoa, chứa ít nhất 1 chữ thường, 1 số, 1 ký tự đặc biệt và có ít nhất 8 ký tự!"; // Validate password format
+        }
+        return "success"; // Return success if all validations pass
+    }
+
+    /**
+     * Processes step 2 of registration (agent details and file validation).
+     * Validates agent details, checks uniqueness, and inserts into database with email notification.
+     *
+     * @param travelAgent TravelAgent object with details
+     * @param savePath Path to save uploaded files
+     * @return "success" if valid, error message otherwise
+     * @throws SQLException if database operation fails
+     */
+    private String processStep2(TravelAgent travelAgent, String savePath) throws SQLException, MessagingException, IOException {
+        // Validate TravelAgent
+        if (travelAgent.getTravelAgentName() == null || travelAgent.getTravelAgentName().trim().isEmpty()
+                || travelAgent.getTravelAgentGmail() == null || travelAgent.getTravelAgentGmail().trim().isEmpty()
+                || travelAgent.getHotLine() == null || travelAgent.getHotLine().trim().isEmpty()
+                || travelAgent.getTravelAgentAddress() == null || travelAgent.getTravelAgentAddress().trim().isEmpty()
+                || travelAgent.getEstablishmentDate() == null || travelAgent.getTaxCode() == null || travelAgent.getTaxCode().trim().isEmpty()
+                || travelAgent.getFirstName() == null || travelAgent.getFirstName().trim().isEmpty()
+                || travelAgent.getLastName() == null || travelAgent.getLastName().trim().isEmpty()
+                || travelAgent.getPhone() == null || travelAgent.getPhone().trim().isEmpty()
+                || travelAgent.getAddress() == null || travelAgent.getAddress().trim().isEmpty()
+                || travelAgent.getDob() == null || travelAgent.getRepresentativeIDCard() == null || travelAgent.getRepresentativeIDCard().trim().isEmpty()
+                || travelAgent.getGender() == null || travelAgent.getGender().trim().isEmpty()
+                || travelAgent.getDateOfIssue() == null) {
+            return "Vui lòng điền đầy đủ thông tin!"; // Check for empty fields
+        }
+
+        if (!travelAgent.getFirstName().matches("^[\\p{L} ]{2,50}$") || !travelAgent.getLastName().matches("^[\\p{L} ]{2,50}$")) {
+            return "Họ và tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!"; // Validate name format
+        }
+
+        if (travelAgent.getTravelAgentAddress().length() < 5 || travelAgent.getTravelAgentAddress().length() > 200
+                || travelAgent.getAddress().length() < 5 || travelAgent.getAddress().length() > 200) {
+            return "Địa chỉ phải từ 5 đến 200 ký tự!"; // Validate address length
+        }
+
+        if (!travelAgent.getHotLine().matches("^0\\d{9}$") || !travelAgent.getPhone().matches("^0\\d{9}$")) {
+            return "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số!"; // Validate phone format
+        }
+
+        if (!travelAgent.getTravelAgentGmail().matches("^[a-zA-Z0-9._%+-]+@(gmail\\.com|[a-zA-Z0-9.-]+\\.(com|net|org|vn|edu|edu\\.vn|ac\\.vn))$")) {
+            return "Email công ty không hợp lệ!"; // Validate email format
+        }
+        if (travelAgentDAO.isTravelAgentEmailExists(travelAgent.getTravelAgentGmail())) {
+            return "Email công ty đã được sử dụng!"; // Check email uniqueness
+        }
+
+        if (!travelAgent.getTaxCode().matches("\\d{10}|\\d{13}")) {
+            return "Mã số thuế phải có 10 hoặc 13 chữ số!"; // Validate tax code format
+        }
+        if (travelAgentDAO.isTaxCodeExists(travelAgent.getTaxCode())) {
+            return "Mã số thuế đã được sử dụng!"; // Check tax code uniqueness
+        }
+
+        if (!travelAgent.getRepresentativeIDCard().matches("^0\\d{11}$")) {
+            return "Số căn cước công dân phải bắt đầu bằng số 0 và có đúng 12 chữ số!"; // Validate ID card format
+        }
+        if (travelAgentDAO.isIDCardExists(travelAgent.getRepresentativeIDCard())) {
+            return "Số căn cước công dân đã được sử dụng!"; // Check ID card uniqueness
+        }
+
+        LocalDate currentDate = LocalDate.now();
+        if (travelAgent.getEstablishmentDate().after(Date.valueOf(currentDate))) {
+            return "Ngày thành lập phải trước ngày hiện tại!"; // Check establishment date
+        }
+        if (travelAgent.getDob().after(Date.valueOf(currentDate))) {
+            return "Ngày sinh không được lớn hơn ngày hiện tại!"; // Check date of birth
+        }
+        if (LocalDate.parse(travelAgent.getDob().toString()).plusYears(18).isAfter(currentDate)) {
+            return "Bạn phải đủ 18 tuổi trở lên!"; // Check age requirement
+        }
+        if (LocalDate.parse(travelAgent.getDob().toString()).isBefore(currentDate.minusYears(100))) {
+            return "Tuổi không được lớn hơn 100!"; // Check maximum age
+        }
+        if (travelAgent.getDateOfIssue().after(Date.valueOf(currentDate))) {
+            return "Ngày cấp căn cước phải trước ngày hiện tại!"; // Check date of issue
+        }
+
+        // Insert travel agent into database
+        travelAgentDAO.insertTravelAgent(travelAgent);
+
+        // Prepare email content
+        StringBuilder body = new StringBuilder();
+        body.append("<h2>Xác nhận đăng ký đại lý du lịch</h2>");
+        body.append("<p>Cảm ơn bạn đã đăng ký! Dưới đây là chi tiết:</p>");
+        body.append("<p><strong>Ngày đăng ký: </strong> ").append(LocalDate.now()).append("</p>");
+        body.append("<h3>Thông tin đăng ký: </h3>");
+        body.append("<p>Tên công ty: ").append(travelAgent.getTravelAgentName()).append("</p>");
+        body.append("<p>Email công ty: ").append(travelAgent.getTravelAgentGmail()).append("</p>");
+        body.append("<p>Số HotLine: ").append(travelAgent.getHotLine()).append("</p>");
+        body.append("<p>Địa chỉ: ").append(travelAgent.getTravelAgentAddress()).append("</p>");
+        body.append("<p>Ngày thành lập: ").append(travelAgent.getEstablishmentDate()).append("</p>");
+        body.append("<p>Mã số thuế: ").append(travelAgent.getTaxCode()).append("</p>");
+        body.append("<p>Họ: ").append(travelAgent.getFirstName()).append("</p>");
+        body.append("<p>Tên: ").append(travelAgent.getLastName()).append("</p>");
+        body.append("<p>Email: ").append(travelAgent.getGmail()).append("</p>");
+        body.append("<p>Số điện thoại: ").append(travelAgent.getPhone()).append("</p>");
+        body.append("<p>Địa chỉ: ").append(travelAgent.getAddress()).append("</p>");
+        body.append("<p>Ngày sinh: ").append(travelAgent.getDob()).append("</p>");
+        body.append("<p>Giới tính: ").append(travelAgent.getGender()).append("</p>");
+        body.append("<p>Số CCCD: ").append(travelAgent.getRepresentativeIDCard()).append("</p>");
+        body.append("<p>Ngày cấp: ").append(travelAgent.getDateOfIssue()).append("</p>");
+        body.append("<p>Yêu cầu đăng ký của bạn sẽ được duyệt trong vòng 48h. Cảm ơn bạn đã đăng ký làm đại lý du lịch với chúng tôi!</p>");
+        // Attach files to email
+        String[] attachments = {
+            savePath + File.separator + new File(travelAgent.getBusinessLicense()).getName(),
+            savePath + File.separator + new File(travelAgent.getFrontIDCard()).getName(),
+            savePath + File.separator + new File(travelAgent.getBackIDCard()).getName()
+        };
+        EmailSender.send(travelAgent.getGmail(), "Xác nhận đăng ký đại lý du lịch - " + LocalDate.now(), body.toString(), attachments);
+
+        return "success"; // Return success after successful registration
+    }
+
+    /**
+     * Extracts file name from Part object.
+     * Parses the content-disposition header to retrieve the file name.
+     *
+     * @param part The Part object from multipart request
+     * @return File name or empty string if not found
+     */
+    private String extractFileName(Part part) {
+        String contentDisp = part.getHeader("content-disposition"); // Get content-disposition header
+        String[] items = contentDisp.split(";"); // Split into items
+        for (String s : items) {
+            if (s.trim().startsWith("filename")) {
+                String fileName = s.substring(s.indexOf("=") + 2, s.length() - 1); // Extract file name
+                return fileName.trim(); // Trim to remove extra whitespace
+            }
+        }
+        return ""; // Return empty string if no file name found
+    }
+}
