@@ -124,6 +124,46 @@
         <servlet-name>DetailVoucher</servlet-name>
         <servlet-class>controller.staff.DetailVoucher</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>adminServlet</servlet-name>
+        <servlet-class>controller.admin.adminServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ManagementAccommodation</servlet-name>
+        <servlet-class>controller.agent.accommodations.ManagementAccommodation</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddAccommodation</servlet-name>
+        <servlet-class>controller.agent.accommodations.AddAccommodation</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteAccommodation</servlet-name>
+        <servlet-class>controller.agent.accommodations.DeleteAccommodation</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateAccommodation</servlet-name>
+        <servlet-class>controller.agent.accommodations.UpdateAccommodation</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DetailAccommodation</servlet-name>
+        <servlet-class>controller.agent.accommodations.DetailAccommodation</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ManagementRoom</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.ManagementRoom</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddRoom</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.AddRoom</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteRoom</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.DeleteRoom</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateRoom</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.UpdateRoom</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ListStaffAccount</servlet-name>
         <url-pattern>/liststaffaccount</url-pattern>
@@ -161,10 +201,6 @@
         <url-pattern>/managementhotel</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ManagementVehicle</servlet-name>
-        <url-pattern>/managevehicle</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>ManagementRestaurant</servlet-name>
         <url-pattern>/managerestaurant</url-pattern>
     </servlet-mapping>
@@ -173,40 +209,6 @@
         <url-pattern>/managementertainment</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>TouristManager</servlet-name>
-        <url-pattern>/touristmanager</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddStaffAccount</servlet-name>
-        <url-pattern>/addstaffaccount</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ListVoucher</servlet-name>
-        <url-pattern>/listvoucher</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>UpdateVoucher</servlet-name>
-        <url-pattern>/updatevoucher</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>FilterVoucherByStatus</servlet-name>
-        <url-pattern>/filtervoucherbystatus</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ChangeStatusVoucher</servlet-name>
-        <url-pattern>/changestatusvoucher</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>FindVoucherByVoucherCode</servlet-name>
-        <url-pattern>/findvoucherbyvouchercode</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddVoucher</servlet-name>
-        <url-pattern>/addvoucher</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>DetailVoucher</servlet-name>
-        <url-pattern>/detailvoucher</url-pattern>
         <servlet-name>AddRestaurant</servlet-name>
         <url-pattern>/addrestaurant</url-pattern>
     </servlet-mapping>
@@ -246,13 +248,100 @@
         <servlet-name>UpdateEntertainment</servlet-name>
         <url-pattern>/updateentertainment</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TouristManager</servlet-name>
+        <url-pattern>/touristmanager</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddStaffAccount</servlet-name>
+        <url-pattern>/addstaffaccount</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListVoucher</servlet-name>
+        <url-pattern>/listvoucher</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateVoucher</servlet-name>
+        <url-pattern>/updatevoucher</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FilterVoucherByStatus</servlet-name>
+        <url-pattern>/filtervoucherbystatus</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChangeStatusVoucher</servlet-name>
+        <url-pattern>/changestatusvoucher</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FindVoucherByVoucherCode</servlet-name>
+        <url-pattern>/findvoucherbyvouchercode</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddVoucher</servlet-name>
+        <url-pattern>/addvoucher</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DetailVoucher</servlet-name>
+        <url-pattern>/detailvoucher</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>adminServlet</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ManagementAccommodation</servlet-name>
+        <url-pattern>/ManagementAccommodation</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddAccommodation</servlet-name>
+        <url-pattern>/AddAccommodation</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteAccommodation</servlet-name>
+        <url-pattern>/deleteaccommodation</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateAccommodation</servlet-name>
+        <url-pattern>/updateaccommodation</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DetailAccommodation</servlet-name>
+        <url-pattern>/detailaccommodation</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ChangeStatus</servlet-name>
+        <servlet-class>controller.agent.accommodations.ChangeStatus</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ManagementRoom</servlet-name>
+        <url-pattern>/managementroom</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddRoom</servlet-name>
+        <url-pattern>/addroom</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteRoom</servlet-name>
+        <url-pattern>/deleteroom</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateRoom</servlet-name>
+        <url-pattern>/updateroom</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>changeStatus</servlet-name>
+        <servlet-class>controller.agent.entertainment.ChangeStatusEntertainment</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>changeStatus</servlet-name>
+        <url-pattern>/ChangeStatus</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChangeStatus</servlet-name>
+        <url-pattern>/changestatus</url-pattern>
+    </servlet-mapping>
+    
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
-    <multipart-config>
-        <max-file-size>5242880</max-file-size>
-        <!-- 5MB -->
-        <max-request-size>20971520</max-request-size>
-        <!-- 20MB -->
-    </multipart-config>
 </web-app>

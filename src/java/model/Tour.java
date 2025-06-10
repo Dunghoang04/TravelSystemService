@@ -26,11 +26,15 @@ public class Tour {
     private String tourNonInclude;
     private float rate;
     private int status;
+    private Date startDay;
+    private Date endDay;
+    private double adultPrice;
+    private double childrenPrice;
 
     public Tour() {
     }
 
-    public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status) {
+    public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status, Date startDay, Date endDay, double adultPrice, double childrenPrice) {
         this.tourID = tourID;
         this.tourCategoryID = tourCategoryID;
         this.travelAgentID = travelAgentID;
@@ -46,7 +50,45 @@ public class Tour {
         this.tourNonInclude = tourNonInclude;
         this.rate = rate;
         this.status = status;
+        this.startDay = startDay;
+        this.endDay = endDay;
+        this.adultPrice = adultPrice;
+        this.childrenPrice = childrenPrice;
     }
+
+    public Date getStartDay() {
+        return startDay;
+    }
+
+    public void setStartDay(Date startDay) {
+        this.startDay = startDay;
+    }
+
+    public Date getEndDay() {
+        return endDay;
+    }
+
+    public void setEndDay(Date endDay) {
+        this.endDay = endDay;
+    }
+
+    public double getAdultPrice() {
+        return adultPrice;
+    }
+
+    public void setAdultPrice(double adultPrice) {
+        this.adultPrice = adultPrice;
+    }
+
+    public double getChildrenPrice() {
+        return childrenPrice;
+    }
+
+    public void setChildrenPrice(double childrenPrice) {
+        this.childrenPrice = childrenPrice;
+    }
+
+    
 
     public int getTourID() {
         return tourID;
@@ -171,8 +213,10 @@ public class Tour {
 
     @Override
     public String toString() {
-        return "Tour{" + "tourID=" + tourID + ", tourCategoryID=" + tourCategoryID + ", travelAgentID=" + travelAgentID + ", tourName=" + tourName + ", numberOfDay=" + numberOfDay + ", startPlace=" + startPlace + ", endPlace=" + endPlace + ", quantity=" + quantity + ", image=" + image + ", tourIntroduce=" + tourIntroduce + ", tourSchedule=" + tourSchedule + ", tourInclude=" + tourInclude + ", tourNonInclude=" + tourNonInclude + ", rate=" + rate + ", status=" + status + '}';
+        return "Tour{" + "tourID=" + tourID + ", tourCategoryID=" + tourCategoryID + ", travelAgentID=" + travelAgentID + ", tourName=" + tourName + ", numberOfDay=" + numberOfDay + ", startPlace=" + startPlace + ", endPlace=" + endPlace + ", quantity=" + quantity + ", image=" + image + ", tourIntroduce=" + tourIntroduce + ", tourSchedule=" + tourSchedule + ", tourInclude=" + tourInclude + ", tourNonInclude=" + tourNonInclude + ", rate=" + rate + ", status=" + status + ", startDay=" + startDay + ", endDay=" + endDay + ", adultPrice=" + adultPrice + ", childrenPrice=" + childrenPrice + '}';
     }
+
+    
     
     
 

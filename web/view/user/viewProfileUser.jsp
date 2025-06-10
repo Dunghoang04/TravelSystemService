@@ -1,0 +1,146 @@
+<%--
+* Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Hà Thị Duyên      First implementationF
+--%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Thông tin cá nhân</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+        <style>
+            body {
+                background: url('<%=request.getContextPath()%>/assets/img/img_10.jpg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                font-family: 'Poppins', sans-serif;
+            }
+            .profile-container {
+                width: 100%;
+                max-width: 800px;
+                background-color: #ffffff;
+                border-radius: 8px;
+                padding: 30px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            .profile-title {
+                font-size: 24px;
+                font-weight: 600;
+                color: #007bff;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .profile-info {
+                font-size: 16px;
+                color: #333;
+                margin-bottom: 10px;
+            }
+            .profile-info label {
+                font-weight: 500;
+                color: #555;
+                display: inline-block;
+                width: 150px;
+            }
+            .btn-back, .btn-edit {
+                margin-top: 15px;
+                padding: 10px 20px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 600;
+                display: inline-block;
+                transition: background-color 0.3s ease;
+            }
+            .btn-back {
+                background-color: #dc3545;
+                color: #fff;
+            }
+            .btn-back:hover {
+                background-color: #c82333;
+            }
+            .btn-edit {
+                background-color: #28a745;
+                color: #fff;
+            }
+            .btn-edit:hover {
+                background-color: #218838;
+            }
+            .alert {
+                border-radius: 6px;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="profile-container">
+            <h2 class="profile-title">Thông tin cá nhân</h2>
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger">${error}</div>
+            </c:if>
+            <c:if test="${not empty success}">
+                <div class="alert alert-success">${success}</div>
+            </c:if>
+
+            <c:if test="${not empty sessionScope.loginUser}">
+                <div class="profile-info">
+                    <label>Họ:</label> ${sessionScope.loginUser.lastName}
+                </div>
+                <div class="profile-info">
+                    <label>Tên:</label> ${sessionScope.loginUser.firstName}
+                </div>
+                <div class="profile-info">
+                    <label>Mật khẩu:</label> ********
+                </div>
+                <div class="profile-info">
+                    <label>Giới tính:</label> 
+                    <c:choose>
+                        <c:when test="${sessionScope.loginUser.gender.toString().equalsIgnoreCase('Nam')}">Nam</c:when>
+                        <c:when test="${sessionScope.loginUser.gender.toString().equalsIgnoreCase('Nữ')}">Nữ</c:when>
+                        <c:otherwise>Khác</c:otherwise>
+                    </c:choose>
+                </div>
+                <div class="profile-info">
+                    <label>Số điện thoại:</label> ${sessionScope.loginUser.phone}
+                </div>
+                <div class="profile-info">
+                    <label>Ngày sinh:</label> ${sessionScope.loginUser.dob}
+                </div>
+                <div class="profile-info">
+                    <label>Gmail:</label> ${sessionScope.loginUser.gmail}
+                </div>
+                <div class="profile-info">
+                    <label>Địa chỉ:</label> ${sessionScope.loginUser.address}
+                </div>
+                <div class="profile-info">
+                    <label>Ngày tạo:</label> ${sessionScope.loginUser.createDate}
+                </div>
+                <div class="profile-info">
+                    <label>Ngày cập nhật:</label> ${sessionScope.loginUser.updateDate}
+                </div>
+                 <div class="profile-info">
+                    <label>Trạng thái:</label> 
+                    <c:choose>
+                        <c:when test="${sessionScope.loginUser.status == 1}">Đang hoạt động</c:when>
+                        <c:when test="${sessionScope.loginUser.status == 0}">Không hoạt động</c:when>
+                        <c:otherwise>Không xác định</c:otherwise>
+                    </c:choose>
+                </div>
+                <a href="${pageContext.request.contextPath}/ProfileUser?service=editProfileUser" class="btn-edit">Chỉnh sửa</a>
+                <a href="${pageContext.request.contextPath}/home" class="btn-back">Quay lại trang chủ</a>
+            </c:if>
+        </div>
+    </body>
+</html>

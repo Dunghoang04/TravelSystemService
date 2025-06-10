@@ -1,6 +1,17 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+/*
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR     DESCRIPTION
+ * 2025-06-07  1.0        Hưng       First implementation
  */
 
 package controller.staff;
@@ -12,6 +23,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -54,7 +68,7 @@ public class ChangeStatusVoucher extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/Staff/Voucher.jsp").forward(request, response);
+        request.getRequestDispatcher("view/staff/voucher.jsp").forward(request, response);
     } 
 
     /** 
@@ -76,13 +90,15 @@ public class ChangeStatusVoucher extends HttpServlet {
             boolean updated = dao.changeStatusById(id, newStatus);
 
             if (updated) {
-                response.sendRedirect("listvoucher");
+                response.sendRedirect("listvoucher?success=3");
             } else {
                 request.setAttribute("statusError", "Không thể cập nhật trạng thái.");
                 request.getRequestDispatcher("listvoucher").forward(request, response);
         }
         }catch(NumberFormatException e){
             e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChangeStatusVoucher.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -1,3 +1,12 @@
+<%--
+* Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Hà Thị Duyên      First implementationF
+--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
@@ -150,7 +159,7 @@
         <div class="wrapper">
             <div class="left">
                 <h2>Du lịch Việt Nam</h2>
-                <form action="/TravelServicesSystem/GmailUser" method="post">
+                <form action="${pageContext.request.contextPath}/GmailUser" method="post">
                     <div class="input-wrapper">
                         <i class="fa-regular fa-envelope"></i>
                         <input  name="gmail" placeholder="Nhập gmail của bạn" required="" />
@@ -158,7 +167,7 @@
                     <div class="checkbox-group">
                         <label>
                             <input type="checkbox" required />
-                            Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a>
+                            Tôi đồng ý với <a href="${pageContext.request.contextPath}/view/user/termAccountTourist.jsp">Điều khoản dịch vụ</a>
                         </label>
                     </div>
                     <button type="submit" class="btn">Đăng ký ngay →</button>

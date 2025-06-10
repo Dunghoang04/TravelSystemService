@@ -1,6 +1,11 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Hà Thị Duyên          First implementation
  */
 package controller.user;
 
@@ -14,8 +19,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
+ * Verifies user-entered OTP for registration.<br>
+ * Checks OTP validity and expiry, with a limit of 3 failed attempts.<br>
+ * <p>
+ * Bugs: No rate limiting for OTP verification attempts beyond 3 fails; session
+ * cleanup may fail in edge cases.</p>
  *
- * @author Nhat Anh
+ * @author Hà Thị Duyên
  */
 @WebServlet(name = "VerifyOtp", urlPatterns = {"/VerifyOtp"})
 public class VerifyOtp extends HttpServlet {
@@ -29,12 +39,17 @@ public class VerifyOtp extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    // Block comment to describe the method
+    /* 
+     * Verifies user-entered OTP against session data.
+     * Limits failed attempts to 3 and redirects on success.
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession();
         String inputOtp = request.getParameter("otp");
-
+        String gmail = (String) session.getAttribute("gmail");
         Integer fail = (Integer) session.getAttribute("otpFails");
         if (fail == null) {
             fail = 0;
@@ -49,20 +64,21 @@ public class VerifyOtp extends HttpServlet {
                 session.setAttribute("otpFails", fail);
 
                 if (fail >= 3) {
+                    session.setAttribute("prefilledGmail", gmail);
                     session.removeAttribute("otp");
                     session.removeAttribute("otpExpiry");
                     session.removeAttribute("otpFails");
-                    request.setAttribute("error", "Bạn đã nhập sai quá 3 lần. Vui lòng yêu cầu gửi lại mã!");
+                    request.setAttribute("error", "Bạn đã nhập sai quá 3 lần. Vui lòng yêu cầu gửi lại mã OTP!");
                     request.getRequestDispatcher("/view/user/verify-otp.jsp").forward(request, response);
                     return;
                 } else {
-                     request.setAttribute("error", validate + " Còn " + (3 - fail) + " lần thử.");
-                    request.getRequestDispatcher( "/view/user/verify-otp.jsp").forward(request, response);
+                    request.setAttribute("error", validate + " Còn " + (3 - fail) + " lần thử.");
+                    request.getRequestDispatcher("/view/user/verify-otp.jsp").forward(request, response);
                     return;
                 }
             } else {
-                 request.setAttribute("error", validate );
-                request.getRequestDispatcher( "/view/user/verify-otp.jsp").forward(request, response);
+                request.setAttribute("error", validate);
+                request.getRequestDispatcher("/view/user/verify-otp.jsp").forward(request, response);
                 return;
             }
         }
@@ -74,6 +90,18 @@ public class VerifyOtp extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/view/user/registerUser.jsp");
     }
 
+    /**
+     * Validates the user-entered OTP.<br>
+     *
+     * @param inputOtp The OTP entered by the user
+     * @param session The HTTP session containing OTP data
+     * @return Error message if invalid, null if valid
+     */
+    // Block comment to describe the method
+    /* 
+     * Checks OTP against stored value, expiry, and input format.
+     * Returns error message for invalid cases.
+     */
     private String validateOtp(String inputOtp, HttpSession session) {
         Object otpObj = session.getAttribute("otp");
         Object expiryObj = session.getAttribute("otpExpiry");
