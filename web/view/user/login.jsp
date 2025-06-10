@@ -1,3 +1,12 @@
+<%--
+* Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Hà Thị Duyên      First implementationF
+--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -7,6 +16,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Đăng nhập</title>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome cho icon -->
         <style>
             * {
                 margin: 0;
@@ -15,16 +25,15 @@
             }
 
             body {
-                background-image: url('<%=request.getContextPath()%>/assets/img/img_8.jpg') ; /* Hoặc màu xanh nhạt tươi */
-                background-size: cover;         /* ảnh sẽ co giãn để phủ hết màn hình */
-                background-repeat: no-repeat;   /* không lặp ảnh */
-                background-position: center;    /* canh giữa ảnh */
+                background-image: url('<%=request.getContextPath()%>/assets/img/img_8.jpg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
                 height: 100vh;
                 display: flex;
                 justify-content: center;
                 align-items: center;
             }
-
 
             .container {
                 background-color: white;
@@ -53,21 +62,34 @@
 
             .form-group {
                 margin-bottom: 20px;
+                position: relative;
             }
 
             .form-group label {
                 font-weight: bold;
                 display: block;
                 margin-bottom: 8px;
-
             }
 
             .form-group input {
                 width: 100%;
-                padding: 12px;
+                padding: 12px 40px 12px 12px; /* Thêm padding-right để tránh che icon */
                 border: 1px solid #ccc;
                 border-radius: 8px;
                 font-size: 16px;
+                box-sizing: border-box;
+            }
+
+            .toggle-password {
+                position: absolute;
+                right: 10px;
+                top: 38px;
+                cursor: pointer;
+                color: #666;
+            }
+
+            .toggle-password:hover {
+                color: #28A745;
             }
 
             .button {
@@ -76,8 +98,7 @@
                 margin-top: 20px;
             }
 
-            .button input[type="submit"]
-            {
+            .button input[type="submit"] {
                 width: 100%;
                 padding: 12px;
                 font-weight: bold;
@@ -85,18 +106,14 @@
                 border-radius: 8px;
                 font-size: 16px;
                 cursor: pointer;
+                background-color: #28A745;
+                color: white;
                 transition: 0.3s;
             }
 
-            .submit {
-                background-color: #28A745;
-                color: white;
+            .button input[type="submit"]:hover {
+                background-color: #218838;
             }
-
-            .submit:hover {
-                background-color: #28A745;
-            }
-
 
             .link {
                 text-align: center;
@@ -116,8 +133,14 @@
 
             .image-container {
                 width: 50%;
-                background: url('<%= request.getContextPath() %>/assets/img/img_2.jpg') no-repeat center;
+                background: url('<%=request.getContextPath()%>/assets/img/img_2.jpg') no-repeat center;
                 background-size: cover;
+            }
+
+            .err {
+                color: red;
+                text-align: center;
+                margin-top: 15px;
             }
 
             @media (max-width: 768px) {
@@ -139,21 +162,17 @@
 
                 .button {
                     flex-direction: column;
-                    
                 }
 
-                .button input{
+                .button input {
                     width: 100%;
                     margin-top: 10px;
-                    
                 }
-                
-                
+            }
         </style>
     </head>
     <body>
         <div class="container">
-            <!-- Form đăng nhập -->
             <div class="login-container">
                 <h2>Đăng nhập tài khoản</h2>
                 <form action="${pageContext.request.contextPath}/LoginLogout" method="post">
@@ -165,33 +184,45 @@
                     <div class="form-group">
                         <label for="password">Mật khẩu:</label>
                         <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                        <span class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </span>
                     </div>
 
                     <input type="hidden" name="service" value="loginUser">
 
                     <div class="button">
-                        <input class="submit" type="submit" name="submit" value="Đăng nhập">
+                        <input type="submit" name="submit" value="Đăng nhập">
                     </div>
                 </form>
                 <c:if test="${not empty error}">
-                    <div class="err" style="color: red; text-align: center;margin-top: 15px;">
-                        ${error}
-                    </div>
+                    <div class="err">${error}</div>
                 </c:if>
 
-                <!-- Liên kết -->
                 <div class="link">
-                    <a href="rePass.jsp">Quên mật khẩu?</a>
+                    <a href="view/user/rePass.jsp">Quên mật khẩu?</a>
                 </div>
                 <div class="link">
-                    <p>Chưa có tài khoản?<a href="view/user/gmail.jsp">Đăng ký</a></p>
-
+                    <p>Chưa có tài khoản? <a href="view/user/gmail.jsp">Đăng ký</a></p>
                 </div>
-
             </div>
-
-            <!-- Hình ảnh -->
             <div class="image-container"></div>
         </div>
+
+        <script>
+            function togglePassword() {
+                var passwordInput = document.getElementById("password");
+                var icon = document.querySelector(".toggle-password i");
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    icon.classList.remove("fa-eye");
+                    icon.classList.add("fa-eye-slash");
+                } else {
+                    passwordInput.type = "password";
+                    icon.classList.remove("fa-eye-slash");
+                    icon.classList.add("fa-eye");
+                }
+            }
+        </script>
     </body>
 </html>

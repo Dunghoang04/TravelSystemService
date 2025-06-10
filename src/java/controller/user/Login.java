@@ -1,6 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ /*
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Hà Thị Duyên          First implementation
  */
 package controller.user;
 
@@ -14,12 +19,23 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.User;
+import java.sql.SQLException;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.TravelAgent;
+import model.User;
+import service.EmailSender;
+import dao.IUserDAO;
 
 /**
+ * Manages user login, logout, and password reset functionalities.<br>
+ * Handles role-based redirection and email-based password recovery.<br>
+ * <p>
+ * Bugs: Password stored in plain text; no rate limiting for password reset
+ * requests.</p>
  *
- * @author Nhat Anh
+ * @author Hà Thị Duyên
  */
 @WebServlet(name = "Login", urlPatterns = {"/LoginLogout"})
 public class Login extends HttpServlet {
@@ -33,11 +49,16 @@ public class Login extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    // Block comment to describe the method
+    /* 
+     * Handles login, logout, and password reset based on service parameter.
+     * Redirects based on user role or handles password recovery via email.
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession(true);
-        UserDAO uDAO = new UserDAO();
+        IUserDAO uDAO = new UserDAO();
         TravelAgentDAO aDAO = new TravelAgentDAO();
         String service = request.getParameter("service");
         if (service == null) {
@@ -61,17 +82,15 @@ public class Login extends HttpServlet {
 
             if (u != null) {
                 session.setAttribute("loginUser", u);
-                int role = u.getRoleID(); // Lấy vai trò người dùng
+                int role = u.getRoleID();
                 session.setAttribute("gmail", gmail);
-
-
-                // Điều hướng theo vai trò
+// Điều hướng theo vai trò
                 switch (role) {
                     case 1:
                         response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
                         break;
                     case 2:
-                        response.sendRedirect(request.getContextPath() + "/staff/dashboard.jsp");
+                        response.sendRedirect(request.getContextPath() + "/listvoucher");
                         break;
                     case 3:
                         response.sendRedirect(request.getContextPath() + "/home");
@@ -80,7 +99,6 @@ public class Login extends HttpServlet {
                         TravelAgent a = aDAO.searchByTravelAgentGmail(gmail);
                         session.setAttribute("agent", a);
                         response.sendRedirect(request.getContextPath() + "/ManageTravelAgentProfile");
-
                         break;
                     default:
                         response.sendRedirect(request.getContextPath() + "/home");
@@ -98,21 +116,94 @@ public class Login extends HttpServlet {
             if (session != null) {
                 session.invalidate();
             }
-            response.sendRedirect(request.getContextPath() + "/home");
 
+            response.sendRedirect(request.getContextPath() + "/home");
+            return;
+        }
+
+        if (service.equals("forgetPassword")) {
+            String gmail = request.getParameter("gmail");
+
+            // Xác thực email cơ bản
+            if (gmail == null || gmail.trim().isEmpty()) {
+                request.setAttribute("error", "Vui lòng nhập email!");
+                request.getRequestDispatcher("/view/user/rePass.jsp").forward(request, response);
+                return;
+            }
+
+            // Kiểm tra email tồn tại
+            if (!uDAO.isGmailRegister(gmail)) {
+                request.setAttribute("error", "Email không tồn tại!");
+                request.getRequestDispatcher("/view/user/rePass.jsp").forward(request, response);
+                return;
+            }
+
+            // Tạo liên kết đơn giản với email
+            String resetLink = request.getScheme() + "://" + request.getServerName() + ":"
+                    + request.getServerPort() + request.getContextPath() + "/view/user/resetPassword.jsp?gmail=" + gmail;
+
+            // Gửi email với liên kết
+            try {
+                EmailSender.send(gmail, "Đặt lại mật khẩu",
+                        "Nhấn vào liên kết để đặt lại mật khẩu: <a href='" + resetLink + "'>Đặt lại mật khẩu</a>");
+                request.setAttribute("message", "Liên kết đặt lại đã được gửi đến email của bạn!");
+            } catch (Exception e) {
+                request.setAttribute("error", "Có lỗi khi gửi email. Vui lòng thử lại!");
+                e.printStackTrace();
+            }
+
+            request.getRequestDispatcher("/view/user/rePass.jsp").forward(request, response);
+            return;
+        }
+
+        if (service.equals("resetPassword")) {
+            String gmail = request.getParameter("gmail");
+            String newPassword = request.getParameter("newPassword");
+            String confirmPassword = request.getParameter("confirmPassword");
+            if (!newPassword.equals(confirmPassword)) {
+                request.setAttribute("error", "Mật khẩu không khớp!");
+                request.getRequestDispatcher("/view/user/resetPassword.jsp").forward(request, response);
+                return;
+            }
+            // Kiểm tra email và mật khẩu mới
+            if (gmail == null || newPassword == null || newPassword.trim().isEmpty()) {
+                request.setAttribute("error", "Dữ liệu không hợp lệ!");
+                request.getRequestDispatcher("/view/user/resetPassword.jsp").forward(request, response);
+                return;
+            }
+
+            // Kiểm tra email tồn tại
+            if (!uDAO.isGmailRegister(gmail)) {
+                request.setAttribute("error", "Email không tồn tại!");
+                request.getRequestDispatcher("/view/user/resetPassword.jsp").forward(request, response);
+                return;
+            }
+
+            // Cập nhật mật khẩu mới
+            uDAO.updatePassword(gmail, newPassword);
+            request.setAttribute("message", "Mật khẩu đã được đặt lại thành công! Vui lòng đăng nhập.");
+            request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
             return;
         }
     }
 
+    /**
+     * Validates login credentials.<br>
+     *
+     * @param gmail The user's email address
+     * @param password The user's password
+     * @return Error message if invalid, null if valid
+     */
+
+    // Block comment to describe the method
+    /* 
+     * Checks if email and password fields are filled.
+     * Returns error message if any field is empty.
+     */
     public String validate(String gmail, String password) {
-        if (gmail == null || gmail.trim().isEmpty()) {
-            return "Vui lòng điền gmail!";
+        if (gmail == null || gmail.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            return "Vui lòng điền đầy đủ thông tin!";
         }
-
-        if (password == null || password.trim().isEmpty()) {
-            return "Vui lòng điền password!";
-        }
-
         return null;
     }
 
@@ -128,7 +219,11 @@ public class Login extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -142,7 +237,11 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

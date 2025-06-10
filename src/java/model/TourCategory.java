@@ -19,6 +19,10 @@ public class TourCategory {
         this.tourCategoryID = tourCategoryID;
         this.tourCategoryName = tourCategoryName;
     }
+    
+    public TourCategory(String tourCategoryName) {
+        this.tourCategoryName = tourCategoryName;
+    }
 
     public int getTourCategoryID() {
         return tourCategoryID;

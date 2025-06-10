@@ -2,6 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
+/*
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR     DESCRIPTION
+ * 2025-06-07  1.0        Hưng       First implementation
+ */
 
 package controller.staff;
 
@@ -69,7 +78,7 @@ public class DetailVoucher extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        request.getRequestDispatcher("view/Staff/DetailVoucher.jsp").forward(request, response);
+        request.getRequestDispatcher("view/staff/detailVoucher.jsp").forward(request, response);
     } 
 
     /** 

@@ -1,6 +1,11 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Hà Thị Duyên          First implementation
  */
 package controller.user;
 
@@ -15,11 +20,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import model.User;
 
 /**
+ * Manages user registration process with OTP verification.<br>
+ * Handles form validation and database insertion for new users.<br>
+ * <p>
+ * Bugs: No rate limiting for registration attempts; session cleanup may fail in
+ * error cases.</p>
  *
- * @author Nhat Anh
+ * @author Hà Thị Duyên
  */
 @WebServlet(name = "Register", urlPatterns = {"/RegisterUser"})
 public class RegisterUser extends HttpServlet {
@@ -33,6 +44,11 @@ public class RegisterUser extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    // Block comment to describe the method
+    /* 
+     * Handles registration form display and submission.
+     * Validates input and inserts new user into database.
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -44,7 +60,7 @@ public class RegisterUser extends HttpServlet {
         if (service == null || service.isEmpty()) {
             String gmail = (String) session.getAttribute("gmail");
             if (gmail == null) {
-                response.sendRedirect("/TravelServicesSystem/gmail"); // Chuyển về trang nhập gmail nếu chưa có
+                response.sendRedirect(request.getContextPath() + "/gmailUser"); // Chuyển về trang nhập gmail nếu chưa có
                 return;
             }
             request.getRequestDispatcher("/view/user/registerUser.jsp").forward(request, response);
@@ -66,9 +82,10 @@ public class RegisterUser extends HttpServlet {
             String gmail = (String) session.getAttribute("gmail"); // Lấy gmail từ session
 
             //Kiểm tra gmail từ session 
-            if(gmail == null){
+            if (gmail == null) {
                 request.setAttribute("error", "Phiên đăng ký hết hạn.Vui lòng nhập lại email. ");
                 request.getRequestDispatcher("/view/user/registerUser.jsp").forward(request, response);
+                return;
             }
             // Kiểm tra dữ liệu đầu vào
             String error = validateInput(lastName, firstName, password, repassword, phone, dobStr, gender, address);
@@ -79,18 +96,19 @@ public class RegisterUser extends HttpServlet {
             }
 
             try {
-                Date dob = Date.valueOf(dobStr);
+
+                LocalDate dob = LocalDate.parse(dobStr);
                 LocalDate now = LocalDate.now();
                 Date createDate = Date.valueOf(now);
                 Date updateDate = Date.valueOf(now);
 
-                User newUser = new User(gmail, password, firstName, lastName, dob, gender, address, phone, createDate, updateDate, 1, 3);
+                User newUser = new User(gmail, password, firstName, lastName, Date.valueOf(dob), gender, address, phone, createDate, updateDate, 1, 3);
                 udao.insertUser(newUser);
                 session.removeAttribute("gmail"); // Xóa session sau khi đăng ký thành công
                 session.removeAttribute("otp");
                 session.removeAttribute("otpExpiry");
                 request.setAttribute("successMessage", "Đăng ký thành công! Hãy đăng nhập.");
-                request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
+                request.getRequestDispatcher("/view/user/registerUser.jsp").forward(request, response);
             } catch (Exception e) {
                 e.printStackTrace();
                 request.setAttribute("error", "Đăng ký thất bại.Vui lòng thử lại.");
@@ -99,6 +117,24 @@ public class RegisterUser extends HttpServlet {
         }
     }
 
+    /**
+     * Validates user input for registration.<br>
+     *
+     * @param lastName User's last name
+     * @param firstName User's first name
+     * @param password User's password
+     * @param repassword User's re-entered password
+     * @param phone User's phone number
+     * @param dobStr User's date of birth as string
+     * @param gender User's gender
+     * @param address User's address
+     * @return Error message if invalid, null if valid
+     */
+    // Block comment to describe the method
+    /* 
+     * Validates all registration input fields.
+     * Checks for empty fields, format, password match, and age constraints.
+     */
     private String validateInput(String lastName, String firstName, String password, String repassword,
             String phone, String dobStr, String gender, String address) {
 // Kiểm tra các trường không được để trống
@@ -115,6 +151,9 @@ public class RegisterUser extends HttpServlet {
         if (!lastName.matches("^[\\p{L} ]{2,50}$") || !firstName.matches("^[\\p{L} ]{2,50}$")) {
             return "Họ và tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!";
         }
+        if (address.length() < 5 || address.length() > 200) {
+            return "Địa chỉ phải từ 5 đến 200 ký tự!";
+        }
 
         if (!password.equals(repassword)) {
             return "Mật khẩu không khớp";
@@ -130,9 +169,19 @@ public class RegisterUser extends HttpServlet {
 
         try {
             LocalDate dob = LocalDate.parse(dobStr);
-            if (dob.isAfter(LocalDate.now())) {
+            LocalDate today = LocalDate.now();
+            if (dob.isAfter(today)) {
                 return "Ngày sinh không được lớn hơn ngày hiện tại!";
             }
+
+            if (dob.plusYears(18).isAfter(today)) {
+                return "Bạn phải đủ 18 tuổi trở lên để đăng ký!";
+            }
+
+            if (dob.isBefore(today.minusYears(100))) {
+                return "Tuổi không được lớn hơn 100!";
+            }
+
         } catch (Exception e) {
             return "Ngày sinh không hợp lệ";
         }

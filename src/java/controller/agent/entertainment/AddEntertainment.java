@@ -1,132 +1,249 @@
+/**
+ * Adds a new entertainment record in the agent module.<br>
+ * Handles GET requests to display the add form and POST requests to process new
+ * entertainment data with image upload.<br>
+ *
+ * Project: TravelAgentService Version: 1.0 Date: 2025-06-07 Bugs: No known
+ * issues.
+ *
+ * Record of Change: DATE Version AUTHOR DESCRIPTION 2025-06-07 1.0 Hoang Tuan
+ * Dung First implementation 2025-06-08 1.1 [Your Name] Updated Javadoc for
+ * clarity and consistency
+ *
+ * @author Hoang Tuan Dung
+ */
 package controller.agent.entertainment;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import dao.EntertainmentDAO;
+import dao.IEntertainmentDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.util.Arrays;
 
-/**
- *
- * @author ad
- */
-@MultipartConfig
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
+)
 public class AddEntertainment extends HttpServlet {
 
+    private static final String UPLOAD_DIRECTORY = "assets/img-entertainment";
+
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Sends an error message back to the add form JSP.<br>
+     * Sets an error attribute and forwards to the AddEntertainment JSP
+     * page.<br>
      *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @param request servlet request to set the error attribute<br>
+     * @param response servlet response<br>
+     * @param message the error message to display<br>
+     * @throws ServletException if a servlet-specific error occurs<br>
+     * @throws IOException if an I/O error occurs<br>
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    private void sendError(HttpServletRequest request, HttpServletResponse response, String message)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet AddEntertainment</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet AddEntertainment at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        request.setAttribute("errorInput", message);
+        request.getRequestDispatcher("view/agent/entertainment/addEntertainment.jsp").forward(request, response); // Assume error page
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP GET method to display the add entertainment form.<br>
+     * Clears the session image attribute and forwards to the add form JSP.<br>
      *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @param request servlet request<br>
+     * @param response servlet response<br>
+     * @throws ServletException if a servlet-specific error occurs<br>
+     * @throws IOException if an I/O error occurs<br>
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("view/agent/entertainment/AddEntertainment.jsp").forward(request, response);
+        HttpSession session = request.getSession();
+        session.removeAttribute("imageFileName");
+        request.getRequestDispatcher("view/agent/entertainment/addEntertainment.jsp").forward(request, response);
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP POST method to add a new entertainment record.<br>
+     * Validates input data, processes image upload, and inserts the record into
+     * the database.<br>
      *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @param request servlet request containing entertainment data and
+     * image<br>
+     * @param response servlet response<br>
+     * @throws ServletException if a servlet-specific error occurs<br>
+     * @throws IOException if an I/O error occurs<br>
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");  // Đảm bảo đọc tiếng Việt đúng
-        response.setContentType("text/html;charset=UTF-8");
+        IEntertainmentDAO enDao = new EntertainmentDAO();
+        HttpSession session = request.getSession();
+        String imageFileName = (String) session.getAttribute("imageFileName");
+
+        // Get and validate form parameters
+        String name = request.getParameter("name") != null ? request.getParameter("name").trim() : "";
+        String type = request.getParameter("type") != null ? request.getParameter("type").trim() : "";
+        String address = request.getParameter("address") != null ? request.getParameter("address").trim() : "";
+        String phone = request.getParameter("phone") != null ? request.getParameter("phone").trim() : "";
+        String rateStr = request.getParameter("rate") != null ? request.getParameter("rate").trim() : "";
+        String timeOpenStr = request.getParameter("timeopen") != null ? request.getParameter("timeopen").trim() : "";
+        String timeCloseStr = request.getParameter("timeclose") != null ? request.getParameter("timeclose").trim() : "";
+        String[] dayOfWeekOpen = request.getParameterValues("dayOfWeekOpen");
+        String ticketPriceStr = request.getParameter("ticketPrice") != null ? request.getParameter("ticketPrice").trim() : "";
+        String description = request.getParameter("description") != null ? request.getParameter("description").trim() : "";
+        Part filePart = request.getPart("image");
+
+        // Preserve form data for error case
+        request.setAttribute("name", name);
+        request.setAttribute("address", address);
+        request.setAttribute("type", type);
+        request.setAttribute("timeOpenStr", timeOpenStr);
+        request.setAttribute("timeCloseStr", timeCloseStr);
+        request.setAttribute("description", description);
+        request.setAttribute("phone", phone);
+        request.setAttribute("rateStr", rateStr);
+        request.setAttribute("dayOfWeekAll", dayOfWeekOpen != null ? Arrays.asList(dayOfWeekOpen) : null);
+        request.setAttribute("ticketPriceStr", ticketPriceStr);
 
         try {
-            // Lấy dữ liệu từ form
-            String name = request.getParameter("name");
-            String type = request.getParameter("type");
-            String address = request.getParameter("address");
-            String phone = request.getParameter("phone");
-            String rateStr = request.getParameter("rate");
-            String timeOpen = request.getParameter("timeopen");
-            String timeClose = request.getParameter("timeclose");
-            String dayOfWeekOpen = request.getParameter("dayOfWeekOpen");
-            String ticketPriceStr = request.getParameter("ticketPrice");
-            String description = request.getParameter("description");
+            // Handle image upload
+            String relativeImagePath = null;
+            if (filePart != null && filePart.getSize() > 0) {
+                imageFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                relativeImagePath = UPLOAD_DIRECTORY + "/" + imageFileName;
+                String uploadsDirPath = getServletContext().getRealPath("/") + UPLOAD_DIRECTORY;
+                File uploadsDir = new File(uploadsDirPath);
+                if (!uploadsDir.exists()) {
+                    if (!uploadsDir.mkdirs()) {
+                        throw new IOException("Failed to create upload directory");
+                    }
+                }
+                filePart.write(uploadsDirPath + File.separator + imageFileName);
+                session.setAttribute("imageFileName", imageFileName);
+                request.setAttribute("imageFileName", imageFileName);
+            } else if (imageFileName == null || imageFileName.trim().isEmpty()) {
+                request.setAttribute("imageFileName", "");
+                sendError(request, response, "Vui lòng chọn ảnh cho nhà hàng.");
+                return;
+            } else {
+                relativeImagePath = UPLOAD_DIRECTORY + "/" + imageFileName; // Use existing image
+                request.setAttribute("imageFileName", imageFileName); // Pass to request for JSP
+            }
 
-            // Xử lý giá trị số
-            float rate = 0;
-            if (rateStr != null && !rateStr.isEmpty()) {
+            // Validation: name
+            if (name.isEmpty()) {
+                sendError(request, response, "Tên dịch vụ không được để trống");
+                return;
+            }
+
+            // Validation: phone
+            if (phone.isEmpty()) {
+                sendError(request, response, "Số điện thoại không được để trống.");
+                return;
+            }
+            if (phone.length() != 10 || !phone.startsWith("0") || !phone.matches("^(0)[0-9]{9}$")) {
+                sendError(request, response, "Số điện thoại phải có 10 số, bắt đầu bằng 0.");
+                return;
+            }
+
+            // Validation: type
+            if (type.isEmpty()) {
+                sendError(request, response, "Loại dịch vụ giải trí không được bỏ trống.");
+                return;
+            }
+
+            // Validation: rate
+            float rate;
+            if (rateStr.isEmpty()) {
+                sendError(request, response, "Điểm đánh giá không được để trống.");
+                return;
+            }
+            try {
                 rate = Float.parseFloat(rateStr);
+                if (rate < 0 || rate > 10) {
+                    sendError(request, response, "Điểm đánh giá phải nằm trong khoảng 0-10");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                sendError(request, response, "Điểm đánh giá không hợp lệ , điểm đánh giá phải là số");
+                return;
             }
 
-            float ticketPrice = 0;
-            if (ticketPriceStr != null && !ticketPriceStr.isEmpty()) {
-                ticketPrice = Float.parseFloat(ticketPriceStr);
+            // Validation: time
+            if (timeOpenStr.length() == 5) {
+                timeOpenStr += ":00";
             }
-            if (timeOpen.length() == 5) {
-                timeOpen += ":00";
+            if (timeCloseStr.length() == 5) {
+                timeCloseStr += ":00";
             }
-            if (timeClose.length() == 5) {
-                timeClose += ":00";
-            }
-
-            // Xử lý ảnh tải lên
-            Part imagePart = request.getPart("image");
-            String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
-            String uploadPath = getServletContext().getRealPath("/") + "uploads" + File.separator + fileName;
-
-            File uploadDir = new File(uploadPath).getParentFile();
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            LocalTime timeOpen = LocalTime.parse(timeOpenStr);
+            LocalTime timeClose = LocalTime.parse(timeCloseStr);
+            if (Duration.between(timeOpen, timeClose).toHours() < 1) {
+                sendError(request, response, "Thời gian mở cửa phải ít nhất 1 tiếng.");
+                return;
             }
 
-            imagePart.write(uploadPath);
-            String imagePath = "uploads/" + fileName; // Dùng đường dẫn này để lưu vào DB
+            // Validation: dayOfWeek
+            String dayOfWeekAll = "";
+            if (dayOfWeekOpen != null && dayOfWeekOpen.length > 0) {
+                dayOfWeekAll = String.join(" , ", dayOfWeekOpen);
+            } else {
+                sendError(request, response, "Vui lòng chọn ít nhất 1 ngày mở cửa");
+                return;
+            }
 
-            // Gọi DAO để thêm vào database
-            EntertainmentDAO dao = new EntertainmentDAO();
-            dao.insertEntertainmentFull(name, imagePath, address, phone, description, rate, type, 1, timeOpen, timeClose, dayOfWeekOpen, ticketPrice);
+            // Validation: ticketPrice
+            if (ticketPriceStr == null || ticketPriceStr.trim().isEmpty()) {
+                sendError(request, response, "Giá vé không được để trống.");
+                return;
+            }
+            ticketPriceStr = ticketPriceStr.trim();
 
-            // Chuyển hướng hoặc hiển thị thông báo
-            response.sendRedirect("managementertainment"); // Ví dụ redirect về danh sách
+            if (!ticketPriceStr.matches("^[0-9]{1,3}([.,]?[0-9]{3})*$")) {
+                sendError(request, response, "Giá vé không hợp lệ. Vui lòng chỉ nhập số, có thể dùng '.' hoặc ',' ngăn cách <br>hàng chục, hàng trăm, hàng nghìn.<br>Không được thừa ký tự ở đầu và cuối giá tiền");
+                return;
+            }
 
+            String cleanedTicketPriceStr = ticketPriceStr.replaceAll("[.,]", "");
+            float ticketPrice;
+            try {
+                ticketPrice = Float.parseFloat(cleanedTicketPriceStr);
+                if (ticketPrice < 0) {
+                    sendError(request, response, "Giá vé không được là số âm.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                sendError(request, response, "Giá vé phải là số hợp lệ.");
+                return;
+            }
+            // Validation: description
+            if (description.isEmpty() || description.trim().split("\\s+").length < 10) {
+                sendError(request, response, "Vui lòng điền mô tả dịch vụ từ 10 từ trở lên.");
+                return;
+            }
+
+            // Insert into database
+            enDao.insertEntertainmentFull(name, relativeImagePath, address, phone, description, rate, type, 1, timeOpenStr, timeCloseStr, dayOfWeekAll, ticketPrice);
+            request.setAttribute("success", "Thêm dịch vụ giải trí thành công!");
+            request.getRequestDispatcher("view/agent/entertainment/addEntertainment.jsp").forward(request, response);
+        } catch (SQLServerException e) {
+            sendError(request, response, "Lỗi cơ sở dữ liệu: " + e.getMessage());
+        } catch (IOException e) {
+            sendError(request, response, "Lỗi tải ảnh lên: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
-
+            sendError(request, response, "Lỗi không mong muốn: " + e.getMessage());
         }
     }
 
