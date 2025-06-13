@@ -111,7 +111,7 @@
         </header>
         <style>
             .navbar.sticky-top {
-                background-color: #FFF !important; /* màu bạn muốn giữ */
+                background-color: #FFF !important ;   
             }
         </style>
     </body>
