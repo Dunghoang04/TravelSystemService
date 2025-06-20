@@ -219,10 +219,8 @@ public class TourCategoryDAO extends DBContext implements ITourCategoryDAO {
     public static void main(String[] args) {
         TourCategoryDAO dao = new TourCategoryDAO();
         try {
-            Vector<TourCategory> list = dao.getAllTourCategory();
-            for (TourCategory category : list) {
-                System.out.println(category);
-            }
+            TourCategory t = dao.searchTourCategory(1);
+            System.out.println(t);
         } catch (SQLException ex) {
             ex.printStackTrace(); // Print stack trace for debugging
         }

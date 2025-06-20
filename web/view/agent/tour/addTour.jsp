@@ -1,3 +1,12 @@
+<%-- 
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-14  1.0        Quynh Mai          First implementation
+--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>

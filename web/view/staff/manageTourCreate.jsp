@@ -1,8 +1,11 @@
 <%-- 
-    Document   : manageTourList
-    Created on : Jun 20, 2025
-    Author     : [Your Name]
-    Updated on : Jun 20, 2025 by Grok - Fixed pagination issue with 10 items per page
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-14  1.0        Quynh Mai          First implementation
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

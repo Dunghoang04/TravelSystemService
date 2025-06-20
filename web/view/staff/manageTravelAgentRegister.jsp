@@ -1,7 +1,11 @@
 <%-- 
-    Document   : manageTravelAgentRegister
-    Created on : Jun 18, 2025, 10:20:34 PM
-    Author     : Nhat Anh
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-14  1.0        Quynh Mai          First implementation
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

@@ -1,8 +1,11 @@
 <%-- 
-    Document   : confirm
-    Created on : Jun 20, 2025
-    Author     : [Your Name]
-    Description: Merged confirmation page for travel agent and tour actions
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-14  1.0        Quynh Mai          First implementation
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

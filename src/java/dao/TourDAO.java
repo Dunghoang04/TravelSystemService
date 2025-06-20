@@ -5,9 +5,7 @@
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0        Nhat Anh          Initial implementation
- * 2025-06-14  1.1        Quynh Mai         Refactored with ITourDAO, improved resource management and comments
- * 2025-06-19  1.2        [Your Name]       Added filter for status=1, future startDate, and 10-day range around departureDate
+ * 2025-06-14  1       Quynh Mai         Refactored with ITourDAO, improved resource management and comments
  */
 package dao;
 
@@ -658,9 +656,8 @@ public class TourDAO extends DBContext implements ITourDAO {
         TourDAO dao = new TourDAO();
         try {
             Vector<Tour> tours = dao.getToursWithFilters("", "", "", "2025-06-20", "", 1, 5);
-            for (Tour tour : tours) {
-                System.out.println(tour); // Print tour details
-            }
+            Tour t = dao.searchTourByID(1);
+            System.out.println(t);
         } catch (SQLException ex) {
             ex.printStackTrace(); // Print stack trace for debugging
         }

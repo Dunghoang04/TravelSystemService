@@ -5,12 +5,14 @@
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-20  1.0        Nhat Anh          Initial implementation
- * 2025-06-20  1.1        Grok              Adapted from ManageTravelAgentRegister for tour management
- * 2025-06-20  1.2        Grok              Updated email logic to fetch gmail from TravelAgent using travelAgentID
+ * 2025-06-14  1.0        Quynh Mai          First implementation
  */
 package controller.staff;
 
+import dao.ITourCategoryDAO;
+import dao.ITourDAO;
+import dao.ITravelAgentDAO;
+import dao.TourCategoryDAO;
 import dao.TourDAO;
 import dao.TravelAgentDAO;
 import jakarta.mail.MessagingException;
@@ -22,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Tour;
 import model.TravelAgent;
+import model.TourCategory;
 import service.EmailSender;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,8 +32,9 @@ import java.io.PrintWriter;
 @WebServlet(name = "ManageTourCreate", urlPatterns = {"/ManageTourCreate"})
 public class ManageTourCreate extends HttpServlet {
 
-    private TourDAO tourDAO = new TourDAO();
-    private TravelAgentDAO travelAgentDAO = new TravelAgentDAO();
+    private ITourDAO tourDAO = new TourDAO();
+    private ITravelAgentDAO travelAgentDAO = new TravelAgentDAO(); 
+    private ITourCategoryDAO tourCategoryDAO = new TourCategoryDAO(); 
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -52,7 +56,31 @@ public class ManageTourCreate extends HttpServlet {
             } else if ("profile".equals(service)) {
                 int tourID = Integer.parseInt(request.getParameter("tourID"));
                 Tour tour = tourDAO.searchTourByID(tourID);
+                if (tour == null) {
+                    request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourID);
+                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                    return;
+                }
+                // Lấy TravelAgent
+                int travelAgentID = tour.getTravelAgentID(); 
+                TravelAgent travelAgent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
+                if (travelAgent == null) {
+                    request.setAttribute("errorMessage", "Không tìm thấy TravelAgent với ID: " + travelAgentID);
+                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                    return;
+                }
+                // Lấy TourCategory
+                int categoryID = tour.getTourCategoryID(); 
+                TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
+                if (tourCategory == null) {
+                    request.setAttribute("errorMessage", "Không tìm thấy TourCategory với ID: " + categoryID);
+                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                    return;
+                }
+                // Đặt các thuộc tính vào request
                 request.setAttribute("tour", tour);
+                request.setAttribute("travelAgentName", travelAgent.getTravelAgentName());
+                request.setAttribute("categoryName", tourCategory.getTourCategoryName());
                 request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
             } else if ("confirm".equals(service)) {
                 if (session.getAttribute("actionStatus") == null || session.getAttribute("tour") == null) {
@@ -72,10 +100,12 @@ public class ManageTourCreate extends HttpServlet {
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "ID không hợp lệ: " + e.getMessage());
             System.out.println("NumberFormatException: " + e.getMessage());
+            e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Lỗi xử lý: " + e.getMessage());
             System.out.println("Exception occurred: " + e.getMessage());
+            e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         }
     }
@@ -132,10 +162,12 @@ public class ManageTourCreate extends HttpServlet {
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "ID không hợp lệ: " + e.getMessage());
             System.out.println("NumberFormatException: " + e.getMessage());
+            e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Lỗi xử lý: " + e.getMessage());
             System.out.println("Exception occurred: " + e.getMessage());
+            e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         }
     }
@@ -173,7 +205,6 @@ public class ManageTourCreate extends HttpServlet {
                 out.println("{\"status\":\"error\",\"message\":\"Email không hợp lệ hoặc không tìm thấy TravelAgent.\"}");
                 return;
             }
-
 
             StringBuilder body = new StringBuilder();
             body.append("<h2>Xác nhận hành động tour</h2>");

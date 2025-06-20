@@ -5,8 +5,7 @@
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-20  1.0        Nhat Anh          Initial implementation
- * 2025-06-20  1.1        Grok              Fixed session issues and redirect to forward
+ * 2025-06-14  1.0        Quynh Mai          First implementation
  */
 package controller.staff;
 
