@@ -18,12 +18,17 @@
 package controller.common;
 
 
+import dao.TourDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
+import java.util.Vector;
+import model.Tour;
 
 
 /**
@@ -70,7 +75,18 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("view/common/home.jsp").forward(request, response);
+        HttpSession session = request.getSession(); // Get or create HTTP session
+        TourDAO tdao = new TourDAO(); // Initialize TourDAO instance
+        Vector<Tour> topTour = null; // Initialize vector for top tours
+
+        try {
+            topTour = tdao.getTopNewTour(); // Retrieve top new tours from DAO
+            request.setAttribute("topTour", topTour); // Store tours in request scope
+            request.getRequestDispatcher("view/common/home.jsp").forward(request, response); // Forward to home page
+        } catch (SQLException e) { // Handle database-related exceptions
+            request.setAttribute("error", "Database error while loading home page: " + e.getMessage()); // Set error message
+            request.getRequestDispatcher("view/common/error.jsp").forward(request, response); // Forward to error page
+        }
     }
 
     /**

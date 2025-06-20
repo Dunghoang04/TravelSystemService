@@ -344,4 +344,25 @@
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
+    
+    <servlet>
+        <servlet-name>BookDetailManagement</servlet-name>
+        <servlet-class>controller.agent.BookDetailManagement</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>BookDetailManagement</servlet-name>
+        <url-pattern>/bookdetailmanagement</url-pattern>
+    </servlet-mapping>
+    
+    
+    <servlet>
+        <servlet-name>BookTourServlet</servlet-name>
+        <servlet-class>controller.user.BookTourServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>BookTourServlet</servlet-name>
+        <url-pattern>/booktourservlet</url-pattern>
+    </servlet-mapping>
 </web-app>

@@ -101,7 +101,7 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         PreparedStatement preparedStatement = null;
         try {
             conn.setAutoCommit(false); // Start transaction
-            IService serviceDao = new ServiceDao();
+            IService serviceDao = new ServiceDAO();
             // Insert into Service using the above ID and get service ID
             int serviceId = serviceDao.addService(name);
 
@@ -413,7 +413,7 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
             preparedStatement.setInt(13, serviceId);
             preparedStatement.executeUpdate();
 
-            ServiceDao serviceDAO = new ServiceDao();
+            ServiceDAO serviceDAO = new ServiceDAO();
             serviceDAO.updateServiceName(serviceId, name);
             conn.commit(); // Commit transaction
         } catch (SQLException e) {

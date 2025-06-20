@@ -5,6 +5,10 @@
 
 package controller.user;
 
+import dao.ITourDAO;
+import dao.ITourServiceDetailDAO;
+import dao.TourDAO;
+import dao.TourServiceDetailDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,6 +16,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import model.Tour;
+import model.TourServiceDetail;
 
 /**
  *
@@ -55,7 +65,19 @@ public class TourDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        request.getRequestDispatcher("view/user/tourDetail.jsp").forward(request, response);
+        ITourDAO tdao = new TourDAO();
+        ITourServiceDetailDAO sdao = new TourServiceDetailDAO();
+        int id = Integer.parseInt(request.getParameter("tourId"));
+        Tour tour;
+        try {
+            tour = tdao.searchTourByID(id);
+            request.setAttribute("tour", tour);
+            Vector<TourServiceDetail> services = sdao.getTourServiceDetails(id);
+            request.setAttribute("services", services);
+            request.getRequestDispatcher("view/user/tourDetail.jsp").forward(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(TourDetailServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     } 
 
     /** 
