@@ -28,18 +28,20 @@ public class ServiceDao extends DBContext implements IService {
 
     /**
      * Inserts a new service record into the Service table with the given
-     * service name. The serviceCategoryID is hardcoded to 1, which can be
-     * parameterized in the future.
+     * service name and derives travelAgentID from the userID via TravelAgent
+     * table.
      *
      * @param serviceName The name of the service to be inserted. It is a
      * <code>java.lang.String</code> object.
+     * @param userID The ID of the user from the session, used to derive
+     * travelAgentID. It is an <code>int</code> value.
      * @return The generated service ID after successful insertion. It is an
      * <code>int</code> value.
      * @throws SQLException If a database error occurs during the insertion or
      * key retrieval process.
      */
     @Override
-    public int addService(String serviceName) throws SQLException {
+    public int addService(int serviceCategoryID, String serviceName, int agentID) throws SQLException {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -48,10 +50,14 @@ public class ServiceDao extends DBContext implements IService {
             if (conn == null) {
                 throw new SQLException("Database connection is null");
             }
-            String sql = "INSERT INTO [dbo].[Service] ([serviceCategoryID], [serviceName]) VALUES (?, ?)";
+
+            // Insert into Service table with provided agentID directly
+            String sql = "INSERT INTO [dbo].[Service] ([serviceCategoryID], [serviceName], [travelAgentID], [status]) VALUES (?, ?, ?, ?)";
             ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, 2);
+            ps.setInt(1, serviceCategoryID); // Hardcoded serviceCategoryID, can be parameterized
             ps.setString(2, serviceName);
+            ps.setInt(3, agentID); // Use agentID directly as travelAgentID
+            ps.setInt(4, 1); // Default status = 1
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
@@ -130,4 +136,59 @@ public class ServiceDao extends DBContext implements IService {
             }
         }
     }
+
+    @Override
+    public void updateServiceStatus(int serviceId, int newStatus) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getConnection();
+            if (conn == null) {
+                throw new SQLException("Database connection is null");
+            }
+
+            // Start transaction
+            conn.setAutoCommit(false);
+
+            // Update status in Service table
+            String sql = "UPDATE [dbo].[Service] SET status = ? WHERE serviceID = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, newStatus);
+            ps.setInt(2, serviceId);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No service found with serviceID: " + serviceId);
+            }
+
+            // Commit transaction
+            conn.commit();
+        } catch (SQLException e) {
+            // Rollback transaction on error
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    throw new SQLException("Rollback failed", ex);
+                }
+            }
+            throw e;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    // Log lỗi nếu cần
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    // Log lỗi nếu cần
+                }
+            }
+        }
+    }
+
 }

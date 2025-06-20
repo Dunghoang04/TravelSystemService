@@ -5,13 +5,12 @@
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0        Hà Thị Duyên          First implementation
- */
+ * 2025-06-07  1.0        Hà Thị Duyên          First implementation*/
 package controller.user;
 
+import dao.IUserDAO;
 import dao.UserDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,57 +19,29 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import model.User;
 
-/**
- * Manages user registration process with OTP verification.<br>
- * Handles form validation and database insertion for new users.<br>
- * <p>
- * Bugs: No rate limiting for registration attempts; session cleanup may fail in
- * error cases.</p>
- *
- * @author Hà Thị Duyên
- */
 @WebServlet(name = "Register", urlPatterns = {"/RegisterUser"})
 public class RegisterUser extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    // Block comment to describe the method
-    /* 
-     * Handles registration form display and submission.
-     * Validates input and inserts new user into database.
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession();
-        UserDAO udao = new UserDAO();
+        IUserDAO udao = new UserDAO();
         String service = request.getParameter("service");
 
-        // Nếu không có service thì hiển thị trang đăng ký
         if (service == null || service.isEmpty()) {
             String gmail = (String) session.getAttribute("gmail");
             if (gmail == null) {
-                response.sendRedirect(request.getContextPath() + "/gmailUser"); // Chuyển về trang nhập gmail nếu chưa có
+                response.sendRedirect(request.getContextPath() + "/gmailUser");
                 return;
             }
             request.getRequestDispatcher("/view/user/registerUser.jsp").forward(request, response);
             return;
         }
 
-        //Xử lí khi người dùng submit form đăng ký
         if (service.equals("addUser")) {
-            //Lấy dữ liệu từ form 
-
             String password = request.getParameter("password");
             String repassword = request.getParameter("repassword");
             String firstName = request.getParameter("firstName");
@@ -79,153 +50,146 @@ public class RegisterUser extends HttpServlet {
             String gender = request.getParameter("gender");
             String address = request.getParameter("address");
             String phone = request.getParameter("phone");
-            String gmail = (String) session.getAttribute("gmail"); // Lấy gmail từ session
+            String gmail = (String) session.getAttribute("gmail");
 
-            //Kiểm tra gmail từ session 
             if (gmail == null) {
-                request.setAttribute("error", "Phiên đăng ký hết hạn.Vui lòng nhập lại email. ");
+                request.setAttribute("generalError", "Phiên đăng ký hết hạn. Vui lòng nhập lại email.");
                 request.getRequestDispatcher("/view/user/registerUser.jsp").forward(request, response);
                 return;
             }
-            // Kiểm tra dữ liệu đầu vào
-            String error = validateInput(lastName, firstName, password, repassword, phone, dobStr, gender, address);
-            if (error != null) {
-                request.setAttribute("error", error);
-                request.getRequestDispatcher("view/user/registerUser.jsp").forward(request, response);
-                return;
-            }
 
+            // Kiểm tra dữ liệu đầu vào và lưu lỗi vào request
+            validateInput(request, lastName, firstName, password, repassword, phone, dobStr, gender, address);
+
+            // Lưu lại giá trị đã nhập để hiển thị trong form
+            request.setAttribute("lastName", lastName);
+            request.setAttribute("firstName", firstName);
+            request.setAttribute("password", password);
+            request.setAttribute("repassword", repassword);
+            request.setAttribute("phone", phone);
+            request.setAttribute("dob", dobStr);
+            request.setAttribute("gender", gender);
+            request.setAttribute("address", address);
+
+            // Nếu không có lỗi, thực hiện đăng ký
             try {
+                // Kiểm tra xem có lỗi nào được đặt hay không
+                if (request.getAttribute("lastNameError") == null &&
+                    request.getAttribute("firstNameError") == null &&
+                    request.getAttribute("passwordError") == null &&
+                    request.getAttribute("repasswordError") == null &&
+                    request.getAttribute("phoneError") == null &&
+                    request.getAttribute("dobError") == null &&
+                    request.getAttribute("genderError") == null &&
+                    request.getAttribute("addressError") == null) {
 
-                LocalDate dob = LocalDate.parse(dobStr);
-                LocalDate now = LocalDate.now();
-                Date createDate = Date.valueOf(now);
-                Date updateDate = Date.valueOf(now);
+                    LocalDate dob = LocalDate.parse(dobStr);
+                    LocalDate now = LocalDate.now();
+                    Date createDate = Date.valueOf(now);
+                    Date updateDate = Date.valueOf(now);
 
-                User newUser = new User(gmail, password, firstName, lastName, Date.valueOf(dob), gender, address, phone, createDate, updateDate, 1, 3);
-                udao.insertUser(newUser);
-                session.removeAttribute("gmail"); // Xóa session sau khi đăng ký thành công
-                session.removeAttribute("otp");
-                session.removeAttribute("otpExpiry");
-                request.setAttribute("successMessage", "Đăng ký thành công! Hãy đăng nhập.");
+                    User newUser = new User(gmail, password, firstName, lastName, Date.valueOf(dob), gender, address, phone, createDate, updateDate, 1, 3);
+                    udao.insertUser(newUser);
+                    session.removeAttribute("gmail");
+                    session.removeAttribute("otp");
+                    session.removeAttribute("otpExpiry");
+                    request.setAttribute("successMessage", "Đăng ký thành công! Hãy đăng nhập.");
+                }
                 request.getRequestDispatcher("/view/user/registerUser.jsp").forward(request, response);
             } catch (Exception e) {
                 e.printStackTrace();
-                request.setAttribute("error", "Đăng ký thất bại.Vui lòng thử lại.");
+                request.setAttribute("generalError", "Đăng ký thất bại. Vui lòng thử lại.");
                 request.getRequestDispatcher("/view/user/registerUser.jsp").forward(request, response);
             }
         }
     }
 
-    /**
-     * Validates user input for registration.<br>
-     *
-     * @param lastName User's last name
-     * @param firstName User's first name
-     * @param password User's password
-     * @param repassword User's re-entered password
-     * @param phone User's phone number
-     * @param dobStr User's date of birth as string
-     * @param gender User's gender
-     * @param address User's address
-     * @return Error message if invalid, null if valid
-     */
-    // Block comment to describe the method
-    /* 
-     * Validates all registration input fields.
-     * Checks for empty fields, format, password match, and age constraints.
-     */
-    private String validateInput(String lastName, String firstName, String password, String repassword,
-            String phone, String dobStr, String gender, String address) {
-// Kiểm tra các trường không được để trống
-        if (lastName == null || lastName.trim().isEmpty()
-                || firstName == null || firstName.trim().isEmpty()
-                || password == null || password.trim().isEmpty()
-                || repassword == null || repassword.trim().isEmpty()
-                || phone == null || phone.trim().isEmpty()
-                || dobStr == null || dobStr.trim().isEmpty()
-                || gender == null || gender.trim().isEmpty()
-                || address == null || address.trim().isEmpty()) {
-            return "Vui lòng điền đầy đủ thông tin!";
-        }
-        if (!lastName.matches("^[\\p{L} ]{2,50}$") || !firstName.matches("^[\\p{L} ]{2,50}$")) {
-            return "Họ và tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!";
-        }
-        if (address.length() < 5 || address.length() > 200) {
-            return "Địa chỉ phải từ 5 đến 200 ký tự!";
+    private void validateInput(HttpServletRequest request, String lastName, String firstName, String password, 
+            String repassword, String phone, String dobStr, String gender, String address) {
+        // Kiểm tra họ
+        if (lastName == null || lastName.trim().isEmpty()) {
+            request.setAttribute("lastNameError", "Họ không được để trống!");
+        } else if (!lastName.matches("^[\\p{L} ]{2,50}$")) {
+            request.setAttribute("lastNameError", "Họ chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!");
         }
 
-        if (!password.equals(repassword)) {
-            return "Mật khẩu không khớp";
+        // Kiểm tra tên
+        if (firstName == null || firstName.trim().isEmpty()) {
+            request.setAttribute("firstNameError", "Tên không được để trống!");
+        } else if (!firstName.matches("^[\\p{L} ]{2,50}$")) {
+            request.setAttribute("firstNameError", "Tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!");
         }
 
-        if (!phone.matches("^0\\d{9}$")) {
-            return "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số. ";
-        }
-        String passwordRegex = "^[A-Z](?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={}:\";'<>?,./]).{7,}$";
-        if (!password.matches(passwordRegex)) {
-            return "Mật khẩu phải bắt đầu bằng chữ hoa, chứa ít nhất 1 chữ thường, 1 số, 1 ký tự đặc biệt và có ít nhất 8 ký tự!";
+        // Kiểm tra địa chỉ
+        if (address == null || address.trim().isEmpty()) {
+            request.setAttribute("addressError", "Địa chỉ không được để trống!");
+        } else if (address.length() < 5 || address.length() > 200) {
+            request.setAttribute("addressError", "Địa chỉ phải từ 5 đến 200 ký tự!");
         }
 
-        try {
-            LocalDate dob = LocalDate.parse(dobStr);
-            LocalDate today = LocalDate.now();
-            if (dob.isAfter(today)) {
-                return "Ngày sinh không được lớn hơn ngày hiện tại!";
+        // Kiểm tra mật khẩu
+        if (password == null || password.trim().isEmpty()) {
+            request.setAttribute("passwordError", "Mật khẩu không được để trống!");
+        } else {
+            String passwordRegex = "^[A-Z](?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={}:\";'<>?,./]).{7,}$";
+            if (!password.matches(passwordRegex)) {
+                request.setAttribute("passwordError", "Mật khẩu phải bắt đầu bằng chữ hoa, chứa ít nhất 1 chữ thường, 1 số, 1 ký tự đặc biệt và có ít nhất 8 ký tự!");
             }
-
-            if (dob.plusYears(18).isAfter(today)) {
-                return "Bạn phải đủ 18 tuổi trở lên để đăng ký!";
-            }
-
-            if (dob.isBefore(today.minusYears(100))) {
-                return "Tuổi không được lớn hơn 100!";
-            }
-
-        } catch (Exception e) {
-            return "Ngày sinh không hợp lệ";
         }
-        return null;
+
+        // Kiểm tra nhập lại mật khẩu
+        if (repassword == null || repassword.trim().isEmpty()) {
+            request.setAttribute("repasswordError", "Vui lòng nhập lại mật khẩu!");
+        } else if (!password.equals(repassword)) {
+            request.setAttribute("repasswordError", "Mật khẩu không khớp!");
+        }
+
+        // Kiểm tra số điện thoại
+        if (phone == null || phone.trim().isEmpty()) {
+            request.setAttribute("phoneError", "Số điện thoại không được để trống!");
+        } else if (!phone.matches("^0\\d{9}$")) {
+            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số!");
+        }
+
+        // Kiểm tra ngày sinh
+        if (dobStr == null || dobStr.trim().isEmpty()) {
+            request.setAttribute("dobError", "Ngày sinh không được để trống!");
+        } else {
+            try {
+                LocalDate dob = LocalDate.parse(dobStr);
+                LocalDate today = LocalDate.now();
+                if (dob.isAfter(today)) {
+                    request.setAttribute("dobError", "Ngày sinh không được lớn hơn ngày hiện tại!");
+                } else if (dob.plusYears(18).isAfter(today)) {
+                    request.setAttribute("dobError", "Bạn phải đủ 18 tuổi trở lên để đăng ký!");
+                } else if (dob.isBefore(today.minusYears(100))) {
+                    request.setAttribute("dobError", "Tuổi không được lớn hơn 100!");
+                }
+            } catch (Exception e) {
+                request.setAttribute("dobError", "Ngày sinh không hợp lệ!");
+            }
+        }
+
+        // Kiểm tra giới tính
+        if (gender == null || gender.trim().isEmpty()) {
+            request.setAttribute("genderError", "Vui lòng chọn giới tính!");
+        }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
-
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Handles user registration with individual error reporting using setAttribute.";
+    }
 }

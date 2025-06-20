@@ -40,6 +40,7 @@ public class TravelAgent extends User {
     private String businessLicense; // Path to the business license image
     private String frontIDCard; // Path to the front side of ID card image
     private String backIDCard; // Path to the back side of ID card image
+    private String reason;// Reason if staff not accept travel agent register
 
  /**
      * Default constructor for TravelAgent.
@@ -84,10 +85,11 @@ public class TravelAgent extends User {
      * @param createDate The date when the user account was created
      * @param updateDate The date when the user account was last updated
      * @param status The status of the user account (e.g., 2 for pending approval)
+     * @param reason The reason if staff not accept travel agent register
      */
     public TravelAgent(int travelAgentID, String travelAgentName, String travelAgentAddress, String travelAgentGmail,
             String hotLine, String taxCode, Date establishmentDate, String representativeIDCard, Date dateOfIssue,
-            String frontIDCard, String backIDCard, String businessLicense, int userID, String gmail, int roleID,
+            String frontIDCard, String backIDCard, String businessLicense, String reason, int userID, String gmail, int roleID,
             String password, String firstName, String lastName, Date dob, String gender, String address, String phone,
             Date createDate, Date updateDate, int status) {
         super(userID, gmail, roleID, password, firstName, lastName, dob, gender, address, phone, createDate, updateDate, status);
@@ -104,6 +106,7 @@ public class TravelAgent extends User {
         this.frontIDCard = frontIDCard;
         this.backIDCard = backIDCard;
         this.businessLicense = businessLicense;
+        this.reason = reason;
     }
 
     /**
@@ -157,6 +160,60 @@ public class TravelAgent extends User {
         this.backIDCard = backIDCard;
         this.businessLicense = businessLicense;
     }
+    /**
+     * Parameterized constructor for TravelAgent without travelAgentID.
+     * Initializes a TravelAgent instance with all attributes except travelAgentID,
+     * which will be auto-generated (e.g., by database).
+     * (Write a succinct description of this method here. If necessary,
+     * additional paragraphs should be preceded by <p>, the html tag for
+     * a new paragraph.)
+     * @param travelAgentName The name of the travel agency
+     * @param travelAgentAddress The address of the travel agency
+     * @param travelAgentGmail The email of the travel agency
+     * @param hotLine The hotline number of the travel agency
+     * @param taxCode The tax code of the travel agency
+     * @param establishmentDate The date when the agency was established
+     * @param representativeIDCard The ID card number of the representative
+     * @param dateOfIssue The date of issue for the ID card
+     * @param frontIDCard The path to the front side of ID card image
+     * @param backIDCard The path to the back side of ID card image
+     * @param businessLicense The path to the business license image
+     * @param userID The unique identifier for the user account
+     * @param gmail The personal email of the representative
+     * @param roleID The role ID of the user (e.g., 4 for travel agent)
+     * @param password The password for the user account
+     * @param firstName The first name of the representative
+     * @param lastName The last name of the representative
+     * @param dob The date of birth of the representative
+     * @param gender The gender of the representative
+     * @param address The personal address of the representative
+     * @param phone The personal phone number of the representative
+     * @param createDate The date when the user account was created
+     * @param updateDate The date when the user account was last updated
+     * @param status The status of the user account (e.g., 2 for pending approval)
+     * @param reason The reason if staff not accept register
+     */
+    public TravelAgent(String travelAgentName, String travelAgentAddress, String travelAgentGmail, String hotLine,
+            String taxCode, Date establishmentDate, String representativeIDCard, Date dateOfIssue, String frontIDCard,
+            String backIDCard, String businessLicense, String reason, int userID, String gmail, int roleID, String password,
+            String firstName, String lastName, Date dob, String gender, String address, String phone, Date createDate,
+            Date updateDate, int status) {
+        super(userID, gmail, roleID, password, firstName, lastName, dob, gender, address, phone, createDate, updateDate, status);
+        // Assign TravelAgent-specific fields
+        this.travelAgentName = travelAgentName;
+        this.travelAgentAddress = travelAgentAddress;
+        this.travelAgentGmail = travelAgentGmail;
+        this.hotLine = hotLine;
+        this.taxCode = taxCode;
+        this.establishmentDate = establishmentDate;
+        this.representativeIDCard = representativeIDCard;
+        this.dateOfIssue = dateOfIssue;
+        this.frontIDCard = frontIDCard;
+        this.backIDCard = backIDCard;
+        this.businessLicense = businessLicense;
+        this.reason = reason;
+    }
+
 
     /**
      * Gets the path to the front side of the ID card image.
@@ -422,6 +479,16 @@ public class TravelAgent extends User {
         this.dateOfIssue = dateOfIssue; // Assign the new date of issue
     }
 
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+    
+    
+
     /**
      * Returns a string representation of the TravelAgent object.
      * Includes only TravelAgent-specific fields (excludes inherited fields from User).
@@ -444,6 +511,7 @@ public class TravelAgent extends User {
                 ", dateOfIssue=" + dateOfIssue +
                 ", frontIDCard=" + frontIDCard +
                 ", backIDCard=" + backIDCard +
-                ", businessLicense=" + businessLicense + '}';
+                ", businessLicense=" + businessLicense +
+                ", reason=" + reason +'}';
     }
 }

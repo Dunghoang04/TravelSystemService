@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Connection;
+import model.Restaurant;
 
 /**
  * Implementation of the EntertainmentDAO interface for managing entertainment
@@ -40,20 +41,21 @@ import java.sql.Connection;
  */
 public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
 
-    private static final String INSERT_ENTERTAINMENT_SQL = "INSERT INTO [dbo].[Entertainment] ([serviceID], [name], [image], [address], [phone], [description], [rate], [type], [status], [timeOpen], [timeClose], [dayOfWeekOpen], [ticketPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_ALL_ENTERTAINMENTS_SQL = "SELECT * FROM Entertainment ORDER BY serviceID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String INSERT_ENTERTAINMENT_SQL = "INSERT INTO [dbo].[Entertainment] ([serviceId], [name], [image], [address], [phone], [description], [rate], [type], [status], [timeOpen], [timeClose], [dayOfWeekOpen], [ticketPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_ALL_ENTERTAINMENTS_SQL = "SELECT * FROM Entertainment ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String SELECT_ALL_ENTERTAINMENTS_SQL_NO_PAGE = "SELECT * FROM Entertainment where serviceId =?";
     private static final String COUNT_ALL_SQL = "SELECT COUNT(*) FROM Entertainment";
-    private static final String SELECT_BY_SERVICE_ID_SQL = "SELECT * FROM Entertainment WHERE serviceID = ?";
-    private static final String SEARCH_BY_TYPE_AND_NAME_SQL = "SELECT * FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) AND status = ? ORDER BY serviceID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String SELECT_BY_SERVICE_ID_SQL = "SELECT * FROM Entertainment WHERE serviceId = ?";
+    private static final String SEARCH_BY_TYPE_AND_NAME_SQL = "SELECT * FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) AND status = ? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
     private static final String COUNT_BY_TYPE_AND_NAME_SQL = "SELECT COUNT(*) FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) AND status = ?";
-    private static final String UPDATE_ENTERTAINMENT_SQL = "UPDATE [dbo].[Entertainment] SET [name] = ?, [image] = ?, [address] = ?, [phone] = ?, [description] = ?, [rate] = ?, [type] = ?, [status] = ?, [timeOpen] = ?, [timeClose] = ?, [dayOfWeekOpen] = ?, [ticketPrice] = ? WHERE serviceID = ?";
-    private static final String SELECT_STATUS_SQL = "SELECT status FROM [dbo].[Entertainment] WHERE serviceID = ?";
-    private static final String CHANGE_STATUS_SQL = "UPDATE [dbo].[Entertainment] SET [status] = ? WHERE serviceID = ?";
-    private static final String DELETE_ENTERTAINMENT_SQL = "DELETE FROM Entertainment WHERE serviceID = ?";
-    private static final String DELETE_SERVICE_SQL = "DELETE FROM Service WHERE serviceID = ?";
-    private static final String SEARCH_BY_NAME_SQL = "SELECT * FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) ORDER BY serviceID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String UPDATE_ENTERTAINMENT_SQL = "UPDATE [dbo].[Entertainment] SET [name] = ?, [image] = ?, [address] = ?, [phone] = ?, [description] = ?, [rate] = ?, [type] = ?, [status] = ?, [timeOpen] = ?, [timeClose] = ?, [dayOfWeekOpen] = ?, [ticketPrice] = ? WHERE serviceId = ?";
+    private static final String SELECT_STATUS_SQL = "SELECT status FROM [dbo].[Entertainment] WHERE serviceId = ?";
+    private static final String CHANGE_STATUS_SQL = "UPDATE [dbo].[Entertainment] SET [status] = ? WHERE serviceId = ?";
+    private static final String DELETE_ENTERTAINMENT_SQL = "DELETE FROM Entertainment WHERE serviceId = ?";
+    private static final String DELETE_SERVICE_SQL = "DELETE FROM Service WHERE serviceId = ?";
+    private static final String SEARCH_BY_NAME_SQL = "SELECT * FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
     private static final String COUNT_BY_NAME_SQL = "SELECT COUNT(*) FROM Entertainment WHERE LOWER(name) LIKE LOWER(?)";
-    private static final String SELECT_BY_STATUS_SQL = "SELECT * FROM Entertainment WHERE status = ? ORDER BY serviceID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String SELECT_BY_STATUS_SQL = "SELECT * FROM Entertainment WHERE status = ? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
     private static final String COUNT_BY_STATUS_SQL = "SELECT COUNT(*) FROM Entertainment WHERE status = ?";
 
     private Entertainment createEntertainmentFromResultSet(ResultSet resultSet) throws SQLException {
@@ -61,7 +63,7 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         Time timeClose = resultSet.getTime("timeClose");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         return new Entertainment(
-                resultSet.getInt("serviceID"),
+                resultSet.getInt("serviceId"),
                 resultSet.getString("name"),
                 resultSet.getString("image"),
                 resultSet.getString("address"),
@@ -96,15 +98,14 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
      * @throws SQLException if a database error occurs
      */
     @Override
-    public void insertEntertainmentFull(String name, String image, String address, String phone, String description, float rate, String type, int status, String timeOpen, String timeClose, String dayOfWeekOpen, float ticketPrice) throws SQLException {
+    public void insertEntertainmentFull(int agentID, String name, String image, String address, String phone, String description, float rate, String type, int status, String timeOpen, String timeClose, String dayOfWeekOpen, float ticketPrice) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         try {
             conn.setAutoCommit(false); // Start transaction
             IService serviceDao = new ServiceDao();
             // Insert into Service using the above ID and get service ID
-            int serviceId = serviceDao.addService(name);
-
+            int serviceId = serviceDao.addService(2, name, agentID);
             // Insert into Entertainment
             preparedStatement = conn.prepareStatement(INSERT_ENTERTAINMENT_SQL);
             preparedStatement.setInt(1, serviceId);
@@ -185,6 +186,36 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
                     conn.close();
                 } catch (SQLException e) {
                 }
+            }
+        }
+        return entertainmentList;
+    }
+
+    @Override
+    public List<Entertainment> getListEntertainmentNoPage(int serviceId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Entertainment> entertainmentList = new ArrayList<>();
+        try {
+            conn = getConnection();
+            preparedStatement = conn.prepareStatement(SELECT_ALL_ENTERTAINMENTS_SQL_NO_PAGE);
+            preparedStatement.setInt(1, serviceId);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                entertainmentList.add(createEntertainmentFromResultSet(resultSet));
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (conn != null) {
+                conn.close();
             }
         }
         return entertainmentList;
@@ -415,6 +446,9 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
 
             ServiceDao serviceDAO = new ServiceDao();
             serviceDAO.updateServiceName(serviceId, name);
+
+            TourServiceDetailDAO tourServiceDetailDAO = new TourServiceDetailDAO();
+            tourServiceDetailDAO.updateServiceNameByServiceId(serviceId, name);
             conn.commit(); // Commit transaction
         } catch (SQLException e) {
             if (conn != null) {
@@ -495,6 +529,9 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         PreparedStatement preparedStatement = null;
         try {
             conn.setAutoCommit(false); // Start transaction
+            ServiceDao serviceDao = new ServiceDao();
+            serviceDao.updateServiceStatus(serviceId, status); // Update Service table first
+
             preparedStatement = conn.prepareStatement(CHANGE_STATUS_SQL);
             preparedStatement.setInt(1, status);
             preparedStatement.setInt(2, serviceId);
@@ -756,4 +793,7 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         }
         return 0;
     }
+
+    
 }
+
