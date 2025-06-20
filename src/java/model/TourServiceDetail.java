@@ -13,11 +13,20 @@ public class TourServiceDetail {
     private int tourID;
     private int serviceID;
     private String serviceName;
+    private int status;
 
     public TourServiceDetail() {
     }
 
-    public TourServiceDetail(int detailID, int tourID, int serviceID, String serviceName) {
+    public TourServiceDetail(int detailID, int tourID, int serviceID, String serviceName, int status) {
+        this.detailID = detailID;
+        this.tourID = tourID;
+        this.serviceID = serviceID;
+        this.serviceName = serviceName;
+        this.status = status;
+    }
+
+    public TourServiceDetail(int tourID, int serviceID, String serviceName, int status) {
         this.detailID = detailID;
         this.tourID = tourID;
         this.serviceID = serviceID;
@@ -56,10 +65,21 @@ public class TourServiceDetail {
         this.serviceName = serviceName;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    
     @Override
     public String toString() {
-        return "TourServiceDetail{" + "detailID=" + detailID + ", tourID=" + tourID + ", serviceID=" + serviceID + ", serviceName=" + serviceName + '}';
+        return "TourServiceDetail{" + "detailID=" + detailID + ", tourID=" + tourID + ", serviceID=" + serviceID + ", serviceName=" + serviceName + ", status=" + status + '}';
     }
+
+    
     
     
     

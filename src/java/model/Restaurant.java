@@ -10,7 +10,7 @@ import java.sql.Time;
  * @author Nhat Anh
  */
 public class Restaurant {
-    private int serviceID;
+    private int serviceId;
     private String name;
     private String image;
     private String address;
@@ -25,8 +25,8 @@ public class Restaurant {
     public Restaurant() {
     }
 
-    public Restaurant(int serviceID, String name, String image, String address, String phone, String description, float rate, String type, int status, String timeOpen, String timeClose) {
-        this.serviceID = serviceID;
+    public Restaurant(int serviceId, String name, String image, String address, String phone, String description, float rate, String type, int status, String timeOpen, String timeClose) {
+        this.serviceId = serviceId;
         this.name = name;
         this.image = image;
         this.address = address;
@@ -39,12 +39,12 @@ public class Restaurant {
         this.timeClose = timeClose;
     }
 
-    public int getServiceID() {
-        return serviceID;
+    public int getServiceId() {
+        return serviceId;
     }
 
     public void setServiceID(int serviceID) {
-        this.serviceID = serviceID;
+        this.serviceId = serviceID;
     }
 
     public String getName() {
@@ -129,8 +129,9 @@ public class Restaurant {
 
     @Override
     public String toString() {
-        return "Restaurant{" + "serviceID=" + serviceID + ", name=" + name + ", image=" + image + ", address=" + address + ", phone=" + phone + ", description=" + description + ", rate=" + rate + ", type=" + type + ", status=" + status + ", timeOpen=" + timeOpen + ", timeClose=" + timeClose + '}';
+        return "Restaurant{" + "serviceID=" + serviceId + ", name=" + name + ", image=" + image + ", address=" + address + ", phone=" + phone + ", description=" + description + ", rate=" + rate + ", type=" + type + ", status=" + status + ", timeOpen=" + timeOpen + ", timeClose=" + timeClose + '}';
     }
 
     
 }
+

@@ -12,39 +12,39 @@ import java.sql.Date;
  */
 public class BookDetail {
     private int bookID;
-    private int userID;
-    private int tourID;
-    private int voucherID;
+    private String userName;
+    private String tourName;
     private Date bookDate;
     private int numberAdult;
     private int numberChildren;
     private String payMethod;
+    private String fullName;
     private String phone;
     private String gmail;
     private String note;
+    private int isBookedForOther;
     private float totalPrice;
     private int status;
 
     public BookDetail() {
     }
 
-    public BookDetail(int bookID, int userID, int tourID, int voucherID, Date bookDate, int numberAdult, int numberChildren, String payMethod, String phone, String gmail, String note, float totalPrice, int status) {
+    public BookDetail(int bookID, String userName, String tourName, Date bookDate, int numberAdult, int numberChildren, String payMethod, String fullName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status) {
         this.bookID = bookID;
-        this.userID = userID;
-        this.tourID = tourID;
-        this.voucherID = voucherID;
+        this.userName = userName;
+        this.tourName = tourName;
         this.bookDate = bookDate;
         this.numberAdult = numberAdult;
         this.numberChildren = numberChildren;
         this.payMethod = payMethod;
+        this.fullName = fullName;
         this.phone = phone;
         this.gmail = gmail;
         this.note = note;
+        this.isBookedForOther = isBookedForOther;
         this.totalPrice = totalPrice;
         this.status = status;
     }
-
-    
 
     public int getBookID() {
         return bookID;
@@ -54,20 +54,20 @@ public class BookDetail {
         this.bookID = bookID;
     }
 
-    public int getUserID() {
-        return userID;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public int getTourID() {
-        return tourID;
+    public String getTourName() {
+        return tourName;
     }
 
-    public void setTourID(int tourID) {
-        this.tourID = tourID;
+    public void setTourName(String tourName) {
+        this.tourName = tourName;
     }
 
     public Date getBookDate() {
@@ -102,6 +102,14 @@ public class BookDetail {
         this.payMethod = payMethod;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getPhone() {
         return phone;
     }
@@ -126,6 +134,14 @@ public class BookDetail {
         this.note = note;
     }
 
+    public int getIsBookedForOther() {
+        return isBookedForOther;
+    }
+
+    public void setIsBookedForOther(int isBookedForOther) {
+        this.isBookedForOther = isBookedForOther;
+    }
+
     public float getTotalPrice() {
         return totalPrice;
     }
@@ -142,20 +158,11 @@ public class BookDetail {
         this.status = status;
     }
 
-    public int getVoucherID() {
-        return voucherID;
-    }
-
-    public void setVoucherID(int voucherID) {
-        this.voucherID = voucherID;
-    }
-
     @Override
     public String toString() {
-        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren + ", payMethod=" + payMethod + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", totalPrice=" + totalPrice + ", status=" + status + '}';
+        return "BookDetail{" + "bookID=" + bookID + ", userName=" + userName + ", tourName=" + tourName + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren + ", payMethod=" + payMethod + ", fullName=" + fullName + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", isBookedForOther=" + isBookedForOther + ", totalPrice=" + totalPrice + ", status=" + status + '}';
     }
 
-   
+    
 
-   
 }

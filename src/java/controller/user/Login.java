@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
  /*
  * Copyright (C) 2025, Group 6.
  * ProjectCode/Short Name of Application: TravelAgentService 
@@ -9,6 +13,7 @@
  */
 package controller.user;
 
+import dao.ITravelAgentDAO;
 import dao.TravelAgentDAO;
 import dao.UserDAO;
 import java.io.IOException;
@@ -59,7 +64,7 @@ public class Login extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession(true);
         IUserDAO uDAO = new UserDAO();
-        TravelAgentDAO aDAO = new TravelAgentDAO();
+        ITravelAgentDAO aDAO = new TravelAgentDAO();
         String service = request.getParameter("service");
         if (service == null) {
             // Hiển thị trang login nếu không có service
@@ -90,13 +95,13 @@ public class Login extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
                         break;
                     case 2:
-                        response.sendRedirect(request.getContextPath() + "/listvoucher");
+                        response.sendRedirect(request.getContextPath() + "/ManageTravelAgentRegister");
                         break;
                     case 3:
                         response.sendRedirect(request.getContextPath() + "/home");
                         break;
                     case 4:
-                        TravelAgent a = aDAO.searchByTravelAgentGmail(gmail);
+                        TravelAgent a = aDAO.searchTravelAgentByGmail(gmail);
                         session.setAttribute("agent", a);
                         response.sendRedirect(request.getContextPath() + "/ManageTravelAgentProfile");
                         break;

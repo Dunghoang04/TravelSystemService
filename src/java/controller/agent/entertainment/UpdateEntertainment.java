@@ -38,7 +38,7 @@ import model.Entertainment;
 public class UpdateEntertainment extends HttpServlet {
 
 //    private static final Logger LOG=Logger.getLogger(UpdateEntertainmentServlet.getName());
-    private static final String UPLOAD_DIR = "assets/img-entertaiment";
+    private static final String UPLOAD_DIR = "assets/img-entertainment";
 
     /**
      * Handles the HTTP GET method to display the entertainment update form.<br>
@@ -53,28 +53,41 @@ public class UpdateEntertainment extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         IEntertainmentDAO entertainmentDAO = new EntertainmentDAO();
+        String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1"; // Default to page 1
         try {
             String serviceIdParam = request.getParameter("id");
             if (serviceIdParam == null || serviceIdParam.trim().isEmpty()) {
-                throw new IllegalArgumentException("ID dịch vụ không hợp lệ");
+                throw new IllegalArgumentException("Mã dịch vụ không hợp lệ");
             }
             int id = Integer.parseInt(serviceIdParam);
             Entertainment entertainmentUpdate = entertainmentDAO.getEntertainmentByServiceId(id);
             if (entertainmentUpdate == null) {
                 throw new IllegalArgumentException("Không tìm thấy dịch vụ giải trí với id = " + id);
             }
+            int currentPage;
+            try {
+                currentPage = Integer.parseInt(currentPageParam);
+                if (currentPage <= 0) {
+                    currentPage = 1;
+                }
+            } catch (NumberFormatException e) {
+                currentPage = 1;
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng số trang không hợp lệ: " + e.getMessage());
+                return;
+            }
             NumberFormat numberFormat = NumberFormat.getInstance();
             numberFormat.setGroupingUsed(true);
             String formattedTicketPrice = numberFormat.format(entertainmentUpdate.getTicketPrice());
             request.setAttribute("formattedTicketPrice", formattedTicketPrice);
+            request.setAttribute("page", currentPage);
             request.setAttribute("entertainmentUpdate", entertainmentUpdate);
             request.getRequestDispatcher("view/agent/entertainment/updateEntertainment.jsp").forward(request, response);
         } catch (NumberFormatException e) {
-            sendError(request, response, "ID dịch vụ không hợp lệ.");
+            sendError(request, response, "errorSystem", "ID dịch vụ không hợp lệ.");
         } catch (SQLException e) {
-            sendError(request, response, "Lỗi cơ sở dữ liệu: " + e.getMessage());
+            sendError(request, response, "errorSystem", "Lỗi cơ sở dữ liệu: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            sendError(request, response, e.getMessage());
+            sendError(request, response, "errorSystem", e.getMessage());
         }
 
     }
@@ -92,6 +105,8 @@ public class UpdateEntertainment extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         IEntertainmentDAO entertainmentDAO = new EntertainmentDAO();
+        String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1"; // Default to page 1
+
         try {
             String serviceIdParam = request.getParameter("serviceId");
             String statusType = request.getParameter("statusType"); // Preserve dropdown filter
@@ -125,7 +140,19 @@ public class UpdateEntertainment extends HttpServlet {
                     throw new IllegalArgumentException("Trạng thái không hợp lệ.");
                 }
             } catch (NumberFormatException e) {
-                sendError(request, response, "Trạng thái không hợp lệ.");
+                sendError(request, response, "errorStatus", "Trạng thái không hợp lệ.");
+                return;
+            }
+
+            int currentPage;
+            try {
+                currentPage = Integer.parseInt(currentPageParam);
+                if (currentPage <= 0) {
+                    currentPage = 1;
+                }
+            } catch (NumberFormatException e) {
+                currentPage = 1;
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng số trang không hợp lệ: " + e.getMessage());
                 return;
             }
 
@@ -144,7 +171,7 @@ public class UpdateEntertainment extends HttpServlet {
                 }
                 filePart.write(uploadsDirPath + File.separator + imageFileName);
             } else if (imageFileName == null || imageFileName.trim().isEmpty()) {
-                sendError(request, response, "Vui lòng chọn ảnh cho dịch vụ.");
+                sendError(request, response, "errorImage", "Vui lòng chọn ảnh cho dịch vụ.");
                 return;
             } else {
                 relativeImagePath = UPLOAD_DIR + "/" + imageFileName; // Use existing image
@@ -152,50 +179,50 @@ public class UpdateEntertainment extends HttpServlet {
 
             // Validation: Check max lengths
             if (name.length() > 255) {
-                sendError(request, response, "Tên không được vượt quá 255 ký tự.");
+                sendError(request, response, "errorName", "Tên không được vượt quá 255 ký tự.");
                 return;
             }
             if (address.length() > 255) {
-                sendError(request, response, "Địa chỉ không được vượt quá 255 ký tự.");
+                sendError(request, response, "errorAddress", "Địa chỉ không được vượt quá 255 ký tự.");
                 return;
             }
 
             // Validation: name
             if (name.isEmpty()) {
-                sendError(request, response, "Tên dịch vụ không được để trống.");
+                sendError(request, response, "errorName", "Tên dịch vụ không được để trống.");
                 return;
             }
 
             // Validation: phone
             if (phone.isEmpty()) {
-                sendError(request, response, "Số điện thoại không được để trống.");
+                sendError(request, response, "errorPhone", "Số điện thoại không được để trống.");
                 return;
             }
             if (phone.length() != 10 || !phone.startsWith("0") || !phone.matches("^(0)[0-9]{9}$")) {
-                sendError(request, response, "Số điện thoại phải có 10 số, bắt đầu bằng 0.");
+                sendError(request, response, "errorPhone", "Số điện thoại phải có 10 số, bắt đầu bằng 0.");
                 return;
             }
 
             // Validation: type
             if (type.isEmpty()) {
-                sendError(request, response, "Loại dịch vụ giải trí không được bỏ trống.");
+                sendError(request, response, "errorType", "Loại dịch vụ giải trí không được bỏ trống.");
                 return;
             }
 
             // Validation: rate
             float rate;
             if (rateStr.isEmpty()) {
-                sendError(request, response, "Điểm đánh giá không được để trống.");
+                sendError(request, response, "errorRate", "Điểm đánh giá không được để trống.");
                 return;
             }
             try {
                 rate = Float.parseFloat(rateStr);
                 if (rate < 0 || rate > 10) {
-                    sendError(request, response, "Điểm đánh giá phải nằm trong khoảng 0-10.");
+                    sendError(request, response, "errorRate", "Điểm đánh giá phải nằm trong khoảng 0-10.");
                     return;
                 }
             } catch (NumberFormatException e) {
-                sendError(request, response, "Điểm đánh giá không hợp lệ.");
+                sendError(request, response, "errorRate", "Điểm đánh giá không hợp lệ.");
                 return;
             }
 
@@ -210,11 +237,11 @@ public class UpdateEntertainment extends HttpServlet {
                 LocalTime timeOpen = LocalTime.parse(timeOpenStr);
                 LocalTime timeClose = LocalTime.parse(timeCloseStr);
                 if (Duration.between(timeOpen, timeClose).toHours() < 1) {
-                    sendError(request, response, "Thời gian mở cửa phải ít nhất 1 tiếng.");
+                    sendError(request, response, "errorTime", "Thời gian mở cửa phải ít nhất 1 tiếng.");
                     return;
                 }
             } catch (Exception e) {
-                sendError(request, response, "Thời gian mở/đóng cửa không hợp lệ.");
+                sendError(request, response, "errorTime", "Thời gian mở/đóng cửa không hợp lệ.");
                 return;
             }
 
@@ -223,13 +250,13 @@ public class UpdateEntertainment extends HttpServlet {
             if (dayOfWeekOpen != null && dayOfWeekOpen.length > 0) {
                 dayOfWeekAll = String.join(" , ", dayOfWeekOpen);
             } else {
-                sendError(request, response, "Vui lòng chọn ít nhất 1 ngày mở cửa.");
+                sendError(request, response, "errorDayOffWeek", "Vui lòng chọn ít nhất 1 ngày mở cửa.");
                 return;
             }
 
             // Validation: ticketPrice
             if (ticketPriceStr.isEmpty()) {
-                sendError(request, response, "Giá vé không được để trống.");
+                sendError(request, response, "errorTicketPrice", "Giá vé không được để trống.");
                 return;
             }
             String cleanedTicketPriceStr = ticketPriceStr.replaceAll(",", "");
@@ -237,43 +264,45 @@ public class UpdateEntertainment extends HttpServlet {
             try {
                 ticketPrice = Float.parseFloat(cleanedTicketPriceStr);
                 if (ticketPrice < 0) {
-                    sendError(request, response, "Giá vé không được là số âm.");
+                    sendError(request, response, "errorTicketPrice", "Giá vé không được là số âm.");
                     return;
                 }
             } catch (NumberFormatException e) {
-                sendError(request, response, "Giá vé phải là số hợp lệ (ví dụ: 500 hoặc 500,000).");
+                sendError(request, response, "errorTicketPrice", "Giá vé phải là số hợp lệ (ví dụ: 500 hoặc 500,000).");
                 return;
             }
 
             // Validation: description
             if (description.isEmpty() || description.trim().split("\\s+").length < 10) {
-                sendError(request, response, "Mô tả dịch vụ phải có ít nhất 10 từ.");
+                sendError(request, response, "errorDescription", "Mô tả dịch vụ phải có ít nhất 10 từ.");
                 return;
             }
 
             // Update database
             entertainmentDAO.updateEntertainment(id, name, relativeImagePath, address, phone, description, rate, type, status, timeOpenStr, timeCloseStr, dayOfWeekAll, ticketPrice);
-            response.sendRedirect("managementertainment?statusType=" + (statusType != null ? statusType : ""));
+//            response.sendRedirect("managementertainment?statusType=" + (statusType != null ? statusType : ""));
+            response.sendRedirect("managementertainment?page=" + currentPage);
         } catch (SQLException e) {
-            sendError(request, response, "Lỗi cơ sở dữ liệu: " + e.getMessage());
+            sendError(request, response, "errorSystem", "Lỗi cơ sở dữ liệu: " + e.getMessage());
         } catch (IOException e) {
-            sendError(request, response, "Lỗi khi tải lên ảnh: " + e.getMessage());
+            sendError(request, response, "errorSystem", "Lỗi khi tải lên ảnh: " + e.getMessage());
         } catch (Exception e) {
-            sendError(request, response, "Đã xảy ra lỗi bất ngờ: " + e.getMessage());
+            sendError(request, response, "errorSystem", "Đã xảy ra lỗi bất ngờ: " + e.getMessage());
         }
     }
-        /**
-         * Sends an error message to the update JSP page.<br>
-         *
-         * @param request servlet request to set the error attribute<br>
-         * @param response servlet response<br>
-         * @param errorMessage the error message to display<br>
-         * @throws ServletException if a servlet-specific error occurs<br>
-         * @throws IOException if an I/O error occurs<br>
-         */
-    private void sendError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
+
+    /**
+     * Sends an error message to the update JSP page.<br>
+     *
+     * @param request servlet request to set the error attribute<br>
+     * @param response servlet response<br>
+     * @param errorMessage the error message to display<br>
+     * @throws ServletException if a servlet-specific error occurs<br>
+     * @throws IOException if an I/O error occurs<br>
+     */
+    private void sendError(HttpServletRequest request, HttpServletResponse response, String typeError, String errorMessage)
             throws ServletException, IOException {
-        request.setAttribute("errorInput", errorMessage);
+        request.setAttribute(typeError, errorMessage);
         request.getRequestDispatcher("view/agent/entertainment/updateEntertainment.jsp").forward(request, response);
     }
 

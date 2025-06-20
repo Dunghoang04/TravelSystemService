@@ -142,6 +142,10 @@
                 text-align: center;
                 margin-top: 15px;
             }
+            .required {
+                color: red;
+                margin-left: 2px;
+            }
 
             @media (max-width: 768px) {
                 .container {
@@ -168,6 +172,10 @@
                     width: 100%;
                     margin-top: 10px;
                 }
+                .required {
+                    color: red;
+                    margin-left: 2px;
+                }
             }
         </style>
     </head>
@@ -177,13 +185,13 @@
                 <h2>Đăng nhập tài khoản</h2>
                 <form action="${pageContext.request.contextPath}/LoginLogout" method="post">
                     <div class="form-group">
-                        <label for="gmail">Gmail:</label>
-                        <input type="email" id="gmail" name="gmail" placeholder="Nhập email" required>
+                        <label for="gmail">Gmail:<span class="required">*</span></label>
+                        <input type="email" id="gmail" value="${param.gmail}" name="gmail" placeholder="Nhập email" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="password">Mật khẩu:</label>
-                        <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                        <label for="password">Mật khẩu:<span class="required">*</span></label>
+                        <input type="password" id="password" name="password" value="${param.password}" placeholder="Nhập mật khẩu" required>
                         <span class="toggle-password" onclick="togglePassword()">
                             <i class="fas fa-eye"></i>
                         </span>

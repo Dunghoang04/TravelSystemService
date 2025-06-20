@@ -30,11 +30,12 @@ public class Tour {
     private Date endDay;
     private double adultPrice;
     private double childrenPrice;
+    private String reason;
 
     public Tour() {
     }
 
-    public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status, Date startDay, Date endDay, double adultPrice, double childrenPrice) {
+    public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status, Date startDay, Date endDay, double adultPrice, double childrenPrice, String reason) {
         this.tourID = tourID;
         this.tourCategoryID = tourCategoryID;
         this.travelAgentID = travelAgentID;
@@ -54,7 +55,39 @@ public class Tour {
         this.endDay = endDay;
         this.adultPrice = adultPrice;
         this.childrenPrice = childrenPrice;
+        this.reason = reason;
     }
+    
+    public Tour(int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status, Date startDay, Date endDay, double adultPrice, double childrenPrice, String reason) {
+        this.tourCategoryID = tourCategoryID;
+        this.travelAgentID = travelAgentID;
+        this.tourName = tourName;
+        this.numberOfDay = numberOfDay;
+        this.startPlace = startPlace;
+        this.endPlace = endPlace;
+        this.quantity = quantity;
+        this.image = image;
+        this.tourIntroduce = tourIntroduce;
+        this.tourSchedule = tourSchedule;
+        this.tourInclude = tourInclude;
+        this.tourNonInclude = tourNonInclude;
+        this.rate = rate;
+        this.status = status;
+        this.startDay = startDay;
+        this.endDay = endDay;
+        this.adultPrice = adultPrice;
+        this.childrenPrice = childrenPrice;
+        this.reason = reason;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+    
 
     public Date getStartDay() {
         return startDay;
@@ -213,10 +246,9 @@ public class Tour {
 
     @Override
     public String toString() {
-        return "Tour{" + "tourID=" + tourID + ", tourCategoryID=" + tourCategoryID + ", travelAgentID=" + travelAgentID + ", tourName=" + tourName + ", numberOfDay=" + numberOfDay + ", startPlace=" + startPlace + ", endPlace=" + endPlace + ", quantity=" + quantity + ", image=" + image + ", tourIntroduce=" + tourIntroduce + ", tourSchedule=" + tourSchedule + ", tourInclude=" + tourInclude + ", tourNonInclude=" + tourNonInclude + ", rate=" + rate + ", status=" + status + ", startDay=" + startDay + ", endDay=" + endDay + ", adultPrice=" + adultPrice + ", childrenPrice=" + childrenPrice + '}';
+        return "Tour{" + "tourID=" + tourID + ", tourCategoryID=" + tourCategoryID + ", travelAgentID=" + travelAgentID + ", tourName=" + tourName + ", numberOfDay=" + numberOfDay + ", startPlace=" + startPlace + ", endPlace=" + endPlace + ", quantity=" + quantity + ", image=" + image + ", tourIntroduce=" + tourIntroduce + ", tourSchedule=" + tourSchedule + ", tourInclude=" + tourInclude + ", tourNonInclude=" + tourNonInclude + ", rate=" + rate + ", status=" + status + ", startDay=" + startDay + ", endDay=" + endDay + ", adultPrice=" + adultPrice + ", childrenPrice=" + childrenPrice + ", reason=" + reason + '}';
     }
 
-    
     
     
 

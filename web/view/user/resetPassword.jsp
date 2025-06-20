@@ -18,25 +18,116 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { background-image: url('<%=request.getContextPath()%>/assets/img/img_8.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; height: 100vh; display: flex; justify-content: center; align-items: center; }
-            .container { background-color: white; width: 850px; height: 500px; display: flex; border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); overflow: hidden; }
-            .form-container { width: 50%; padding: 50px 40px; display: flex; flex-direction: column; justify-content: center; }
-            .form-container h2 { font-size: 28px; margin-bottom: 30px; text-align: center; color: #28A745; }
-            .form-group { margin-bottom: 20px; position: relative; }
-            .form-group label { font-weight: bold; display: block; margin-bottom: 8px; }
-            .form-group input { width: 100%; padding: 12px 40px 12px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-            .toggle-password { position: absolute; right: 10px; top: 38px; cursor: pointer; color: #666; }
-            .toggle-password:hover { color: #28A745; }
-            .button input[type="submit"] { width: 100%; padding: 12px; font-weight: bold; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; background-color: #28A745; color: white; transition: 0.3s; }
-            .button input[type="submit"]:hover { background-color: #218838; }
-            .link { text-align: center; margin-top: 20px; }
-            .link a { color: #007bff; text-decoration: none; font-weight: bold; }
-            .link a:hover { text-decoration: underline; }
-            .image-container { width: 50%; background: url('<%=request.getContextPath()%>/assets/img/img_2.jpg') no-repeat center; background-size: cover; }
-            .message, .error { text-align: center; margin-top: 15px; }
-            .message { color: green; }
-            .error { color: red; }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                background-image: url('<%=request.getContextPath()%>/assets/img/img_8.jpg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .container {
+                background-color: white;
+                width: 850px;
+                height: 500px;
+                display: flex;
+                border-radius: 15px;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                overflow: hidden;
+            }
+            .form-container {
+                width: 50%;
+                padding: 50px 40px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            .form-container h2 {
+                font-size: 28px;
+                margin-bottom: 30px;
+                text-align: center;
+                color: #28A745;
+            }
+            .form-group {
+                margin-bottom: 20px;
+                position: relative;
+            }
+            .form-group label {
+                font-weight: bold;
+                display: block;
+                margin-bottom: 8px;
+            }
+            .form-group input {
+                width: 100%;
+                padding: 12px 40px 12px 12px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                font-size: 16px;
+                box-sizing: border-box;
+            }
+            .toggle-password {
+                position: absolute;
+                right: 10px;
+                top: 38px;
+                cursor: pointer;
+                color: #666;
+            }
+            .toggle-password:hover {
+                color: #28A745;
+            }
+            .button input[type="submit"] {
+                width: 100%;
+                padding: 12px;
+                font-weight: bold;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+                background-color: #28A745;
+                color: white;
+                transition: 0.3s;
+            }
+            .button input[type="submit"]:hover {
+                background-color: #218838;
+            }
+            .link {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .link a {
+                color: #007bff;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            .link a:hover {
+                text-decoration: underline;
+            }
+            .image-container {
+                width: 50%;
+                background: url('<%=request.getContextPath()%>/assets/img/img_2.jpg') no-repeat center;
+                background-size: cover;
+            }
+            .message, .error {
+                text-align: center;
+                margin-top: 15px;
+            }
+            .message {
+                color: green;
+            }
+            .error {
+                color: red;
+            }
+            .required {
+                color: red;
+                margin-left: 2px;
+            }
         </style>
     </head>
     <body>
@@ -47,14 +138,14 @@
                     <input type="hidden" name="service" value="resetPassword">
                     <input type="hidden" name="gmail" value="${param.gmail}">
                     <div class="form-group">
-                        <label for="newPassword">Mật khẩu mới:</label>
+                        <label for="newPassword">Mật khẩu mới:<span class="required">*</span></label>
                         <input type="password" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới" required>
                         <span class="toggle-password" onclick="togglePassword()">
                             <i class="fas fa-eye"></i>
                         </span>
                     </div>
                     <div class="form-group">
-                        <label for="confirmPassword">Nhập lại mật khẩu:</label>
+                        <label for="confirmPassword">Nhập lại mật khẩu:<span class="required">*</span></label>
                         <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu" required>
                         <span class="toggle-password" onclick="togglePassword()">
                             <i class="fas fa-eye"></i>

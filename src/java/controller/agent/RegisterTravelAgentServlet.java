@@ -1,8 +1,4 @@
 /*
- * Click https://netbeans.org/project/licenses/ to change this license
- * Click https://netbeans.org/features/ to edit this template
- */
-/*
  * Copyright (C) 2025, Group 6.
  * ProjectCode/Short Name of Application: TravelSystemService
  * Support Management and Provide Travel Service System
@@ -33,29 +29,35 @@ import java.util.HashMap;
 import java.util.Map;
 import model.TravelAgent;
 import service.EmailSender;
+import java.io.PrintWriter;
 
 /**
- * RegisterTravelAgentServlet handles the registration process for travel agents.
- * This servlet processes multi-step registration including file uploads and data validation.
- * It handles exceptions thrown from the DAO layer and forwards errors to view/common/error.jsp.
- * The registration is split into two steps: email/password validation and agent details with file uploads.
- * <p>Bugs: Potential issues with file upload failures or email sending timeouts not fully handled
+ * RegisterTravelAgentServlet handles the registration process for travel
+ * agents. This servlet processes multi-step registration including file uploads
+ * and data validation. It handles exceptions thrown from the DAO layer and
+ * forwards errors to view/common/error.jsp. The registration is split into two
+ * steps: email/password validation and agent details with file uploads.
+ * <p>
+ * Bugs: Potential issues with file upload failures or email sending timeouts
+ * not fully handled
+ *
  * @author Quynh Mai
  */
 @WebServlet(name = "RegisterTravelAgentServlet", urlPatterns = {"/RegisterTravelAgentServlet"})
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2, // 2MB threshold
-        maxFileSize = 1024 * 1024 * 10,      // 10MB max file size
-        maxRequestSize = 1024 * 1024 * 50    // 50MB max request size
+        maxFileSize = 1024 * 1024 * 10, // 10MB max file size
+        maxRequestSize = 1024 * 1024 * 50 // 50MB max request size
 )
 public class RegisterTravelAgentServlet extends HttpServlet {
 
     private static final String UPLOAD_DIR = "assets/img/registerAgent"; // Directory for uploaded files
     private ITravelAgentDAO travelAgentDAO = new TravelAgentDAO(); // DAO instance with interface
-    private HttpSession session;    
+    private HttpSession session;
+
     /**
-     * Handles the HTTP GET method.
-     * Initializes session and forwards to the first registration step (register1.jsp).
+     * Handles the HTTP GET method. Initializes session and forwards to the
+     * first registration step (register1.jsp).
      *
      * @param request servlet request
      * @param response servlet response
@@ -66,22 +68,27 @@ public class RegisterTravelAgentServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         session = request.getSession(); // Initialize session
+        String service = request.getParameter("service");
         try {
-            request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response); // Forward to registration step 1
+            if ("sendConfirmationEmail".equals(service)) {
+                // Handle email sending for confirmRegister.jsp
+                processSendConfirmationEmail(request, response);
+            } else {
+                request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response); // Forward to registration step 1
+            }
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Error loading registration page: " + e.getMessage()); // Set error message
             request.getRequestDispatcher("view/common/error.jsp").forward(request, response); // Forward to error page
         }
     }
-    
 
     /**
-     * Handles the HTTP POST method.
-     * Processes multi-step registration based on the 'service' parameter (step1 or addAgent).
-     * Manages file uploads, data validation, database insertion, and email notification.
-     * Checks session validity only for step 2 to ensure data from step 1 is still valid.
+     * Handles the HTTP POST method. Processes multi-step registration based on
+     * the 'service' parameter (step1 or addAgent). Manages file uploads, data
+     * validation, database insertion, and prepares email data.
      *
-     * @param request servlet request containing service parameters and uploaded files
+     * @param request servlet request containing service parameters and uploaded
+     * files
      * @param response servlet response to send back to the client
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
@@ -109,23 +116,22 @@ public class RegisterTravelAgentServlet extends HttpServlet {
                     request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response);
                 }
             } else if ("addAgent".equals(service)) {
-                // Check session validity for step 2
+                // Check session validity
                 String email = (String) session.getAttribute("email");
                 if (email == null) {
-                    request.setAttribute("errorMessage", "Phiên đăng ký hết hạn. Vui lòng nhập lại email."); // Use errorMessage to match JSP
-                    request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response); // Forward to register1 with error
+                    request.setAttribute("errorMessage", "Phiên đăng ký hết hạn. Vui lòng nhập lại email.");
+                    request.getRequestDispatcher("view/agent/register1.jsp").forward(request, response);
                     return;
                 }
 
-                // Process step 2 of registration (agent details and file uploads)
-                String appPath = request.getServletContext().getRealPath(""); // Get application path
-                String savePath = appPath + File.separator + UPLOAD_DIR; // Construct save path
+                // Process file uploads
+                String appPath = request.getServletContext().getRealPath("");
+                String savePath = appPath + File.separator + UPLOAD_DIR;
                 File fileSaveDir = new File(savePath);
                 if (!fileSaveDir.exists()) {
-                    fileSaveDir.mkdir(); // Create directory if it doesn't exist
+                    fileSaveDir.mkdir();
                 }
 
-                // Check if request is multipart
                 String contentType = request.getContentType();
                 if (contentType == null || !contentType.toLowerCase().startsWith("multipart/")) {
                     request.setAttribute("errorMessage", "Yêu cầu không chứa dữ liệu multipart. Vui lòng chọn file và gửi lại!");
@@ -133,43 +139,51 @@ public class RegisterTravelAgentServlet extends HttpServlet {
                     return;
                 }
 
-                // Retrieve or initialize uploaded files map from session
                 @SuppressWarnings("unchecked")
                 Map<String, String> uploadedFiles = (Map<String, String>) session.getAttribute("uploadedFiles");
                 if (uploadedFiles == null) {
-                    uploadedFiles = new HashMap<>(); // Initialize map for uploaded files
+                    uploadedFiles = new HashMap<>();
                 }
 
-                // Process uploaded files
                 for (Part part : request.getParts()) {
-                    String fileName = extractFileName(part); // Extract file name
+                    String fileName = extractFileName(part);
                     if (fileName != null && !fileName.isEmpty()) {
-                        String filePath = savePath + File.separator + fileName; // Construct full file path
-                        part.write(filePath); // Save file to disk
+                        String filePath = savePath + File.separator + fileName;
+                        part.write(filePath);
                         if (part.getName().equals("businessLicense")) {
-                            uploadedFiles.put("businessLicensePath", UPLOAD_DIR + "/" + fileName); // Store business license path
+                            uploadedFiles.put("businessLicensePath", UPLOAD_DIR + "/" + fileName);
                         } else if (part.getName().equals("frontIDCard")) {
-                            uploadedFiles.put("frontIDCardPath", UPLOAD_DIR + "/" + fileName); // Store front ID card path
+                            uploadedFiles.put("frontIDCardPath", UPLOAD_DIR + "/" + fileName);
                         } else if (part.getName().equals("backIDCard")) {
-                            uploadedFiles.put("backIDCardPath", UPLOAD_DIR + "/" + fileName); // Store back ID card path
+                            uploadedFiles.put("backIDCardPath", UPLOAD_DIR + "/" + fileName);
                         }
                     }
                 }
-                session.setAttribute("uploadedFiles", uploadedFiles); // Store uploaded file paths
+                session.setAttribute("uploadedFiles", uploadedFiles);
 
                 String businessLicensePath = uploadedFiles.get("businessLicensePath");
                 String frontIDCardPath = uploadedFiles.get("frontIDCardPath");
                 String backIDCardPath = uploadedFiles.get("backIDCardPath");
 
                 if (businessLicensePath == null || frontIDCardPath == null || backIDCardPath == null) {
-                    request.setAttribute("errorMessage", "Vui lòng tải lên đầy đủ các file hình ảnh!");
+                    Map<String, String> errors = new HashMap<>();
+                    if (businessLicensePath == null) {
+                        errors.put("businessLicense", "Vui lòng tải lên giấy phép kinh doanh!");
+                    }
+                    if (frontIDCardPath == null) {
+                        errors.put("frontIDCard", "Vui lòng tải lên CCCD mặt trước!");
+                    }
+                    if (backIDCardPath == null) {
+                        errors.put("backIDCard", "Vui lòng tải lên CCCD mặt sau!");
+                    }
+                    session.setAttribute("validationErrors", errors);
                     request.getRequestDispatcher("view/agent/register2.jsp").forward(request, response);
                     return;
                 }
 
                 // Extract form data
                 String travelAgentName = request.getParameter("travelAgentName").trim();
-                String travelAgentEmail = request.getParameter("travelAgentEmail").trim();
+                String travelAgentGmail = request.getParameter("travelAgentGmail").trim();
                 String hotline = request.getParameter("hotLine").trim();
                 String travelAgentAddress = request.getParameter("address").trim();
                 String establishmentDateStr = request.getParameter("establishmentDate");
@@ -185,48 +199,53 @@ public class RegisterTravelAgentServlet extends HttpServlet {
                 email = (String) session.getAttribute("email");
                 String password = (String) session.getAttribute("password");
 
-                // Convert dates
-                Date establishmentDate = Date.valueOf(establishmentDateStr); // Convert establishment date
-                Date dob = Date.valueOf(dobStr); // Convert date of birth
-                Date dateOfIssue = Date.valueOf(dateOfIssueStr); // Convert date of issue
-                LocalDate currentDate = LocalDate.now();
-                TravelAgent travelAgent = new TravelAgent(
-                        travelAgentName,
-                        travelAgentAddress,
-                        travelAgentEmail,
-                        hotline,
-                        taxCode,
-                        establishmentDate,
-                        representativeIDCard,
-                        dateOfIssue,
-                        frontIDCardPath,
-                        backIDCardPath,
-                        businessLicensePath,
-                        0, // userID
-                        email,
-                        4, // roleID
-                        password,
-                        firstName,
-                        lastName,
-                        dob,
-                        gender,
-                        address,
-                        phone,
-                        Date.valueOf(currentDate),
-                        Date.valueOf(currentDate),
-                        2 // status: pending approval
-                );
-
                 // Process step 2
-                String result = processStep2(travelAgent, savePath);
-                if (result.equals("success")) {
-                    session.invalidate(); // Clear session on success
-                    request.setAttribute("successMessage", "Đăng ký thành công! Vui lòng chờ duyệt trong 48h.");
-                    request.getRequestDispatcher("view/agent/register2.jsp").forward(request, response);
+                Map<String, String> validationErrors = processStep2(
+                        travelAgentName, travelAgentGmail, hotline, travelAgentAddress, establishmentDateStr,
+                        taxCode, firstName, lastName, phone, address, dobStr, representativeIDCard,
+                        gender, dateOfIssueStr
+                );
+                if (validationErrors.isEmpty()) {
+                    // Create TravelAgent after validation
+                    TravelAgent travelAgent = new TravelAgent(
+                            travelAgentName,
+                            travelAgentAddress,
+                            travelAgentGmail,
+                            hotline,
+                            taxCode,
+                            Date.valueOf(establishmentDateStr),
+                            representativeIDCard,
+                            Date.valueOf(dateOfIssueStr),
+                            frontIDCardPath,
+                            backIDCardPath,
+                            businessLicensePath,
+                            0, // userID
+                            email,
+                            4, // roleID
+                            password,
+                            firstName,
+                            lastName,
+                            Date.valueOf(dobStr),
+                            gender,
+                            address,
+                            phone,
+                            Date.valueOf(LocalDate.now()),
+                            Date.valueOf(LocalDate.now()),
+                            2 // status: pending approval
+                    );
+
+                    // Insert travel agent into database
+                    travelAgentDAO.insertTravelAgent(travelAgent);
+
+                    session.setAttribute("travelAgent", travelAgent);
+                    session.setAttribute("savePath", savePath);
+                    session.setAttribute("successMessage", "Đăng ký thành công! Vui lòng chờ duyệt trong 48h.");
+                    request.getRequestDispatcher("view/agent/confirmRegister.jsp").forward(request, response);
+
                 } else {
-                    request.setAttribute("errorMessage", result); // Set error message if validation fails
+                    session.setAttribute("validationErrors", validationErrors);
                     session.setAttribute("travelAgentName", travelAgentName);
-                    session.setAttribute("travelAgentEmail", travelAgentEmail);
+                    session.setAttribute("travelAgentGmail", travelAgentGmail);
                     session.setAttribute("hotline", hotline);
                     session.setAttribute("travelAgentAddress", travelAgentAddress);
                     session.setAttribute("establishmentDate", establishmentDateStr);
@@ -250,6 +269,68 @@ public class RegisterTravelAgentServlet extends HttpServlet {
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Error processing registration: " + e.getMessage()); // Set general error message
             request.getRequestDispatcher("view/common/error.jsp").forward(request, response); // Forward to error page
+        }
+    }
+
+    /**
+     * Handles email sending for confirmRegister.jsp via AJAX.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    private void processSendConfirmationEmail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, MessagingException {
+        session = request.getSession();
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        try {
+            TravelAgent travelAgent = (TravelAgent) session.getAttribute("travelAgent");
+            String savePath = (String) session.getAttribute("savePath");
+            if (travelAgent == null || savePath == null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.write("{\"status\":\"error\",\"message\":\"Missing travel agent data.\"}");
+                return;
+            }
+
+            // Prepare email content
+            StringBuilder body = new StringBuilder();
+            body.append("<h2>Xác nhận đăng ký đại lý du lịch</h2>");
+            body.append("<p>Cảm ơn bạn đã đăng ký! Dưới đây là chi tiết:</p>");
+            body.append("<p><strong>Ngày đăng ký: </strong> ").append(LocalDate.now()).append("</p>");
+            body.append("<h3>Thông tin đăng ký: </h3>");
+            body.append("<p>Tên công ty: ").append(travelAgent.getTravelAgentName()).append("</p>");
+            body.append("<p>Email công ty: ").append(travelAgent.getTravelAgentGmail()).append("</p>");
+            body.append("<p>Số HotLine: ").append(travelAgent.getHotLine()).append("</p>");
+            body.append("<p>Địa chỉ: ").append(travelAgent.getTravelAgentAddress()).append("</p>");
+            body.append("<p>Ngày thành lập: ").append(travelAgent.getEstablishmentDate()).append("</p>");
+            body.append("<p>Mã số thuế: ").append(travelAgent.getTaxCode()).append("</p>");
+            body.append("<p>Họ: ").append(travelAgent.getFirstName()).append("</p>");
+            body.append("<p>Tên: ").append(travelAgent.getLastName()).append("</p>");
+            body.append("<p>Email: ").append(travelAgent.getGmail()).append("</p>");
+            body.append("<p>Số điện thoại: ").append(travelAgent.getPhone()).append("</p>");
+            body.append("<p>Địa chỉ: ").append(travelAgent.getAddress()).append("</p>");
+            body.append("<p>Ngày sinh: ").append(travelAgent.getDob()).append("</p>");
+            body.append("<p>Giới tính: ").append(travelAgent.getGender()).append("</p>");
+            body.append("<p>Số CCCD: ").append(travelAgent.getRepresentativeIDCard()).append("</p>");
+            body.append("<p>Ngày cấp: ").append(travelAgent.getDateOfIssue()).append("</p>");
+            body.append("<p>Yêu cầu đăng ký của bạn sẽ được duyệt trong vòng 48h. Cảm ơn bạn đã đăng ký làm đại lý du lịch với chúng tôi!</p>");
+
+            // Attach files to email
+            String[] attachments = {
+                savePath + File.separator + new File(travelAgent.getBusinessLicense()).getName(),
+                savePath + File.separator + new File(travelAgent.getFrontIDCard()).getName(),
+                savePath + File.separator + new File(travelAgent.getBackIDCard()).getName()
+            };
+            EmailSender.send(travelAgent.getGmail(), "Xác nhận đăng ký đại lý du lịch - " + LocalDate.now(), body.toString(), attachments);
+            session.invalidate(); // Clear session on success
+            out.write("{\"status\":\"success\",\"message\":\"Email sent successfully.\"}");
+        } catch (MessagingException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.write("{\"status\":\"error\",\"message\":\"Failed to send email: " + e.getMessage() + "\"}");
+        } finally {
+            out.flush();
         }
     }
 
@@ -291,120 +372,132 @@ public class RegisterTravelAgentServlet extends HttpServlet {
 
     /**
      * Processes step 2 of registration (agent details and file validation).
-     * Validates agent details, checks uniqueness, and inserts into database with email notification.
+     * Validates agent details, checks uniqueness, and inserts into database.
      *
      * @param travelAgent TravelAgent object with details
      * @param savePath Path to save uploaded files
-     * @return "success" if valid, error message otherwise
+     * @return Map of field-specific errors or empty map if valid
      * @throws SQLException if database operation fails
      */
-    private String processStep2(TravelAgent travelAgent, String savePath) throws SQLException, MessagingException, IOException {
-        // Validate TravelAgent
-        if (travelAgent.getTravelAgentName() == null || travelAgent.getTravelAgentName().trim().isEmpty()
-                || travelAgent.getTravelAgentGmail() == null || travelAgent.getTravelAgentGmail().trim().isEmpty()
-                || travelAgent.getHotLine() == null || travelAgent.getHotLine().trim().isEmpty()
-                || travelAgent.getTravelAgentAddress() == null || travelAgent.getTravelAgentAddress().trim().isEmpty()
-                || travelAgent.getEstablishmentDate() == null || travelAgent.getTaxCode() == null || travelAgent.getTaxCode().trim().isEmpty()
-                || travelAgent.getFirstName() == null || travelAgent.getFirstName().trim().isEmpty()
-                || travelAgent.getLastName() == null || travelAgent.getLastName().trim().isEmpty()
-                || travelAgent.getPhone() == null || travelAgent.getPhone().trim().isEmpty()
-                || travelAgent.getAddress() == null || travelAgent.getAddress().trim().isEmpty()
-                || travelAgent.getDob() == null || travelAgent.getRepresentativeIDCard() == null || travelAgent.getRepresentativeIDCard().trim().isEmpty()
-                || travelAgent.getGender() == null || travelAgent.getGender().trim().isEmpty()
-                || travelAgent.getDateOfIssue() == null) {
-            return "Vui lòng điền đầy đủ thông tin!"; // Check for empty fields
-        }
-
-        if (!travelAgent.getFirstName().matches("^[\\p{L} ]{2,50}$") || !travelAgent.getLastName().matches("^[\\p{L} ]{2,50}$")) {
-            return "Họ và tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!"; // Validate name format
-        }
-
-        if (travelAgent.getTravelAgentAddress().length() < 5 || travelAgent.getTravelAgentAddress().length() > 200
-                || travelAgent.getAddress().length() < 5 || travelAgent.getAddress().length() > 200) {
-            return "Địa chỉ phải từ 5 đến 200 ký tự!"; // Validate address length
-        }
-
-        if (!travelAgent.getHotLine().matches("^0\\d{9}$") || !travelAgent.getPhone().matches("^0\\d{9}$")) {
-            return "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số!"; // Validate phone format
-        }
-
-        if (!travelAgent.getTravelAgentGmail().matches("^[a-zA-Z0-9._%+-]+@(gmail\\.com|[a-zA-Z0-9.-]+\\.(com|net|org|vn|edu|edu\\.vn|ac\\.vn))$")) {
-            return "Email công ty không hợp lệ!"; // Validate email format
-        }
-        if (travelAgentDAO.isTravelAgentEmailExists(travelAgent.getTravelAgentGmail())) {
-            return "Email công ty đã được sử dụng!"; // Check email uniqueness
-        }
-
-        if (!travelAgent.getTaxCode().matches("\\d{10}|\\d{13}")) {
-            return "Mã số thuế phải có 10 hoặc 13 chữ số!"; // Validate tax code format
-        }
-        if (travelAgentDAO.isTaxCodeExists(travelAgent.getTaxCode())) {
-            return "Mã số thuế đã được sử dụng!"; // Check tax code uniqueness
-        }
-
-        if (!travelAgent.getRepresentativeIDCard().matches("^0\\d{11}$")) {
-            return "Số căn cước công dân phải bắt đầu bằng số 0 và có đúng 12 chữ số!"; // Validate ID card format
-        }
-        if (travelAgentDAO.isIDCardExists(travelAgent.getRepresentativeIDCard())) {
-            return "Số căn cước công dân đã được sử dụng!"; // Check ID card uniqueness
-        }
-
+    private Map<String, String> processStep2(String travelAgentName, String travelAgentGmail, String hotline,
+            String travelAgentAddress, String establishmentDateStr, String taxCode, String firstName,
+            String lastName, String phone, String address, String dobStr, String representativeIDCard,
+            String gender, String dateOfIssueStr) throws SQLException {
+        Map<String, String> errors = new HashMap<>();
         LocalDate currentDate = LocalDate.now();
-        if (travelAgent.getEstablishmentDate().after(Date.valueOf(currentDate))) {
-            return "Ngày thành lập phải trước ngày hiện tại!"; // Check establishment date
+        LocalDate dobLocal = null; // Store valid dob for dateOfIssue check
+
+        // Validate non-date fields
+        if (travelAgentName == null || travelAgentName.trim().isEmpty()) {
+            errors.put("travelAgentName", "Tên công ty không được để trống!");
         }
-        if (travelAgent.getDob().after(Date.valueOf(currentDate))) {
-            return "Ngày sinh không được lớn hơn ngày hiện tại!"; // Check date of birth
+        if (travelAgentGmail == null || travelAgentGmail.trim().isEmpty()) {
+            errors.put("travelAgentGmail", "Email công ty không được để trống!");
+        } else if (!travelAgentGmail.matches("^[a-zA-Z0-9._%+-]+@(gmail\\.com|[a-zA-Z0-9.-]+\\.(com|net|org|vn|edu|edu\\.vn|ac\\.vn))$")) {
+            errors.put("travelAgentGmail", "Email công ty không hợp lệ!");
+        } else if (travelAgentDAO.isTravelAgentEmailExists(travelAgentGmail)) {
+            errors.put("travelAgentGmail", "Email công ty đã được sử dụng!");
         }
-        if (LocalDate.parse(travelAgent.getDob().toString()).plusYears(18).isAfter(currentDate)) {
-            return "Bạn phải đủ 18 tuổi trở lên!"; // Check age requirement
+        if (hotline == null || hotline.trim().isEmpty()) {
+            errors.put("hotLine", "Số HotLine không được để trống!");
+        } else if (!hotline.matches("^0\\d{9}$")) {
+            errors.put("hotLine", "Số HotLine phải bắt đầu bằng số 0 và có đúng 10 chữ số!");
         }
-        if (LocalDate.parse(travelAgent.getDob().toString()).isBefore(currentDate.minusYears(100))) {
-            return "Tuổi không được lớn hơn 100!"; // Check maximum age
+        if (travelAgentAddress == null || travelAgentAddress.trim().isEmpty()) {
+            errors.put("travelAgentAddress", "Địa chỉ công ty không được để trống!");
+        } else if (travelAgentAddress.length() < 5 || travelAgentAddress.length() > 200) {
+            errors.put("travelAgentAddress", "Địa chỉ công ty phải từ 5 đến 200 ký tự!");
         }
-        if (travelAgent.getDateOfIssue().after(Date.valueOf(currentDate))) {
-            return "Ngày cấp căn cước phải trước ngày hiện tại!"; // Check date of issue
+        if (taxCode == null || taxCode.trim().isEmpty()) {
+            errors.put("taxCode", "Mã số thuế không được để trống!");
+        } else if (!taxCode.matches("\\d{10}|\\d{13}")) {
+            errors.put("taxCode", "Mã số thuế phải có 10 hoặc 13 chữ số!");
+        } else if (travelAgentDAO.isTaxCodeExists(taxCode)) {
+            errors.put("taxCode", "Mã số thuế đã được sử dụng!");
+        }
+        if (firstName == null || firstName.trim().isEmpty()) {
+            errors.put("firstName", "Họ không được để trống!");
+        } else if (!firstName.matches("^[\\p{L} ]{2,50}$")) {
+            errors.put("firstName", "Họ chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!");
+        }
+        if (lastName == null || lastName.trim().isEmpty()) {
+            errors.put("lastName", "Tên không được để trống!");
+        } else if (!lastName.matches("^[\\p{L} ]{2,50}$")) {
+            errors.put("lastName", "Tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!");
+        }
+        if (phone == null || phone.trim().isEmpty()) {
+            errors.put("phone", "Số điện thoại không được để trống!");
+        } else if (!phone.matches("^0\\d{9}$")) {
+            errors.put("phone", "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số!");
+        }
+        if (address == null || address.trim().isEmpty()) {
+            errors.put("address", "Địa chỉ không được để trống!");
+        } else if (address.length() < 5 || address.length() > 200) {
+            errors.put("address", "Địa chỉ phải từ 5 đến 200 ký tự!");
+        }
+        if (representativeIDCard == null || representativeIDCard.trim().isEmpty()) {
+            errors.put("representativeIDCard", "Số căn cước công dân không được để trống!");
+        } else if (!representativeIDCard.matches("^0\\d{11}$")) {
+            errors.put("representativeIDCard", "Số căn cước công dân phải bắt đầu bằng số 0 và có đúng 12 chữ số!");
+        } else if (travelAgentDAO.isIDCardExists(representativeIDCard)) {
+            errors.put("representativeIDCard", "Số căn cước công dân đã được sử dụng!");
+        }
+        if (gender == null || gender.trim().isEmpty()) {
+            errors.put("gender", "Giới tính không được để trống!");
         }
 
-        // Insert travel agent into database
-        travelAgentDAO.insertTravelAgent(travelAgent);
+        // Validate establishmentDate
+        if (establishmentDateStr == null || establishmentDateStr.trim().isEmpty()) {
+            errors.put("establishmentDate", "Ngày thành lập không được để trống!");
+        } else if (!establishmentDateStr.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+            errors.put("establishmentDate", "Ngày thành lập không hợp lệ!");
+        } else {
+            Date establishmentDate = Date.valueOf(establishmentDateStr);
+            if (establishmentDate.after(Date.valueOf(currentDate))) {
+                errors.put("establishmentDate", "Ngày thành lập phải trước ngày hiện tại!");
+            }
+        }
 
-        // Prepare email content
-        StringBuilder body = new StringBuilder();
-        body.append("<h2>Xác nhận đăng ký đại lý du lịch</h2>");
-        body.append("<p>Cảm ơn bạn đã đăng ký! Dưới đây là chi tiết:</p>");
-        body.append("<p><strong>Ngày đăng ký: </strong> ").append(LocalDate.now()).append("</p>");
-        body.append("<h3>Thông tin đăng ký: </h3>");
-        body.append("<p>Tên công ty: ").append(travelAgent.getTravelAgentName()).append("</p>");
-        body.append("<p>Email công ty: ").append(travelAgent.getTravelAgentGmail()).append("</p>");
-        body.append("<p>Số HotLine: ").append(travelAgent.getHotLine()).append("</p>");
-        body.append("<p>Địa chỉ: ").append(travelAgent.getTravelAgentAddress()).append("</p>");
-        body.append("<p>Ngày thành lập: ").append(travelAgent.getEstablishmentDate()).append("</p>");
-        body.append("<p>Mã số thuế: ").append(travelAgent.getTaxCode()).append("</p>");
-        body.append("<p>Họ: ").append(travelAgent.getFirstName()).append("</p>");
-        body.append("<p>Tên: ").append(travelAgent.getLastName()).append("</p>");
-        body.append("<p>Email: ").append(travelAgent.getGmail()).append("</p>");
-        body.append("<p>Số điện thoại: ").append(travelAgent.getPhone()).append("</p>");
-        body.append("<p>Địa chỉ: ").append(travelAgent.getAddress()).append("</p>");
-        body.append("<p>Ngày sinh: ").append(travelAgent.getDob()).append("</p>");
-        body.append("<p>Giới tính: ").append(travelAgent.getGender()).append("</p>");
-        body.append("<p>Số CCCD: ").append(travelAgent.getRepresentativeIDCard()).append("</p>");
-        body.append("<p>Ngày cấp: ").append(travelAgent.getDateOfIssue()).append("</p>");
-        body.append("<p>Yêu cầu đăng ký của bạn sẽ được duyệt trong vòng 48h. Cảm ơn bạn đã đăng ký làm đại lý du lịch với chúng tôi!</p>");
-        // Attach files to email
-        String[] attachments = {
-            savePath + File.separator + new File(travelAgent.getBusinessLicense()).getName(),
-            savePath + File.separator + new File(travelAgent.getFrontIDCard()).getName(),
-            savePath + File.separator + new File(travelAgent.getBackIDCard()).getName()
-        };
-        EmailSender.send(travelAgent.getGmail(), "Xác nhận đăng ký đại lý du lịch - " + LocalDate.now(), body.toString(), attachments);
+        // Validate dob
+        if (dobStr == null || dobStr.trim().isEmpty()) {
+            errors.put("dob", "Ngày sinh không được để trống!");
+        } else if (!dobStr.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+            errors.put("dob", "Ngày sinh không hợp lệ!");
+        } else {
+            Date dob = Date.valueOf(dobStr);
+            dobLocal = LocalDate.parse(dob.toString());
+            if (dob.after(Date.valueOf(currentDate))) {
+                errors.put("dob", "Ngày sinh không được lớn hơn ngày hiện tại!");
+            } else if (dobLocal.plusYears(18).isAfter(currentDate)) {
+                errors.put("dob", "Bạn phải đủ 18 tuổi trở lên!");
+            } else if (dobLocal.isBefore(currentDate.minusYears(100))) {
+                errors.put("dob", "Tuổi không được lớn hơn 100!");
+            }
+        }
 
-        return "success"; // Return success after successful registration
+        // Validate dateOfIssue
+        if (dateOfIssueStr == null || dateOfIssueStr.trim().isEmpty()) {
+            errors.put("dateOfIssue", "Ngày cấp không được để trống!");
+        } else if (!dateOfIssueStr.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+            errors.put("dateOfIssue", "Ngày cấp không hợp lệ!");
+        } else if (dobLocal == null) {
+            errors.put("dateOfIssue", "Không thể kiểm tra ngày cấp vì ngày sinh không hợp lệ!");
+        } else {
+            Date dateOfIssue = Date.valueOf(dateOfIssueStr);
+            LocalDate dateOfIssueLocal = LocalDate.parse(dateOfIssue.toString());
+            if (dateOfIssue.after(Date.valueOf(currentDate))) {
+                errors.put("dateOfIssue", "Ngày cấp căn cước phải trước ngày hiện tại!");
+            } else if (dateOfIssueLocal.isBefore(dobLocal.plusYears(14))) {
+                errors.put("dateOfIssue", "Ngày cấp căn cước phải sau ngày sinh ít nhất 14 năm!");
+            }
+        }
+
+        return errors;
     }
 
     /**
-     * Extracts file name from Part object.
-     * Parses the content-disposition header to retrieve the file name.
+     * Extracts file name from Part object. Parses the content-disposition
+     * header to retrieve the file name.
      *
      * @param part The Part object from multipart request
      * @return File name or empty string if not found

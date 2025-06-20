@@ -46,7 +46,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
         PreparedStatement ptm = null;
         ResultSet rs = null;
         String sql = "SELECT t.travelAgentID, t.travelAgentName, t.travelAgentAddress, t.travelAgentGmail, t.hotLine, t.taxCode, "
-                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard, "
+                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard, t.reason,"
                 + "u.userID, u.gmail, u.roleID, u.password, u.firstName, u.lastName, u.dob, u.gender, u.address, u.phone, u.create_at, u.update_at, u.status "
                 + "FROM TravelAgent t JOIN [User] u ON t.userID = u.userID";
         try {
@@ -67,6 +67,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
                         rs.getString("frontIDCard"),
                         rs.getString("backIDCard"),
                         rs.getString("businessLicense"),
+                        rs.getString("reason"),
                         rs.getInt("userID"),
                         rs.getString("gmail"),
                         rs.getInt("roleID"),
@@ -105,7 +106,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
-        String sql = "SELECT COUNT(*) FROM [User] WHERE gmail = ?";
+        String sql = "SELECT COUNT(*) FROM [User] WHERE gmail = ? AND (status = 1 OR status = 2)";
         try {
             conn = getConnection(); // Establish database connection
             ptm = conn.prepareStatement(sql); // Prepare the SQL statement
@@ -136,7 +137,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
-        String sql = "SELECT COUNT(*) FROM TravelAgent WHERE travelAgentGmail = ?";
+        String sql = "SELECT COUNT(*) FROM TravelAgent t join [User] u on t.userID = u.userID WHERE travelAgentGmail = ? AND (status = 1 OR status = 2)";
         try {
             conn = getConnection(); // Establish database connection
             ptm = conn.prepareStatement(sql); // Prepare the SQL statement
@@ -167,7 +168,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
-        String sql = "SELECT COUNT(*) FROM TravelAgent WHERE taxCode = ?";
+        String sql = "SELECT COUNT(*) FROM TravelAgent t join [User] u on t.userID = u.userID WHERE taxCode = ? AND (status = 1 OR status = 2)";
         try {
             conn = getConnection(); // Establish database connection
             ptm = conn.prepareStatement(sql); // Prepare the SQL statement
@@ -198,7 +199,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
-        String sql = "SELECT COUNT(*) FROM TravelAgent WHERE representativeIDCard = ?";
+        String sql = "SELECT COUNT(*) FROM TravelAgent t join [User] u on t.userID = u.userID WHERE representativeIDCard = ? AND (status = 1 OR status = 2)";
         try {
             conn = getConnection(); // Establish database connection
             ptm = conn.prepareStatement(sql); // Prepare the SQL statement
@@ -282,27 +283,22 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
         }
     }
 
-    /**
-     * Searches for TravelAgent records by name.
-     * This method performs a partial match search using LIKE operator.
-     * @param name The name to search for
-     * @return Vector of matching TravelAgent objects
-     * @throws SQLException if database access fails
-     */
+    
+    
     @Override
-    public Vector<TravelAgent> searchByTravelAgentName(String name) throws SQLException {
+    public Vector<TravelAgent> searchByTravelAgentByStatus(int status) throws SQLException {
         Vector<TravelAgent> list = new Vector<>(); // Initialize vector to store results
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
         String sql = "SELECT t.travelAgentID, t.travelAgentName, t.travelAgentAddress, t.travelAgentGmail, t.hotLine, t.taxCode, "
-                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard, "
+                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard,t.reason, "
                 + "u.userID, u.gmail, u.roleID, u.password, u.firstName, u.lastName, u.dob, u.gender, u.address, u.phone, u.create_at, u.update_at, u.status "
-                + "FROM TravelAgent t JOIN [User] u ON t.userID = u.userID WHERE t.travelAgentName LIKE ?";
+                + "FROM TravelAgent t JOIN [User] u ON t.userID = u.userID WHERE u.status = ?";
         try {
             conn = getConnection(); // Establish database connection
             ptm = conn.prepareStatement(sql); // Prepare the SQL statement
-            ptm.setString(1, "%" + name + "%"); // Set partial match parameter
+            ptm.setInt(1, status); // Set partial match parameter
             rs = ptm.executeQuery(); // Execute query
             while (rs.next()) { // Iterate over results
                 TravelAgent agent = new TravelAgent(
@@ -318,6 +314,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
                         rs.getString("frontIDCard"),
                         rs.getString("backIDCard"),
                         rs.getString("businessLicense"),
+                        rs.getString("reason"),
                         rs.getInt("userID"),
                         rs.getString("gmail"),
                         rs.getInt("roleID"),
@@ -352,14 +349,14 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
      * @throws SQLException if database access fails
      */
     @Override
-    public TravelAgent searchByTravelAgentGmail(String gmail) throws SQLException {
+    public TravelAgent searchTravelAgentByGmail(String gmail) throws SQLException {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
         String sql = "SELECT t.travelAgentID, t.travelAgentName, t.travelAgentAddress, t.travelAgentGmail, t.hotLine, t.taxCode, "
-                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard, "
+                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard, t.reason,"
                 + "u.userID, u.gmail, u.roleID, u.password, u.firstName, u.lastName, u.dob, u.gender, u.address, u.phone, u.create_at, u.update_at, u.status "
-                + "FROM TravelAgent t JOIN [User] u ON t.userID = u.userID WHERE u.gmail = ?";
+                + "FROM TravelAgent t JOIN [User] u ON t.userID = u.userID WHERE u.gmail = ? and u.status = 1";
         try {
             conn = getConnection(); // Establish database connection
             ptm = conn.prepareStatement(sql); // Prepare the SQL statement
@@ -379,6 +376,7 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
                         rs.getString("frontIDCard"),
                         rs.getString("backIDCard"),
                         rs.getString("businessLicense"),
+                        rs.getString("reason"),
                         rs.getInt("userID"),
                         rs.getString("gmail"),
                         rs.getInt("roleID"),
@@ -403,6 +401,144 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
         }
         return null; // Return null if no record found
     }
+    
+    
+    /**
+     * Searches for a TravelAgent by Gmail.
+     * This method returns the first matching record based on the Gmail.
+     * @param gmail The Gmail to search for
+     * @return TravelAgent object if found, null otherwise
+     * @throws SQLException if database access fails
+     */
+    @Override
+    public Vector<TravelAgent> searchTravelAgentByGmailForAdmin(String gmail) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        Vector<TravelAgent> list = new Vector<>();
+        String sql = "SELECT t.travelAgentID, t.travelAgentName, t.travelAgentAddress, t.travelAgentGmail, t.hotLine, t.taxCode, "
+                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard, t.reason,"
+                + "u.userID, u.gmail, u.roleID, u.password, u.firstName, u.lastName, u.dob, u.gender, u.address, u.phone, u.create_at, u.update_at, u.status "
+                + "FROM TravelAgent t JOIN [User] u ON t.userID = u.userID WHERE u.gmail = ?";
+        try {
+            conn = getConnection(); // Establish database connection
+            ptm = conn.prepareStatement(sql); // Prepare the SQL statement
+            ptm.setString(1, gmail); // Set Gmail parameter
+            rs = ptm.executeQuery(); // Execute query
+            if (rs.next()) { // Check if a record exists
+                TravelAgent t = new TravelAgent(
+                        rs.getInt("travelAgentID"),
+                        rs.getString("travelAgentName"),
+                        rs.getString("travelAgentAddress"),
+                        rs.getString("travelAgentGmail"),
+                        rs.getString("hotLine"),
+                        rs.getString("taxCode"),
+                        rs.getDate("establishmentDate"),
+                        rs.getString("representativeIDCard"),
+                        rs.getDate("dateOfIssue"),
+                        rs.getString("frontIDCard"),
+                        rs.getString("backIDCard"),
+                        rs.getString("businessLicense"),
+                        rs.getString("reason"),
+                        rs.getInt("userID"),
+                        rs.getString("gmail"),
+                        rs.getInt("roleID"),
+                        rs.getString("password"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName"),
+                        rs.getDate("dob"),
+                        rs.getString("gender"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getDate("create_at"),
+                        rs.getDate("update_at"),
+                        rs.getInt("status")
+                );
+                list.add(t);
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Error searching Travel Agent by Gmail: " + ex.getMessage(), ex); // Throw detailed exception
+        } finally {
+            if (rs != null) rs.close(); // Close ResultSet
+            if (ptm != null) ptm.close(); // Close PreparedStatement
+            if (conn != null) conn.close(); // Close Connection
+        }
+        return list; 
+    }
+    
+    @Override
+    public TravelAgent searchTravelAgentByID(int id) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = "SELECT t.travelAgentID, t.travelAgentName, t.travelAgentAddress, t.travelAgentGmail, t.hotLine, t.taxCode, "
+                + "t.establishmentDate, t.representativeIDCard, t.dateOfIssue, t.businessLicense, t.frontIDCard, t.backIDCard, t.reason,"
+                + "u.userID, u.gmail, u.roleID, u.password, u.firstName, u.lastName, u.dob, u.gender, u.address, u.phone, u.create_at, u.update_at, u.status "
+                + "FROM TravelAgent t JOIN [User] u ON t.userID = u.userID WHERE t.travelAgentID = ?";
+        try {
+            conn = getConnection(); // Establish database connection
+            ptm = conn.prepareStatement(sql); // Prepare the SQL statement
+            ptm.setInt(1, id); // Set Gmail parameter
+            rs = ptm.executeQuery(); // Execute query
+            if (rs.next()) { // Check if a record exists
+                TravelAgent t = new TravelAgent(
+                        rs.getInt("travelAgentID"),
+                        rs.getString("travelAgentName"),
+                        rs.getString("travelAgentAddress"),
+                        rs.getString("travelAgentGmail"),
+                        rs.getString("hotLine"),
+                        rs.getString("taxCode"),
+                        rs.getDate("establishmentDate"),
+                        rs.getString("representativeIDCard"),
+                        rs.getDate("dateOfIssue"),
+                        rs.getString("frontIDCard"),
+                        rs.getString("backIDCard"),
+                        rs.getString("businessLicense"),
+                        rs.getString("reason"),
+                        rs.getInt("userID"),
+                        rs.getString("gmail"),
+                        rs.getInt("roleID"),
+                        rs.getString("password"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName"),
+                        rs.getDate("dob"),
+                        rs.getString("gender"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getDate("create_at"),
+                        rs.getDate("update_at"),
+                        rs.getInt("status")
+                );
+                return t;
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Error searching Travel Agent by Gmail: " + ex.getMessage(), ex); // Throw detailed exception
+        } finally {
+            if (rs != null) rs.close(); // Close ResultSet
+            if (ptm != null) ptm.close(); // Close PreparedStatement
+            if (conn != null) conn.close(); // Close Connection
+        }
+        return null; 
+    }
+    @Override
+    public void updateRejectionReason(int travelAgentID, String reason) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        String sql = "UPDATE TravelAgent SET reason = ? WHERE travelAgentID = ?";
+        try {
+            conn = getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, reason);
+            ptm.setInt(2, travelAgentID);
+            ptm.executeUpdate();
+        } catch (SQLException ex) {
+            throw new SQLException("Error updating rejection reason: " + ex.getMessage(), ex);
+        } finally {
+            if (ptm != null) ptm.close();
+            if (conn != null) conn.close();
+        }
+    }
+    
 
     /**
      * Updates an existing TravelAgent in the database.
@@ -410,50 +546,90 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
      * @param agent The TravelAgent object to update
      * @throws SQLException if database update fails
      */
+        /**
+     * Updates an existing TravelAgent in the database.
+     * @param agent The TravelAgent object to update
+     * @param updateType The type of update ("company" or "representative")
+     * @throws SQLException if database update fails
+     */
     @Override
-    public void updateTravelAgent(TravelAgent agent) throws SQLException {
+    public void updateTravelAgent(TravelAgent agent, String updateType) throws SQLException {
         Connection conn = null;
         PreparedStatement userPtm = null;
         PreparedStatement travelAgentPtm = null;
-        String userSql = "UPDATE [User] SET gmail=?, roleID=?, password=?, firstName=?, lastName=?, dob=?, gender=?, address=?, phone=?, update_at=?, status=? WHERE userID=?";
         try {
-            conn = getConnection(); // Establish database connection
-            userPtm = conn.prepareStatement(userSql); // Prepare User update statement
-            userPtm.setString(1, agent.getGmail());
-            userPtm.setInt(2, agent.getRoleID());
-            userPtm.setString(3, agent.getPassword());
-            userPtm.setString(4, agent.getFirstName());
-            userPtm.setString(5, agent.getLastName());
-            userPtm.setDate(6, agent.getDob());
-            userPtm.setString(7, agent.getGender());
-            userPtm.setString(8, agent.getAddress());
-            userPtm.setString(9, agent.getPhone());
-            userPtm.setDate(10, Date.valueOf(LocalDate.now())); // Set current date
-            userPtm.setInt(11, agent.getStatus());
-            userPtm.setInt(12, agent.getUserID());
-            userPtm.executeUpdate(); // Execute User update
+            conn = getConnection();
+            if (updateType.equals("company")) {
+                // Update TravelAgent table
+                String travelAgentSql = "UPDATE TravelAgent SET travelAgentName=?, travelAgentGmail=?, hotLine=?, travelAgentAddress=?, establishmentDate=?, taxCode=?, businessLicense=? WHERE travelAgentID=?";
+                travelAgentPtm = conn.prepareStatement(travelAgentSql);
+                travelAgentPtm.setString(1, agent.getTravelAgentName());
+                travelAgentPtm.setString(2, agent.getTravelAgentGmail());
+                travelAgentPtm.setString(3, agent.getHotLine());
+                travelAgentPtm.setString(4, agent.getTravelAgentAddress());
+                travelAgentPtm.setDate(5, agent.getEstablishmentDate());
+                travelAgentPtm.setString(6, agent.getTaxCode());
+                travelAgentPtm.setString(7, agent.getBusinessLicense());
+                travelAgentPtm.setInt(8, agent.getTravelAgentID());
+                travelAgentPtm.executeUpdate();
 
-            String travelAgentSql = "UPDATE TravelAgent SET travelAgentName=?, travelAgentAddress=?, travelAgentGmail=?, hotLine=?, taxCode=?, establishmentDate=?, representativeIDCard=?, dateOfIssue=? WHERE travelAgentID=?";
-            travelAgentPtm = conn.prepareStatement(travelAgentSql); // Prepare TravelAgent update statement
-            travelAgentPtm.setString(1, agent.getTravelAgentName());
-            travelAgentPtm.setString(2, agent.getTravelAgentAddress());
-            travelAgentPtm.setString(3, agent.getTravelAgentGmail());
-            travelAgentPtm.setString(4, agent.getHotLine());
-            travelAgentPtm.setString(5, agent.getTaxCode());
-            travelAgentPtm.setDate(6, agent.getEstablishmentDate());
-            travelAgentPtm.setString(7, agent.getRepresentativeIDCard());
-            travelAgentPtm.setDate(8, agent.getDateOfIssue());
-            travelAgentPtm.setInt(9, agent.getTravelAgentID());
-            travelAgentPtm.executeUpdate(); // Execute TravelAgent update
+                // Update User table's update_at
+                String userSql = "UPDATE [User] SET update_at=? WHERE userID=?";
+                userPtm = conn.prepareStatement(userSql);
+                userPtm.setDate(1, Date.valueOf(LocalDate.now()));
+                userPtm.setInt(2, agent.getUserID());
+                userPtm.executeUpdate();
+            } else if (updateType.equals("representative")) {
+                // Update User table
+                String userSql = "UPDATE [User] SET firstName=?, lastName=?, dob=?, gender=?, address=?, phone=?, update_at=? WHERE userID=?";
+                userPtm = conn.prepareStatement(userSql);
+                userPtm.setString(1, agent.getFirstName());
+                userPtm.setString(2, agent.getLastName());
+                userPtm.setDate(3, agent.getDob());
+                userPtm.setString(4, agent.getGender());
+                userPtm.setString(5, agent.getAddress());
+                userPtm.setString(6, agent.getPhone());
+                userPtm.setDate(7, Date.valueOf(LocalDate.now()));
+                userPtm.setInt(8, agent.getUserID());
+                userPtm.executeUpdate();
+
+                // Update TravelAgent table
+                String travelAgentSql = "UPDATE TravelAgent SET representativeIDCard=?, dateOfIssue=?, frontIDCard=?, backIDCard=? WHERE travelAgentID=?";
+                travelAgentPtm = conn.prepareStatement(travelAgentSql);
+                travelAgentPtm.setString(1, agent.getRepresentativeIDCard());
+                travelAgentPtm.setDate(2, agent.getDateOfIssue());
+                travelAgentPtm.setString(3, agent.getFrontIDCard());
+                travelAgentPtm.setString(4, agent.getBackIDCard());
+                travelAgentPtm.setInt(5, agent.getTravelAgentID());
+                travelAgentPtm.executeUpdate();
+            }
         } catch (SQLException ex) {
-            throw new SQLException("Error updating Travel Agent: " + ex.getMessage(), ex); // Throw detailed exception
+            throw new SQLException("Error updating Travel Agent: " + ex.getMessage(), ex);
         } finally {
-            if (userPtm != null) userPtm.close(); // Close User PreparedStatement
-            if (travelAgentPtm != null) travelAgentPtm.close(); // Close TravelAgent PreparedStatement
-            if (conn != null) conn.close(); // Close Connection
+            if (userPtm != null) userPtm.close();
+            if (travelAgentPtm != null) travelAgentPtm.close();
+            if (conn != null) conn.close();
         }
     }
 
+    public void updatePassword(int userID, String password) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        String sql = "UPDATE [User] SET password=?, update_at=? WHERE userID=?";
+        try {
+            conn = getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, password);
+            ptm.setDate(2, Date.valueOf(LocalDate.now()));
+            ptm.setInt(3, userID);
+            ptm.executeUpdate();
+        } catch (SQLException ex) {
+            throw new SQLException("Error updating password: " + ex.getMessage(), ex);
+        } finally {
+            if (ptm != null) ptm.close();
+            if (conn != null) conn.close();
+        }
+    }
     /**
      * Deletes a TravelAgent from the database.
      * This method checks for linked tours and either deletes or disables the agent.
@@ -546,7 +722,10 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
     public static void main(String[] args) {
         TravelAgentDAO dao = new TravelAgentDAO(); // Create DAO instance
         try {
-            TravelAgent b = dao.searchByTravelAgentGmail("mai24a1k23@cvp.vn"); // Search by Gmail
+            TravelAgent b = dao.searchTravelAgentByGmail("mai24a1k23@cvp.vn"); // Search by Gmail
+            dao.insertTravelAgent(b);
+            b.setHotLine("093029928192");
+            dao.updateTravelAgent(b, "company");
             System.out.println(b); // Print result
         } catch (SQLException ex) {
             ex.printStackTrace(); // Print stack trace for debugging

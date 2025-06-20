@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
+import model.TravelAgent;
 
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2, // 2MB
@@ -51,9 +52,9 @@ public class AddEntertainment extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs<br>
      * @throws IOException if an I/O error occurs<br>
      */
-    private void sendError(HttpServletRequest request, HttpServletResponse response, String message)
+    private void sendError(HttpServletRequest request, HttpServletResponse response,String errorType, String message)
             throws ServletException, IOException {
-        request.setAttribute("errorInput", message);
+        request.setAttribute(errorType, message);
         request.getRequestDispatcher("view/agent/entertainment/addEntertainment.jsp").forward(request, response); // Assume error page
     }
 
@@ -91,7 +92,7 @@ public class AddEntertainment extends HttpServlet {
         IEntertainmentDAO enDao = new EntertainmentDAO();
         HttpSession session = request.getSession();
         String imageFileName = (String) session.getAttribute("imageFileName");
-
+        TravelAgent travelAgent = (TravelAgent) session.getAttribute("agent");
         // Get and validate form parameters
         String name = request.getParameter("name") != null ? request.getParameter("name").trim() : "";
         String type = request.getParameter("type") != null ? request.getParameter("type").trim() : "";
@@ -135,7 +136,7 @@ public class AddEntertainment extends HttpServlet {
                 request.setAttribute("imageFileName", imageFileName);
             } else if (imageFileName == null || imageFileName.trim().isEmpty()) {
                 request.setAttribute("imageFileName", "");
-                sendError(request, response, "Vui lòng chọn ảnh cho nhà hàng.");
+                sendError(request, response, "errorImage", "Vui lòng chọn ảnh cho nhà hàng.");
                 return;
             } else {
                 relativeImagePath = UPLOAD_DIRECTORY + "/" + imageFileName; // Use existing image
@@ -144,40 +145,40 @@ public class AddEntertainment extends HttpServlet {
 
             // Validation: name
             if (name.isEmpty()) {
-                sendError(request, response, "Tên dịch vụ không được để trống");
+                sendError(request, response,"errorName",  "Tên dịch vụ không được để trống");
                 return;
             }
 
             // Validation: phone
             if (phone.isEmpty()) {
-                sendError(request, response, "Số điện thoại không được để trống.");
+                sendError(request, response,"errorPhone",  "Số điện thoại không được để trống.");
                 return;
             }
             if (phone.length() != 10 || !phone.startsWith("0") || !phone.matches("^(0)[0-9]{9}$")) {
-                sendError(request, response, "Số điện thoại phải có 10 số, bắt đầu bằng 0.");
+                sendError(request, response,"errorPhone", "Số điện thoại phải có 10 số, bắt đầu bằng 0.");
                 return;
             }
 
             // Validation: type
             if (type.isEmpty()) {
-                sendError(request, response, "Loại dịch vụ giải trí không được bỏ trống.");
+                sendError(request, response,"errorType", "Loại dịch vụ giải trí không được bỏ trống.");
                 return;
             }
 
             // Validation: rate
             float rate;
             if (rateStr.isEmpty()) {
-                sendError(request, response, "Điểm đánh giá không được để trống.");
+                sendError(request, response,"errorRate", "Điểm đánh giá không được để trống.");
                 return;
             }
             try {
                 rate = Float.parseFloat(rateStr);
                 if (rate < 0 || rate > 10) {
-                    sendError(request, response, "Điểm đánh giá phải nằm trong khoảng 0-10");
+                    sendError(request, response,"errorRate", "Điểm đánh giá phải nằm trong khoảng 0-10");
                     return;
                 }
             } catch (NumberFormatException e) {
-                sendError(request, response, "Điểm đánh giá không hợp lệ , điểm đánh giá phải là số");
+                sendError(request, response, "errorRate","Điểm đánh giá không hợp lệ , điểm đánh giá phải là số");
                 return;
             }
 
@@ -191,7 +192,7 @@ public class AddEntertainment extends HttpServlet {
             LocalTime timeOpen = LocalTime.parse(timeOpenStr);
             LocalTime timeClose = LocalTime.parse(timeCloseStr);
             if (Duration.between(timeOpen, timeClose).toHours() < 1) {
-                sendError(request, response, "Thời gian mở cửa phải ít nhất 1 tiếng.");
+                sendError(request, response, "errorTime","Thời gian mở cửa phải ít nhất 1 tiếng.");
                 return;
             }
 
@@ -200,19 +201,19 @@ public class AddEntertainment extends HttpServlet {
             if (dayOfWeekOpen != null && dayOfWeekOpen.length > 0) {
                 dayOfWeekAll = String.join(" , ", dayOfWeekOpen);
             } else {
-                sendError(request, response, "Vui lòng chọn ít nhất 1 ngày mở cửa");
+                sendError(request, response, "errorDayOfWeek","Vui lòng chọn ít nhất 1 ngày mở cửa");
                 return;
             }
 
             // Validation: ticketPrice
             if (ticketPriceStr == null || ticketPriceStr.trim().isEmpty()) {
-                sendError(request, response, "Giá vé không được để trống.");
+                sendError(request, response,"errorTicketPrice", "Giá vé không được để trống.");
                 return;
             }
             ticketPriceStr = ticketPriceStr.trim();
 
             if (!ticketPriceStr.matches("^[0-9]{1,3}([.,]?[0-9]{3})*$")) {
-                sendError(request, response, "Giá vé không hợp lệ. Vui lòng chỉ nhập số, có thể dùng '.' hoặc ',' ngăn cách <br>hàng chục, hàng trăm, hàng nghìn.<br>Không được thừa ký tự ở đầu và cuối giá tiền");
+                sendError(request, response, "errorTicketPrice","Giá vé không hợp lệ. Vui lòng chỉ nhập số, có thể dùng '.' hoặc ',' ngăn cách <br>hàng chục, hàng trăm, hàng nghìn.<br>Không được thừa ký tự ở đầu và cuối giá tiền");
                 return;
             }
 
@@ -221,29 +222,29 @@ public class AddEntertainment extends HttpServlet {
             try {
                 ticketPrice = Float.parseFloat(cleanedTicketPriceStr);
                 if (ticketPrice < 0) {
-                    sendError(request, response, "Giá vé không được là số âm.");
+                    sendError(request, response,"errorTicketPrice", "Giá vé không được là số âm.");
                     return;
                 }
             } catch (NumberFormatException e) {
-                sendError(request, response, "Giá vé phải là số hợp lệ.");
+                sendError(request, response, "errorTicketPrice","Giá vé phải là số hợp lệ.");
                 return;
             }
             // Validation: description
             if (description.isEmpty() || description.trim().split("\\s+").length < 10) {
-                sendError(request, response, "Vui lòng điền mô tả dịch vụ từ 10 từ trở lên.");
+                sendError(request, response, "errorDescription","Vui lòng điền mô tả dịch vụ từ 10 từ trở lên.");
                 return;
             }
 
             // Insert into database
-            enDao.insertEntertainmentFull(name, relativeImagePath, address, phone, description, rate, type, 1, timeOpenStr, timeCloseStr, dayOfWeekAll, ticketPrice);
+            enDao.insertEntertainmentFull(travelAgent.getTravelAgentID(),name, relativeImagePath, address, phone, description, rate, type, 1, timeOpenStr, timeCloseStr, dayOfWeekAll, ticketPrice);
             request.setAttribute("success", "Thêm dịch vụ giải trí thành công!");
             request.getRequestDispatcher("view/agent/entertainment/addEntertainment.jsp").forward(request, response);
         } catch (SQLServerException e) {
-            sendError(request, response, "Lỗi cơ sở dữ liệu: " + e.getMessage());
+            sendError(request, response, "errorSystem","Lỗi cơ sở dữ liệu: " + e.getMessage());
         } catch (IOException e) {
-            sendError(request, response, "Lỗi tải ảnh lên: " + e.getMessage());
+            sendError(request, response, "errorSystem","Lỗi tải ảnh lên: " + e.getMessage());
         } catch (Exception e) {
-            sendError(request, response, "Lỗi không mong muốn: " + e.getMessage());
+            sendError(request, response,"errorSystem", "Lỗi không mong muốn: " + e.getMessage());
         }
     }
 

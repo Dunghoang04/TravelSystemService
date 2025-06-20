@@ -1,4 +1,8 @@
 /*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+ /*
  * Copyright (C) 2025, Group 6.
  * ProjectCode/Short Name of Application: TravelAgentService 
  * Support Management and Provide Travel Service System 
@@ -9,6 +13,7 @@
  */
 package controller.user;
 
+import dao.IUserDAO;
 import dao.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,7 +57,7 @@ public class ProfileUser extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession();
-        UserDAO udao = new UserDAO();
+        IUserDAO udao = new UserDAO();
         String service = request.getParameter("service");
 
         //Nếu không có service, chuyển đến trang profile
@@ -61,7 +66,14 @@ public class ProfileUser extends HttpServlet {
             return;
         }
 
+        // Chuyển đến trang chỉnh sửa profile
         if (service.equals("editProfileUser")) {
+            User loginUser = (User) session.getAttribute("loginUser");
+            if (loginUser == null) {
+                request.setAttribute("error", "Vui lòng đăng nhập để chỉnh sửa thông tin!");
+                request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
+                return;
+            }
             request.getRequestDispatcher("view/user/editProfileUser.jsp").forward(request, response);
             return;
         }
@@ -83,42 +95,61 @@ public class ProfileUser extends HttpServlet {
                 request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
                 return;
             }
+
+            // Lưu giá trị đã nhập để hiển thị lại trong form
+            request.setAttribute("lastName", lastName);
+            request.setAttribute("firstName", firstName);
+            request.setAttribute("password", password);
+            request.setAttribute("phone", phone);
+            request.setAttribute("dob", dobStr);
+            request.setAttribute("gender", gender);
+            request.setAttribute("address", address);
+            request.setAttribute("gmail", gmail);
+
             // Nếu không thay đổi mật khẩu, giữ nguyên mật khẩu cũ
             if (password == null || password.trim().isEmpty()) {
                 password = loginUser.getPassword();
             }
 
+            validateInput(request, lastName, firstName, password, phone, dobStr, gender, address);
             try {
-                String error = validateInput(lastName, firstName, password, phone, dobStr, gender, address);
-                if (error != null) {
-                    request.setAttribute("error", error);
+                if (request.getAttribute("lastNameError") == null
+                        && request.getAttribute("firstNameError") == null
+                        && request.getAttribute("passwordError") == null
+                        && request.getAttribute("repasswordError") == null
+                        && request.getAttribute("phoneError") == null
+                        && request.getAttribute("dobError") == null
+                        && request.getAttribute("genderError") == null
+                        && request.getAttribute("addressError") == null) {
+
+                    LocalDate dob = LocalDate.parse(dobStr);
+                    LocalDate now = LocalDate.now();
+                    Date updateDate = Date.valueOf(now);
+
+                    //Cập nhật thông tin người dùng
+                    loginUser.setLastName(lastName);
+                    loginUser.setFirstName(firstName);
+                    loginUser.setPassword(password);
+                    loginUser.setGender(gender);
+                    loginUser.setPhone(phone);
+                    loginUser.setDob(Date.valueOf(dob));
+                    loginUser.setAddress(address);
+                    loginUser.setUpdateDate(updateDate);
+
+                    //Gọi DAO để cập nhật vào cơ sở dữ liệu 
+                    udao.updateUser(loginUser);
+
+                    //Cập nhat lại session
+                    session.setAttribute("loginUser", loginUser);
+
+                    //Hiển thị cập nhật thành công
+                    request.setAttribute("success", "Cập nhật thông tin thành công!");
                     request.getRequestDispatcher("/view/user/editProfileUser.jsp").forward(request, response);
-                    return;
+                } else {
+                    // Nếu có lỗi, quay lại trang chỉnh sửa với thông báo lỗi
+                    request.setAttribute("error", "Vui lòng kiểm tra lại thông tin!");
+                    request.getRequestDispatcher("/view/user/editProfileUser.jsp").forward(request, response);
                 }
-
-                LocalDate dob = LocalDate.parse(dobStr);
-                LocalDate now = LocalDate.now();
-                Date updateDate = Date.valueOf(now);
-
-                //Cập nhật thông tin người dùng
-                loginUser.setLastName(lastName);
-                loginUser.setFirstName(firstName);
-                loginUser.setPassword(password);
-                loginUser.setGender(gender);
-                loginUser.setPhone(phone);
-                loginUser.setDob(Date.valueOf(dob));
-                loginUser.setAddress(address);
-                loginUser.setUpdateDate(updateDate);
-
-                //Gọi DAO để cập nhật vào cơ sở dữ liệu 
-                udao.updateUser(loginUser);
-
-                //Cập nahatj lại session
-                session.setAttribute("loginUser", loginUser);
-
-                //Hiển thị cập nhật thành công
-                request.setAttribute("success", "Cập nhật thông tin thành công!");
-                request.getRequestDispatcher("/view/user/viewProfileUser.jsp").forward(request, response);
                 return;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -147,49 +178,59 @@ public class ProfileUser extends HttpServlet {
      * Validates all input fields for profile update.
      * Checks for empty fields, format, and age constraints.
      */
-    private String validateInput(String lastName, String firstName, String password,
+    private void validateInput(HttpServletRequest request, String lastName, String firstName, String password,
             String phone, String dobStr, String gender, String address) {
-// Kiểm tra các trường không được để trống
-        if (lastName == null || lastName.trim().isEmpty()
-                || firstName == null || firstName.trim().isEmpty()
-                || password == null || password.trim().isEmpty()
-                || phone == null || phone.trim().isEmpty()
-                || dobStr == null || dobStr.trim().isEmpty()
-                || gender == null || gender.trim().isEmpty()
-                || address == null || address.trim().isEmpty()) {
-            return "Vui lòng điền đầy đủ thông tin!";
-        }
-        if (!lastName.matches("^[\\p{L} ]{2,50}$") || !firstName.matches("^[\\p{L} ]{2,50}$")) {
-            return "Họ và tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!";
+// Kiểm tra họ
+        if (lastName == null || lastName.trim().isEmpty()) {
+            request.setAttribute("lastNameError", "Họ không được để trống!");
+        } else if (!lastName.matches("^[\\p{L} ]{2,50}$")) {
+            request.setAttribute("lastNameError", "Họ chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!");
         }
 
-        if (!phone.matches("^0\\d{9}$")) {
-            return "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số. ";
-        }
-        String passwordRegex = "^[A-Z](?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={}:\";'<>?,./]).{7,}$";
-        if (!password.matches(passwordRegex)) {
-            return "Mật khẩu phải bắt đầu bằng chữ hoa, chứa ít nhất 1 chữ thường, 1 số, 1 ký tự đặc biệt và có ít nhất 8 ký tự!";
+        // Kiểm tra tên
+        if (firstName == null || firstName.trim().isEmpty()) {
+            request.setAttribute("firstNameError", "Tên không được để trống!");
+        } else if (!firstName.matches("^[\\p{L} ]{2,50}$")) {
+            request.setAttribute("firstNameError", "Tên chỉ được chứa chữ cái và khoảng trắng, độ dài từ 2 đến 50 ký tự!");
         }
 
-        try {
-            LocalDate dob = LocalDate.parse(dobStr);
-            LocalDate today = LocalDate.now();
-            if (dob.isAfter(today)) {
-                return "Ngày sinh không được lớn hơn ngày hiện tại!";
+        // Kiểm tra địa chỉ
+        if (address == null || address.trim().isEmpty()) {
+            request.setAttribute("addressError", "Địa chỉ không được để trống!");
+        } else if (address.length() < 5 || address.length() > 200) {
+            request.setAttribute("addressError", "Địa chỉ phải từ 5 đến 200 ký tự!");
+        }
+
+        // Kiểm tra số điện thoại
+        if (phone == null || phone.trim().isEmpty()) {
+            request.setAttribute("phoneError", "Số điện thoại không được để trống!");
+        } else if (!phone.matches("^0[35789]\\d{8}$")) {
+            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng 03, 05, 07, 08 hoặc 09 và có đúng 10 chữ số!");
+        }
+
+        // Kiểm tra ngày sinh
+        if (dobStr == null || dobStr.trim().isEmpty()) {
+            request.setAttribute("dobError", "Ngày sinh không được để trống!");
+        } else {
+            try {
+                LocalDate dob = LocalDate.parse(dobStr);
+                LocalDate today = LocalDate.now();
+                if (dob.isAfter(today)) {
+                    request.setAttribute("dobError", "Ngày sinh không được lớn hơn ngày hiện tại!");
+                } else if (dob.plusYears(18).isAfter(today)) {
+                    request.setAttribute("dobError", "Bạn phải đủ 18 tuổi trở lên!");
+                } else if (dob.isBefore(today.minusYears(100))) {
+                    request.setAttribute("dobError", "Tuổi không được lớn hơn 100!");
+                }
+            } catch (Exception e) {
+                request.setAttribute("dobError", "Ngày sinh không hợp lệ!");
             }
-
-            if (dob.plusYears(18).isAfter(today)) {
-                return "Bạn phải đủ 18 tuổi trở lên để đăng ký!";
-            }
-
-            if (dob.isBefore(today.minusYears(100))) {
-                return "Tuổi không được lớn hơn 100!";
-            }
-
-        } catch (Exception e) {
-            return "Ngày sinh không hợp lệ";
         }
-        return null;
+
+        // Kiểm tra giới tính
+        if (gender == null || gender.trim().isEmpty()) {
+            request.setAttribute("genderError", "Vui lòng chọn giới tính!");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

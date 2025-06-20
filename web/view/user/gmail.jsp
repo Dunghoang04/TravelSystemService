@@ -155,14 +155,14 @@
         </style>
     </head>
     <body>
-        
+
         <div class="wrapper">
             <div class="left">
                 <h2>Du lịch Việt Nam</h2>
                 <form action="${pageContext.request.contextPath}/GmailUser" method="post">
                     <div class="input-wrapper">
                         <i class="fa-regular fa-envelope"></i>
-                        <input  name="gmail" placeholder="Nhập gmail của bạn" required="" />
+                        <input  name="gmail" value="${param.gmail}" placeholder="Nhập gmail của bạn" required="" />
                     </div>
                     <div class="checkbox-group">
                         <label>

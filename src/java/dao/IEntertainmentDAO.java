@@ -40,7 +40,7 @@ public interface IEntertainmentDAO {
      * @param ticketPrice  the ticket price
      * @throws SQLException if a database error occurs
      */
-    void insertEntertainmentFull(String name, String image, String address, String phone, String description,
+    void insertEntertainmentFull(int agentID,String name, String image, String address, String phone, String description,
             float rate, String type, int status, String timeOpen, String timeClose, String dayOfWeekOpen, float ticketPrice)
             throws SQLException;
 
@@ -53,6 +53,8 @@ public interface IEntertainmentDAO {
      * @throws SQLException if a database error occurs
      */
     List<Entertainment> getListEntertainment(int page, int pageSize) throws SQLException;
+    
+    List<Entertainment> getListEntertainmentNoPage(int serviceId) throws SQLException;
 
     /**
      * Counts all entertainment records.

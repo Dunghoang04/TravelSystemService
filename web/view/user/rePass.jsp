@@ -127,6 +127,10 @@
             .error {
                 color: red;
             }
+            .required {
+                color: red;
+                margin-left: 2px;
+            }
         </style>
     </head>
     <body>
@@ -135,7 +139,7 @@
                 <h2>Quên mật khẩu</h2>
                 <form action="${pageContext.request.contextPath}/LoginLogout" method="post">
                     <div class="form-group">
-                        <label for="gmail">Gmail:</label>
+                        <label for="gmail">Gmail:<span class="required">*</span></label>
                         <input type="email" id="gmail" name="gmail" placeholder="Nhập email của bạn" required>
                     </div>
                     <input type="hidden" name="service" value="forgetPassword">
