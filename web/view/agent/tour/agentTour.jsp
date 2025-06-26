@@ -1,11 +1,11 @@
-<%-- 
+<%--
  * Copyright (C) 2025, Group 6.
  * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0        Quynh Mai          First implementation
+ * 2025-06-20  1.0        Quynh Mai         First implementation based on agent profile requirements
 --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -16,12 +16,12 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Agent Tour Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" id="bootstrap-css">
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <title>Quản lý Tour</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link href="${pageContext.request.contextPath}/assets/css/styles2.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         html, body {
             height: 100%;
@@ -41,11 +41,12 @@
             overflow-y: auto;
         }
         .content {
+            margin-left: 250px;
             padding: 20px;
             flex: 1;
         }
         .container-centered {
-            max-width: 1300px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         h1 {
@@ -54,112 +55,71 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        .custom-table {
+        .table-responsive {
+            margin-top: 20px;
             background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.05);
-            padding: 20px;
+            border-radius: 20px;
+            padding: 40px;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-dialog {
-            margin: 10% auto;
-            width: 80%;
-            max-width: 600px;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .modal-header {
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 10px;
-        }
-        .modal-title {
-            margin: 0;
-            color: #000;
-        }
-        .close {
-            float: right;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .modal-body input, .modal-body select, .modal-body textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-        .image-preview {
-            max-height: 150px;
-            max-width: 100%;
-            object-fit: contain;
-            display: none;
-            margin-bottom: 10px;
-        }
-        .button {
-            width: auto;
-            padding: 6px 12px;
-            background: #28A745;
+        .status-filter button {
+            padding: 8px 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 20px;
             color: white;
-            font-size: 14px;
-            font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: transform 0.3s, font-weight 0.3s;
         }
-        .button:hover {
-            background: #218838;
+        .status-filter button.active {
+            transform: scale(1.1);
+            font-weight: bold;
         }
-        .required {
-            color: red;
-            margin-left: 2px;
+        .dataTables_paginate {
+            margin-top: 10px;
         }
-        .container {
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-        .small-input {
-            width: 30%;
-        }
-        .large-input {
-            width: 100%;
-        }
-        .add-tour-button {
-            margin-left: auto;
-            display: inline-block;
+        .error-message {
+            color: #dc3545;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <%@include file="/view/layout/headerAdmin.jsp" %>
     <div id="layoutSidenav">
-        <jsp:include page="/view/layout/sideNavOptionAgent.jsp"></jsp:include>  
+        <jsp:include page="/view/layout/sideNavOptionAgent.jsp" />
         <div id="layoutSidenav_content">
             <main>
-                <div class="container mt-3 mb-3">
-                    <h1>Quản lý Tours</h1>
-                    <div class="custom-table bg-white p-3 rounded">
-                        <div class="mb-3" style="text-align: right">
-                            <button class="button add-tour-button" onclick="openInsertModal()">Thêm Tour Mới</button>
+                <div class="container-centered mt-3 mb-3">
+                    <h1>Quản lý Tour</h1>
+                    <c:if test="${not empty requestScope.errorMessage}">
+                        <div class="error-message">
+                            <c:out value="${requestScope.errorMessage}" />
                         </div>
-                        <table id="tourTable" class="table table-striped">
+                    </c:if>
+                    <c:if test="${not empty param.successMessage}">
+                        <div class="alert alert-success" role="alert">
+                            ${param.successMessage}
+                        </div>
+                    </c:if>
+                    <form action="${pageContext.request.contextPath}/ListTour?service=list" method="get">
+                        <input type="hidden" name="service" value="list">
+                        <div class="status-filter">
+                            <button style="background-color: #6c757d;" type="submit" name="status" value="all" class="all ${param.status == null || param.status == 'all' ? 'active' : ''}">Tất cả</button>
+                            <button style="background-color: #007bff;" type="submit" name="status" value="2" class="pending ${param.status == '2' ? 'active' : ''}">Chờ duyệt</button>
+                            <button style="background-color: #dc3545;" type="submit" name="status" value="3" class="rejected ${param.status == '3' ? 'active' : ''}">Bị từ chối</button>
+                            <button style="background-color: #28a745;" type="submit" name="status" value="1" class="activeS ${param.status == '1' ? 'active' : ''}">Hoạt động</button>
+                            <button style="background-color: #ffc107;" type="submit" name="status" value="0" class="inactive ${param.status == '0' ? 'active' : ''}">Không hoạt động</button>
+                        </div>
+                    </form>
+                    <div class="table-responsive">
+                        <div style="text-align: right; margin-bottom: 10px;">
+                            <a style="color: white; background-color: #28A745; border: none; padding: 6px 20px;" href="${pageContext.request.contextPath}/AddTour?service=addStep1" class="btn btn-info btn-sm">Thêm Tour</a>
+                        </div>
+                        <table id="tourTable" class="table table-striped" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>STT</th>
@@ -176,7 +136,7 @@
                             <tbody>
                                 <c:forEach items="${requestScope.tours}" var="tour" varStatus="loop">
                                     <tr>
-                                        <td></td> <!-- Số thứ tự sẽ được gán bằng JavaScript -->
+                                        <td></td>
                                         <td>${tour.tourName}</td>
                                         <td>${tour.startPlace}</td>
                                         <td>${tour.endPlace}</td>
@@ -185,14 +145,15 @@
                                         <td><fmt:formatNumber value="${tour.adultPrice}"/>đ</td>
                                         <td>
                                             <c:choose>
+                                                <c:when test="${tour.status == 2}">Chờ duyệt</c:when>
                                                 <c:when test="${tour.status == 1}">Hoạt động</c:when>
-                                                <c:otherwise>Không hoạt động</c:otherwise>
+                                                <c:when test="${tour.status == 3}">Bị từ chối</c:when>
+                                                <c:when test="${tour.status == 0}">Không hoạt động</c:when>
                                             </c:choose>
                                         </td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/ManageTour?service=viewTourDetail&tourId=${tour.tourID}" class="btn btn-sm" style="background-color: #86B817; color: white">Xem chi tiết</a>
-                                            <a href="${pageContext.request.contextPath}/ManageTour?service=edit&tourId=${tour.tourID}" class="btn btn-sm btn-primary">Sửa</a>
-                                            <a href="${pageContext.request.contextPath}/ManageTour?service=delete&tourId=${tour.tourID}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa tour này?')">Xóa</a>                                            
+                                        <td style="text-align: center;">                                       
+                                            
+                                            <a style="color: white; background-color: #86B817; border: none" href="${pageContext.request.contextPath}/ListTour?service=viewTourDetail&tourId=${tour.tourID}" class="btn btn-info btn-sm">Xem chi tiết</a>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -200,7 +161,6 @@
                         </table>
                     </div>
                 </div>
-
             </main>
             <footer class="bg-white p-3">
                 <div class="container">
@@ -218,9 +178,9 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js" crossorigin="anonymous"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/scripts.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
             var table = $('#tourTable').DataTable({
@@ -245,54 +205,34 @@
                         "sSortDescending": ": Sắp xếp giảm dần"
                     }
                 },
-                "pageLength": 10,
+                "pageLength": 5,
                 "lengthMenu": [5, 10, 20, 50],
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "info": true,
                 "order": [[0, "desc"]],
                 "columnDefs": [
                     {"width": "30px", "targets": 0},
                     {"width": "200px", "targets": 1},
                     {"width": "80px", "targets": [2, 3]},
                     {"width": "60px", "targets": [4, 5, 6]},
-                    {"width": "60px", "targets": [7]},                    
-                    {"width": "150px", "targets": [ 8]}
+                    {"width": "60px", "targets": [7]},
+                    {"width": "80px", "targets": [8]}
                 ],
                 "drawCallback": function(settings) {
                     var api = this.api();
                     api.column(0, {page: 'current'}).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1;
+                        cell.innerHTML = i + 1 + (api.page.info().page * api.page.info().length);
                     });
                 }
             });
+
+            if (!$.fn.DataTable.isDataTable('#tourTable')) {
+                console.error("DataTable failed to initialize on #tourTable");
+            }
         });
 
-        function openInsertModal() {
-            document.getElementById("insertModal").style.display = 'flex';
-            document.getElementById("insertPreview").style.display = 'none';
-            document.getElementById("insertImagePath").innerText = '';
-        }
-
-        function closeInsertModal() {
-            document.getElementById("insertModal").style.display = 'none';
-        }
-
-        function previewImage(event, previewId, pathId) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById(previewId).src = e.target.result;
-                    document.getElementById(previewId).style.display = 'block';
-                    document.getElementById(pathId).innerText = file.name;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        window.onclick = function (event) {
-            if (event.target.className === "modal") {
-                closeInsertModal();
-            }
-        };
     </script>
 </body>
 </html>

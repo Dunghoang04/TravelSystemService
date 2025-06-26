@@ -6,7 +6,6 @@
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
  * 2025-06-14  1.0        Quynh Mai          First implementation
- * 2025-06-14  1.1        [Your Name]        Added pagination support
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -117,9 +116,10 @@
                 border-radius: 8px;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 position: sticky;
-                top: 100px;
-                z-index: 100;
-                max-height: calc(100vh - 120px);
+                top: 100px; /* Adjust this value based on your header height to avoid overlap */
+                z-index: 100; /* Ensure it stays above other content */
+                max-height: calc(100vh - 120px); /* Limit height to viewport minus some padding */
+
             }
             .filter-header {
                 display: flex;
@@ -182,6 +182,7 @@
                 font-size: 16px;
                 margin-top: 10px;
             }
+            /* Added Pagination Styles */
             .pagination {
                 text-align: center;
                 margin-top: 20px;
@@ -192,6 +193,7 @@
                 text-decoration: none;
                 border: 1px solid #ddd;
                 border-radius: 5px;
+                max-height: 40px;
                 color: #007bff;
             }
             .pagination a:hover {
@@ -280,6 +282,7 @@
                             </div>
                             <button type="submit" class="btn-apply">Áp dụng</button>
                         </form>
+
                     </div>
                 </div>
 
@@ -288,7 +291,7 @@
                 <div class="col-md-8 row">
                     <div class="col-12 pb-1">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2>Tất cả các Tour</h2>                            
+                            <h2>Tất cả các Tour</h2>
                         </div>
                         <h5>Có ${totalTours} tour</h5>
                     </div>
@@ -323,11 +326,11 @@
                     </c:if>
 
                     <!-- Pagination -->
-                    <div style="justify-content: right; max-height: 40px" class="col-12 pagination">
+                    <div style="justify-content: right" class="col-12 pagination">
                         <c:if test="${totalPages > 1}">
                             <!-- Previous Link -->
                             <c:if test="${currentPage > 1}">
-                                <a href="TourServlet?page=${currentPage - 1}&service=${param.service}&destination=${param.destination}&budget=${param.budget}&departure=${param.departure}&departureDate=${param.departureDate}&tourCategory=${param.tourCategory}">Trước</a>
+                                <a href="TourServlet?page=${currentPage - 1}&service=${param.service}&destination=${destination}&budget=${budget}&departure=${departure}&departureDate=${departureDate}&tourCategory=${tourCategory}">Trang trước</a>
                             </c:if>
                             <!-- Page Numbers -->
                             <c:forEach begin="1" end="${totalPages}" var="i">
@@ -336,13 +339,13 @@
                                         <span>${i}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <a href="TourServlet?page=${i}&service=${param.service}&destination=${param.destination}&budget=${param.budget}&departure=${param.departure}&departureDate=${param.departureDate}&tourCategory=${param.tourCategory}">${i}</a>
+                                        <a href="TourServlet?page=${i}&service=${param.service}&destination=${destination}&budget=${budget}&departure=${departure}&departureDate=${departureDate}&tourCategory=${tourCategory}">${i}</a>
                                     </c:otherwise>
                                 </c:choose>
                             </c:forEach>
                             <!-- Next Link -->
                             <c:if test="${currentPage < totalPages}">
-                                <a href="TourServlet?page=${currentPage + 1}&service=${param.service}&destination=${param.destination}&budget=${param.budget}&departure=${param.departure}&departureDate=${param.departureDate}&tourCategory=${param.tourCategory}">Sau</a>
+                                <a href="TourServlet?page=${currentPage + 1}&service=${param.service}&destination=${destination}&budget=${budget}&departure=${departure}&departureDate=${departureDate}&tourCategory=${tourCategory}">Trang sau</a>
                             </c:if>
                         </c:if>
                     </div>

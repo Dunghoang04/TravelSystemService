@@ -146,7 +146,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="firstName" class="form-label">Họ:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="firstName" name="firstName" value="${not empty requestScope.agent.firstName ? requestScope.agent.firstName : sessionScope.agent.firstName}" required>
+                                                <input type="text" class="form-control" id="firstName" name="firstName" value="${requestScope.submittedValues.firstName != null ? requestScope.submittedValues.firstName : sessionScope.agent.firstName}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors['firstName']}">
                                                     <div class="error">${requestScope.fieldErrors['firstName']}</div>
                                                 </c:if>
@@ -155,7 +155,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="lastName" class="form-label">Tên:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="lastName" name="lastName" value="${not empty requestScope.agent.lastName ? requestScope.agent.lastName : sessionScope.agent.lastName}" required>
+                                                <input type="text" class="form-control" id="lastName" name="lastName" value="${requestScope.submittedValues.lastName != null ? requestScope.submittedValues.lastName : sessionScope.agent.lastName}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors['lastName']}">
                                                     <div class="error">${requestScope.fieldErrors['lastName']}</div>
                                                 </c:if>
@@ -164,7 +164,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="phone" class="form-label">Số điện thoại:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="phone" name="phone" value="${not empty requestScope.agent.phone ? requestScope.agent.phone : sessionScope.agent.phone}"required>
+                                                <input type="text" class="form-control" id="phone" name="phone" value="${requestScope.submittedValues.phone != null ? requestScope.submittedValues.phone : sessionScope.agent.phone}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors['phone']}">
                                                     <div class="error">${requestScope.fieldErrors['phone']}</div>
                                                 </c:if>
@@ -175,7 +175,7 @@
                                         <div class="col-md-8">
                                             <div class="mb-3">
                                                 <label for="address" class="form-label">Địa chỉ:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="address" name="address" value="${not empty requestScope.agent.address ? requestScope.agent.address : sessionScope.agent.address}" required>
+                                                <input type="text" class="form-control" id="address" name="address" value="${requestScope.submittedValues.address != null ? requestScope.submittedValues.address : sessionScope.agent.address}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors['address']}">
                                                     <div class="error">${requestScope.fieldErrors['address']}</div>
                                                 </c:if>
@@ -184,7 +184,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="dob" class="form-label">Ngày sinh:<span class="required">*</span></label>
-                                                <input type="date" class="form-control" id="dob" name="dob" value="${not empty requestScope.agent.dob ? requestScope.agent.dob : sessionScope.agent.dob}" required>
+                                                <input type="date" class="form-control" id="dob" name="dob" value="${requestScope.submittedValues.dob != null ? requestScope.submittedValues.dob : sessionScope.agent.dob}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors['dob']}">
                                                     <div class="error">${requestScope.fieldErrors['dob']}</div>
                                                 </c:if>
@@ -196,8 +196,8 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Giới tính:<span class="required">*</span></label>
                                                 <select class="form-control" id="gender" name="gender" required>
-                                                    <option value="Nam" ${requestScope.agent.gender == 'Nam' || (empty requestScope.agent.gender && sessionScope.agent.gender == 'Nam') ? 'selected' : ''}>Nam</option>
-                                                    <option value="Nữ" ${requestScope.agent.gender == 'Nữ' || (empty requestScope.agent.gender && sessionScope.agent.gender == 'Nữ') ? 'selected' : ''}>Nữ</option>
+                                                    <option value="Nam" ${requestScope.submittedValues.gender == 'Nam' || (requestScope.submittedValues.gender == null && sessionScope.agent.gender == 'Nam') ? 'selected' : ''}>Nam</option>
+                                                    <option value="Nữ" ${requestScope.submittedValues.gender == 'Nữ' || (requestScope.submittedValues.gender == null && sessionScope.agent.gender == 'Nữ') ? 'selected' : ''}>Nữ</option>
                                                 </select>
                                                 <c:if test="${not empty requestScope.fieldErrors['gender']}">
                                                     <div class="error">${requestScope.fieldErrors['gender']}</div>
@@ -207,7 +207,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="representativeIDCard" class="form-label">CCCD:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="representativeIDCard" name="representativeIDCard" value="${not empty requestScope.agent.representativeIDCard ? requestScope.agent.representativeIDCard : sessionScope.agent.representativeIDCard}" required>
+                                                <input type="text" class="form-control" id="representativeIDCard" name="representativeIDCard" value="${requestScope.submittedValues.representativeIDCard != null ? requestScope.submittedValues.representativeIDCard : sessionScope.agent.representativeIDCard}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors['representativeIDCard']}">
                                                     <div class="error">${requestScope.fieldErrors['representativeIDCard']}</div>
                                                 </c:if>
@@ -216,7 +216,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="dateOfIssue" class="form-label">Ngày cấp:<span class="required">*</span></label>
-                                                <input type="date" class="form-control" id="dateOfIssue" name="dateOfIssue" value="${not empty requestScope.agent.dateOfIssue ? requestScope.agent.dateOfIssue : sessionScope.agent.dateOfIssue}" required>
+                                                <input type="date" class="form-control" id="dateOfIssue" name="dateOfIssue" value="${requestScope.submittedValues.dateOfIssue != null ? requestScope.submittedValues.dateOfIssue : sessionScope.agent.dateOfIssue}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors['dateOfIssue']}">
                                                     <div class="error">${requestScope.fieldErrors['dateOfIssue']}</div>
                                                 </c:if>

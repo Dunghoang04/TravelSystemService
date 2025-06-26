@@ -713,22 +713,34 @@ public class TravelAgentDAO extends DBContext implements ITravelAgentDAO {
             if (conn != null) conn.close(); // Close Connection
         }
     }
+    
+    
 
     /**
      * Main method for testing TravelAgentDAO functionality.
      * This method searches for a TravelAgent by Gmail and prints the result.
      * @param args Command line arguments (not used)
      */
+//    public static void main(String[] args) {
+//        TravelAgentDAO dao = new TravelAgentDAO(); // Create DAO instance
+//        try {
+//            TravelAgent b = dao.searchTravelAgentByGmail("mai24a1k23@cvp.vn"); // Search by Gmail
+//            dao.insertTravelAgent(b);
+//            b.setHotLine("093029928192");
+//            dao.updateTravelAgent(b, "company");
+//            System.out.println(b); // Print result
+//        } catch (SQLException ex) {
+//            ex.printStackTrace(); // Print stack trace for debugging
+//        }
+//    }
+    
     public static void main(String[] args) {
-        TravelAgentDAO dao = new TravelAgentDAO(); // Create DAO instance
-        try {
-            TravelAgent b = dao.searchTravelAgentByGmail("mai24a1k23@cvp.vn"); // Search by Gmail
-            dao.insertTravelAgent(b);
-            b.setHotLine("093029928192");
-            dao.updateTravelAgent(b, "company");
-            System.out.println(b); // Print result
-        } catch (SQLException ex) {
-            ex.printStackTrace(); // Print stack trace for debugging
-        }
+    TravelAgentDAO dao = new TravelAgentDAO();
+    try {
+        dao.changeStatusTravelAgent(1, 0); // Change status for userID 1 to status 2
+        System.out.println("Status changed successfully");
+    } catch (SQLException ex) {
+        ex.printStackTrace();
     }
+}
 }
