@@ -82,20 +82,34 @@ public class Login extends HttpServlet {
                 request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
                 return;
             }
+            // Check if Gmail exists
+            if (!uDAO.isGmailRegister(gmail)) {
+                request.setAttribute("error", "Email không tồn tại!");
+                request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
+                return;
+            }
 
             User u = uDAO.checkLogin(gmail, password);
 
             if (u != null) {
+
+                // Kiểm tra trạng thái tài khoản
+                if (u.getStatus() == 0) {
+                    request.setAttribute("error", "Tài khoản không còn hoạt động!");
+                    request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
+                    return;
+                }
+
                 session.setAttribute("loginUser", u);
                 int role = u.getRoleID();
                 session.setAttribute("gmail", gmail);
 // Điều hướng theo vai trò
                 switch (role) {
                     case 1:
-                        response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
+                        response.sendRedirect(request.getContextPath() + "/StatisticalAdmin");
                         break;
                     case 2:
-                        response.sendRedirect(request.getContextPath() + "/ManageTravelAgentRegister");
+                        response.sendRedirect(request.getContextPath() + "/ManageTravelAgentRegister?service=list");
                         break;
                     case 3:
                         response.sendRedirect(request.getContextPath() + "/home");
@@ -110,7 +124,7 @@ public class Login extends HttpServlet {
                 }
                 return;
             } else {
-                request.setAttribute("error", "Email hoặc mật khẩu không đúng!");
+                request.setAttribute("error", "Mật khẩu không đúng!");
                 request.getRequestDispatcher("/view/user/login.jsp").forward(request, response);
                 return;
             }
@@ -163,8 +177,8 @@ public class Login extends HttpServlet {
 
         if (service.equals("resetPassword")) {
             String gmail = request.getParameter("gmail");
-            String newPassword = request.getParameter("newPassword");
-            String confirmPassword = request.getParameter("confirmPassword");
+            String newPassword = request.getParameter("newPassword").trim();
+            String confirmPassword = request.getParameter("confirmPassword").trim();
             if (!newPassword.equals(confirmPassword)) {
                 request.setAttribute("error", "Mật khẩu không khớp!");
                 request.getRequestDispatcher("/view/user/resetPassword.jsp").forward(request, response);
@@ -199,7 +213,6 @@ public class Login extends HttpServlet {
      * @param password The user's password
      * @return Error message if invalid, null if valid
      */
-
     // Block comment to describe the method
     /* 
      * Checks if email and password fields are filled.

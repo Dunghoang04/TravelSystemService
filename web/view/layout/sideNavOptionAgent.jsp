@@ -35,15 +35,6 @@
                             <a class="nav-link" href="ManagementAccommodation">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
                                 Quản lý khách sạn
-                            <a class="nav-link" href="ListTour?service=list">
-
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-gears"></i></div>
-                                Quản lí danh sách chuyến đi
-                            </a>
-
-                            <a class="nav-link" href="ManagementAccommodation">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
-                                Quản lí khách sạn
                             </a>
                             
                             <a class="nav-link" href="managerestaurant">
@@ -55,10 +46,6 @@
                                 Quản lý giải trí
                             </a>
 
-                            <a class="nav-link" href="managementertainment">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-face-smile"></i></i></div>
-                                Quản lí giải trí
-                            </a>
                             <a class="nav-link" href="${pageContext.request.contextPath}/ManageTravelAgentProfile">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></i></div>
                                 Thông tin cá nhân

@@ -27,6 +27,8 @@ import java.sql.SQLException;
 import java.util.Vector;
 import model.User;
 import java.sql.Connection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -53,7 +55,6 @@ public class UserDAO extends DBContext implements IUserDAO {
         Connection connection = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
-
         try {
             connection = getConnection();
             ptm = connection.prepareStatement(sql);
@@ -364,6 +365,264 @@ public class UserDAO extends DBContext implements IUserDAO {
     }
 
     /**
+     * Counts the total number of users in the database.<br>
+     *
+     * @return The number of users
+     * @throws SQLException If a database access error occurs
+     */
+    @Override
+    public int countUser() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM [User]";
+        Connection connection = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            ptm = connection.prepareStatement(sql);
+            rs = ptm.executeQuery();
+            while (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.getSQLState();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing ResultSet: " + e.getMessage());
+                }
+            }
+            if (ptm != null) {
+                try {
+                    ptm.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing Connection: " + e.getMessage());
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Counts the number of users by role ID.<br>
+     *
+     * @param roleId The role ID to filter by
+     * @return The number of users with the specified role ID
+     * @throws SQLException If a database access error occurs
+     */
+    @Override
+    public int countUserByRoleID(int roleId) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM [User] WHERE roleID = ?";
+        Connection connection = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            ptm = connection.prepareStatement(sql);
+            ptm.setInt(1, roleId);
+            rs = ptm.executeQuery();
+            while (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException ex) {
+            ex.getSQLState();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing ResultSet: " + e.getMessage());
+                }
+            }
+            if (ptm != null) {
+                try {
+                    ptm.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing Connection: " + e.getMessage());
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Changes the status of a user in the database.<br>
+     *
+     * @param userID The ID of the user to update
+     * @param newStatus The new status to set
+     * @throws SQLException If a database access error occurs
+     */
+    @Override
+    public void changeStatus(int userID, int newStatus) throws SQLException {
+        String sql = "UPDATE [User] SET status = ?, update_at = GETDATE() WHERE userID = ?";
+        Connection connection = null;
+        PreparedStatement ptm = null;
+        try {
+            connection = getConnection();
+            ptm = connection.prepareStatement(sql);
+            ptm.setInt(1, newStatus);
+            ptm.setInt(2, userID);
+            int affectedRows = ptm.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("No user found with userID: " + userID);
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Error changing user status: " + ex.getMessage(), ex);
+        } finally {
+            if (ptm != null) {
+                try {
+                    ptm.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing Connection: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * Retrieves a user by their userID from the database.
+     *
+     * @param userID The ID of the user to retrieve
+     * @return The User object if found, null otherwise
+     * @throws SQLException If a database access error occurs
+     */
+    @Override
+    public User getUserByID(int userID) throws SQLException {
+        String sql = "SELECT * FROM [User] WHERE userID = ?";
+        Connection connection = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            ptm = connection.prepareStatement(sql);
+            ptm.setInt(1, userID);
+            rs = ptm.executeQuery();
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("userID"),
+                        rs.getString("gmail"),
+                        rs.getString("password"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName"),
+                        rs.getDate("dob"),
+                        rs.getString("gender"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getDate("create_at"),
+                        rs.getDate("update_at"),
+                        rs.getInt("status"),
+                        rs.getInt("roleID")
+                );
+            }
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing ResultSet: " + e.getMessage());
+                }
+            }
+            if (ptm != null) {
+                try {
+                    ptm.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    System.err.println("Error closing Connection: " + e.getMessage());
+                }
+            }
+        }
+        return null;
+    }
+    
+    public User getUserById(int userId) {
+        String sql = "	Select * from [User] where userID = ?;";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, userId);
+            rs = stmt.executeQuery();
+            User u = new User();
+            while (rs.next()) {
+
+                u.setUserID(rs.getInt("userID"));
+                u.setGmail(rs.getString("gmail"));
+                u.setPassword(rs.getString("password"));
+                u.setFirstName(rs.getString("firstName"));
+                u.setLastName(rs.getString("lastName"));
+                u.setDob(rs.getDate("dob"));
+                u.setGender(rs.getString("gender"));
+                u.setAddress(rs.getString("address"));
+                u.setPhone(rs.getString("phone"));
+                u.setCreateDate(rs.getDate("create_at"));
+                u.setUpdateDate(rs.getDate("update_at"));
+                u.setStatus(rs.getInt("status"));
+                u.setRoleID(rs.getInt("roleID"));
+                return u;
+            }
+            
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null)try {
+                conn.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if (stmt != null)try {
+                stmt.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+        }
+        return null;
+    }
+
+    /**
      * Main method for testing the getAllUsers method.<br>
      * Executes a sample query to retrieve and print all users.
      *
@@ -374,18 +633,62 @@ public class UserDAO extends DBContext implements IUserDAO {
      * Tests the getAllUsers method with a default SQL query.
      * Prints each User object to the console or handles SQLException.
      */
-    public static void main(String[] args) {
-        String sql = "SELECT * FROM [User]";
+//    public static void main(String[] args) {
+//        String sql = "SELECT COUNT(*) FROM [User] WHERE roleID = 4";
+//        UserDAO udao = new UserDAO();
+//        System.out.println(udao.countUserByRoleID(4));
+//    }
+//    public static void main(String[] args) {
+//        int userID = 7;         // ID của user bạn muốn thay đổi trạng thái
+//        int newStatus = 1;      // Trạng thái mới: 0 (vô hiệu), 1 (kích hoạt), v.v.
+//
+//        UserDAO udao = new UserDAO();
+//        try {
+//            udao.changeStatus(userID, newStatus);
+//            System.out.println("User status updated successfully.");
+//        } catch (SQLException e) {
+//            System.err.println("Failed to update user status: " + e.getMessage());
+//        }
+//    }
+    /**
+     * Main method for testing the insertUser method.<br>
+     * Creates a sample User object and attempts to insert it into the database.
+     *
+     * @param args Command-line arguments (not used)
+     */
+    /* 
+ * Tests the insertUser method by creating a new User object.
+ * Prints success message or handles SQLException.
+     */
+     public static void main(String[] args) {
         UserDAO udao = new UserDAO();
         try {
-            Vector<User> list = udao.getAllUsers(sql);
-            for (User user : list) {
-                System.out.println(user);
-            }
+            // Create a sample admin User object
+            User adminUser = new User(
+                    0, // userID (auto-generated by database, set to 0)
+                    "admin2025@example.com", // gmail
+                    "AdminPass2025!", // password
+                    "Admin", // firstName
+                    "Manager", // lastName
+                    Date.valueOf("1985-05-15"), // dob
+                    "Male", // gender
+                    "789 Admin Road", // address
+                    "0912345678", // phone
+                    null, // create_at (set by database)
+                    null, // update_at (set by database)
+                    1, // status (1 for active)
+                    1 // roleID (assuming 1 is for admin role)
+            );
+
+            // Insert the admin user
+            udao.insertUser(adminUser);
+            System.out.println("Admin user inserted successfully at " + new java.util.Date());
+
         } catch (SQLException e) {
+            System.err.println("Failed to insert admin user: " + e.getMessage());
             e.printStackTrace();
         }
-
     }
 
 }
+
