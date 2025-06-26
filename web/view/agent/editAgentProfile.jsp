@@ -127,7 +127,6 @@
             height: 50px;
         }
 
-        /* Modal Styles */
         .modal-content {
             border-radius: 10px;
         }
@@ -158,7 +157,7 @@
                                         <div class="col-md-8">
                                             <div class="mb-3">
                                                 <label for="travelAgentName" class="form-label">Tên công ty:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="travelAgentName" name="travelAgentName" value="${not empty requestScope.agent.travelAgentName ? requestScope.agent.travelAgentName : sessionScope.agent.travelAgentName}" required>
+                                                <input type="text" class="form-control" id="travelAgentName" name="travelAgentName" value="${requestScope.submittedValues.travelAgentName != null ? requestScope.submittedValues.travelAgentName : sessionScope.agent.travelAgentName}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors.travelAgentName}">
                                                     <div class="error">${requestScope.fieldErrors.travelAgentName}</div>
                                                 </c:if>
@@ -167,7 +166,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="travelAgentEmail" class="form-label">Email:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="travelAgentEmail" name="travelAgentEmail" value="${not empty requestScope.agent.travelAgentGmail ? requestScope.agent.travelAgentGmail : sessionScope.agent.travelAgentGmail}" required>
+                                                <input type="text" class="form-control" id="travelAgentEmail" name="travelAgentEmail" value="${requestScope.submittedValues.travelAgentEmail != null ? requestScope.submittedValues.travelAgentEmail : sessionScope.agent.travelAgentGmail}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors.travelAgentEmail}">
                                                     <div class="error">${requestScope.fieldErrors.travelAgentEmail}</div>
                                                 </c:if>
@@ -178,7 +177,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="hotLine" class="form-label">Số HotLine:<span class="required">*</span></label>
-                                                <input type="tel" class="form-control" id="hotLine" name="hotLine" value="${not empty requestScope.agent.hotLine ? requestScope.agent.hotLine : sessionScope.agent.hotLine}">
+                                                <input type="tel" class="form-control" id="hotLine" name="hotLine" value="${requestScope.submittedValues.hotLine != null ? requestScope.submittedValues.hotLine : sessionScope.agent.hotLine}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors.hotLine}">
                                                     <div class="error">${requestScope.fieldErrors.hotLine}</div>
                                                 </c:if>
@@ -187,7 +186,7 @@
                                         <div class="col-md-8">
                                             <div class="mb-3">
                                                 <label for="travelAgentAddress" class="form-label">Địa chỉ:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="travelAgentAddress" name="travelAgentAddress" value="${not empty requestScope.agent.travelAgentAddress ? requestScope.agent.travelAgentAddress : sessionScope.agent.travelAgentAddress}" required>
+                                                <input type="text" class="form-control" id="travelAgentAddress" name="travelAgentAddress" value="${requestScope.submittedValues.travelAgentAddress != null ? requestScope.submittedValues.travelAgentAddress : sessionScope.agent.travelAgentAddress}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors.travelAgentAddress}">
                                                     <div class="error">${requestScope.fieldErrors.travelAgentAddress}</div>
                                                 </c:if>
@@ -210,7 +209,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="establishmentDate" class="form-label">Ngày thành lập:<span class="required">*</span></label>
-                                                <input type="date" class="form-control" id="establishmentDate" name="establishmentDate" value="${not empty requestScope.agent.establishmentDate ? requestScope.agent.establishmentDate : sessionScope.agent.establishmentDate}" required>
+                                                <input type="date" class="form-control" id="establishmentDate" name="establishmentDate" value="${requestScope.submittedValues.establishmentDate != null ? requestScope.submittedValues.establishmentDate : sessionScope.agent.establishmentDate}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors.establishmentDate}">
                                                     <div class="error">${requestScope.fieldErrors.establishmentDate}</div>
                                                 </c:if>
@@ -219,7 +218,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="taxCode" class="form-label">Mã số thuế:<span class="required">*</span></label>
-                                                <input type="text" class="form-control" id="taxCode" name="taxCode" value="${not empty requestScope.agent.taxCode ? requestScope.agent.taxCode : sessionScope.agent.taxCode}" required>
+                                                <input type="text" class="form-control" id="taxCode" name="taxCode" value="${requestScope.submittedValues.taxCode != null ? requestScope.submittedValues.taxCode : sessionScope.agent.taxCode}" required>
                                                 <c:if test="${not empty requestScope.fieldErrors.taxCode}">
                                                     <div class="error">${requestScope.fieldErrors.taxCode}</div>
                                                 </c:if>
@@ -239,7 +238,6 @@
                         </div>
                     </div>
 
-                    <!-- Image Preview Modal -->
                     <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -276,7 +274,6 @@
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="./assets/js/datatables-simple-demo.js"></script>
         <script>
-            // JavaScript for Image Preview Modal
             document.addEventListener('DOMContentLoaded', function () {
                 var imagePreviews = document.querySelectorAll('.image-preview');
                 var modalImage = document.getElementById('modalImage');

@@ -1,3 +1,25 @@
+/*
+ * Copyright(C) 2025, GROUP 6.
+ * Restaurant Management System:
+ *  A web application for managing restaurant information.
+ *
+ * Record of change:
+ * DATE            Version    AUTHOR            DESCRIPTION
+ * 2025-06-21      1.0        Hoang Tuan Dung   Initial implementation
+ */
+
+/**
+ * The ChangeStatusRestaurant servlet handles HTTP GET requests to change the status
+ * of a restaurant (e.g., active/inactive) in the system. It validates the service ID
+ * and current page parameters, retrieves the current status from RestaurantDAO,
+ * toggles the status, and redirects to the restaurant management page. All input
+ * data is trimmed to remove leading/trailing spaces before processing. The servlet
+ * throws exceptions for database or invalid input errors to be handled by the error page.
+ *
+ * <p>Bugs: None known at this time. Potential issue with page parameter validation.
+ *
+ * @author Hoang Tuan Dung
+ */
 package controller.agent.restaurant;
 
 import dao.EntertainmentDAO;
@@ -43,36 +65,43 @@ public class ChangeStatusRestaurant extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP GET method to change the status of a restaurant.
+     * Validates the service ID and page parameters, toggles the status
+     * using RestaurantDAO, and redirects to the restaurant management page.
      *
-     * @param request servlet request
-     * @param response servlet response
+     * @param request  the HttpServletRequest object containing query parameters
+     * @param response the HttpServletResponse object for sending response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        IRestaurantDAO restaurantDataAccess = new RestaurantDAO();
+        // Initialize DAO
+        IRestaurantDAO restaurantDao = new RestaurantDAO();
+
+        // Retrieve and trim parameters
         String serviceIdParam = request.getParameter("id") != null ? request.getParameter("id").trim() : "";
         String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "";
 
+        // Validate service ID
         if (serviceIdParam.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã dịch vụ không thể để trống");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã dịch vụ không thể để trống.");
             return;
         }
         int serviceId;
         try {
             serviceId = Integer.parseInt(serviceIdParam);
             if (serviceId <= 0) {
-                throw new NumberFormatException("Mã dịch vụ phải là số nguyên dương");
+                throw new NumberFormatException("Mã dịch vụ phải là số nguyên dương.");
             }
         } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng mã dịch vụ không hợp lệt: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng mã dịch vụ không hợp lệ: " + e.getMessage());
             return;
         }
+
+        // Validate and set current page
         int currentPage;
         try {
             currentPage = Integer.parseInt(currentPageParam);
@@ -80,30 +109,42 @@ public class ChangeStatusRestaurant extends HttpServlet {
                 currentPage = 1;
             }
         } catch (NumberFormatException e) {
-            currentPage = 1;
+            currentPage = 1; // Default to page 1 if invalid
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng số trang không hợp lệ: " + e.getMessage());
             return;
         }
+
         try {
-            int currentStatus = restaurantDataAccess.getStatusByServiceID(serviceId);
-            int newStatus = (currentStatus == 1 ? 0 : 1);
-            boolean success = restaurantDataAccess.changeStatus(serviceId, newStatus);
-            if (!success) {
-                throw new SQLException("Không cập nhật được trạng thái cho mã nhà hàng: " + serviceId);
+            // Check if service ID exists
+            if (restaurantDao.getStatusByServiceID(serviceId) == -1) { // Assuming -1 indicates non-existent ID
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Mã dịch vụ không tồn tại.");
+                return;
             }
-            response.sendRedirect("managerestaurant?page="+currentPage);
+
+            // Toggle status (1 -> 0 or 0 -> 1)
+            int currentStatus = restaurantDao.getStatusByServiceID(serviceId);
+            int newStatus = (currentStatus == 1 ? 0 : 1);
+            boolean success = restaurantDao.changeStatus(serviceId, newStatus);
+            if (!success) {
+                throw new SQLException("Không thể cập nhật trạng thái cho mã nhà hàng: " + serviceId);
+            }
+
+            // Set success message and redirect
+            request.setAttribute("success", "Cập nhật trạng thái thành công.");
+            response.sendRedirect("managerestaurant?page=" + currentPage);
         } catch (SQLException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi cơ sở dữ liệu: " + e.getMessage());
         }
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP POST method by delegating to the processRequest method.
+     * Note: This servlet primarily uses GET for status changes; POST is not implemented.
      *
-     * @param request servlet request
-     * @param response servlet response
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

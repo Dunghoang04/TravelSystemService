@@ -86,7 +86,7 @@
                                     <h4>Nhà hàng</h4>
                                     <ul>
                                         <c:forEach var="restaurant" items="${requestScope.restaurantList}">
-                                            <li><a href="detailrestaurant?id=${restaurant.serviceId}">${restaurant.name}</a></li>
+                                            <li><a href="detailrestaurant?id=${restaurant.serviceId}&tourId=${requestScope.tourId}">${restaurant.name}</a></li>
                                             </c:forEach>
                                     </ul>
                                 </div>
@@ -94,7 +94,7 @@
                                     <h4>Dịch vụ giải trí</h4>
                                     <ul>
                                         <c:forEach var="entertainment" items="${requestScope.entertainmentList}">
-                                            <li><a href="detailentertainment?id=${entertainment.serviceId}">${entertainment.name}</a></li>
+                                            <li><a href="detailentertainment?id=${entertainment.serviceId}&tourId=${requestScope.tourId}">${entertainment.name}</a></li>
                                             </c:forEach>
                                     </ul>
                                 </div>
@@ -105,12 +105,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            <!--                            <ul>
-                            <c:forEach var="service" items="${services}">
-                                <li><a href="${pageContext.request.contextPath}/service-detail?serviceId=${service.serviceID}">${service.serviceID}</a></li>
-                                 Hoặc sử dụng serviceName nếu có trong TourServiceDetail 
-                            </c:forEach>
-                        </ul>-->
+                           
                         </div>
 
                         <!-- Tour Schedule -->

@@ -43,7 +43,6 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
 
     private static final String INSERT_ENTERTAINMENT_SQL = "INSERT INTO [dbo].[Entertainment] ([serviceId], [name], [image], [address], [phone], [description], [rate], [type], [status], [timeOpen], [timeClose], [dayOfWeekOpen], [ticketPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_ALL_ENTERTAINMENTS_SQL = "SELECT * FROM Entertainment ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String SELECT_ALL_ENTERTAINMENTS_SQL_NO_PAGE = "SELECT * FROM Entertainment where serviceId =?";
     private static final String COUNT_ALL_SQL = "SELECT COUNT(*) FROM Entertainment";
     private static final String SELECT_BY_SERVICE_ID_SQL = "SELECT * FROM Entertainment WHERE serviceId = ?";
     private static final String SEARCH_BY_TYPE_AND_NAME_SQL = "SELECT * FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) AND status = ? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
@@ -186,36 +185,6 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
                     conn.close();
                 } catch (SQLException e) {
                 }
-            }
-        }
-        return entertainmentList;
-    }
-
-    @Override
-    public List<Entertainment> getListEntertainmentNoPage(int serviceId) throws SQLException {
-        Connection conn = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        List<Entertainment> entertainmentList = new ArrayList<>();
-        try {
-            conn = getConnection();
-            preparedStatement = conn.prepareStatement(SELECT_ALL_ENTERTAINMENTS_SQL_NO_PAGE);
-            preparedStatement.setInt(1, serviceId);
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                entertainmentList.add(createEntertainmentFromResultSet(resultSet));
-            }
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (conn != null) {
-                conn.close();
             }
         }
         return entertainmentList;
@@ -448,7 +417,9 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
             serviceDAO.updateServiceName(serviceId, name);
 
             TourServiceDetailDAO tourServiceDetailDAO = new TourServiceDetailDAO();
-            tourServiceDetailDAO.updateServiceNameByServiceId(serviceId, name);
+            if (tourServiceDetailDAO.getTourServiceDetailsByServiceId(serviceId).size() > 0) {
+                tourServiceDetailDAO.updateServiceNameByServiceId(serviceId, name);
+            }
             conn.commit(); // Commit transaction
         } catch (SQLException e) {
             if (conn != null) {
@@ -794,6 +765,4 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         return 0;
     }
 
-    
 }
-

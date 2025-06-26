@@ -14,6 +14,10 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>        
+<<<<<<< Duyen_Admin_Change
+=======
+
+>>>>>>> master
     </head>
     <body>
         <div id="layoutSidenav_nav">
@@ -28,11 +32,19 @@
                             <a class="nav-link" href="ManagementAccount">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-gears"></i></div>
                                 Quản lý tài khoản
+<<<<<<< Duyen_Admin_Change
+=======
+
+>>>>>>> master
                             </a>
 
                             <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
                                 Quản lý doanh thu 
+<<<<<<< Duyen_Admin_Change
+=======
+
+>>>>>>> master
                             </a>
                             
                             <a class="nav-link" href="">
@@ -42,6 +54,10 @@
                             <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
                                 Quản lý điều khoản 
+<<<<<<< Duyen_Admin_Change
+=======
+
+>>>>>>> master
                             </a>                           
                         </div>
                     </div>
