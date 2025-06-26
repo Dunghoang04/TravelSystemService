@@ -11,25 +11,33 @@
  * Click nb://SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nb://SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.agent.accommodation.room;
+package controller.agent.accommodation;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dao.RoomDAO;
 import java.util.List;
+import model.Accommodation;
 import model.Room;
+import dao.AccommodationDAO;
+import dao.IRoomDAO;
+import dao.RoomDAO;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Servlet to handle the management and display of rooms for an accommodation.
+ * Servlet to handle the display of accommodation details and associated rooms.
  * @author Nhat Anh
  */
-@WebServlet(name="ManagementRoom", urlPatterns={"/ManagementRoom"})
-public class ManagementRoom extends HttpServlet {
+@MultipartConfig
+@WebServlet(name="DetailAccommodation", urlPatterns={"/DetailAccommodation"})
+public class DetailAccommodation extends HttpServlet {
    
     /** 
      * Processes HTTP GET and POST requests.
@@ -47,10 +55,10 @@ public class ManagementRoom extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ManagementRoom</title>");  
+            out.println("<title>Servlet DetailAccommodation</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ManagementRoom at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet DetailAccommodation at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -58,7 +66,7 @@ public class ManagementRoom extends HttpServlet {
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
-     * Handles HTTP GET request to retrieve and display the list of rooms.
+     * Handles HTTP GET request to retrieve and display accommodation and room details.
      * @param request The HttpServletRequest object containing client request data
      * @param response The HttpServletResponse object to send the response to the client
      * @throws ServletException If a servlet-specific error occurs
@@ -67,45 +75,27 @@ public class ManagementRoom extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        // Initialize RoomDAO to interact with the database
-        RoomDAO dao = new RoomDAO();
+        // Retrieve accommodation ID from request parameters
+        int id = Integer.parseInt(request.getParameter("id"));
+        // Initialize AccommodationDAO to interact with the database
+        AccommodationDAO accDAO = new AccommodationDAO();
+        // Initialize IRoomDAO with RoomDAO implementation for room data access
+        IRoomDAO rdao = new RoomDAO();
+        // Fetch accommodation details by service ID
+        Accommodation acc = accDAO.getAccommodationByServiceId(id);
         List<Room> rooms;
-
         try {
-            // Retrieve accommodationID from request parameters
-            String accommodationIDStr = request.getParameter("id");
-
-            if (accommodationIDStr != null && !accommodationIDStr.trim().isEmpty()) {
-                try {
-                    // Parse accommodationID and fetch rooms by accommodationID
-                    int accommodationID = Integer.parseInt(accommodationIDStr);
-                    rooms = dao.getRoomsByAccommodationID(accommodationID);
-                    if (rooms.isEmpty()) {
-                        // Set error message if no rooms are found for the accommodationID
-                        request.setAttribute("error", "No rooms found for accommodationID: " + accommodationID);
-                    }
-                } catch (NumberFormatException e) {
-                    // Handle invalid accommodationID format and fetch all rooms
-                    request.setAttribute("error", "Invalid accommodationID format.");
-                    rooms = dao.getAllRooms();
-                }
-            } else {
-                // Fetch all rooms if no accommodationID is provided
-                rooms = dao.getAllRooms();
-            }
-
-            // Set rooms and accommodationID attributes for use in JSP
+            // Fetch list of rooms associated with the accommodation ID
+            rooms = rdao.getRoomsByAccommodationID(id);
+            // Set accommodation and rooms attributes for use in JSP
+            request.setAttribute("acc", acc);
             request.setAttribute("rooms", rooms);
-            request.setAttribute("accommodationID", accommodationIDStr);
-
-        } catch (Exception e) {
-            // Handle any exceptions and set an empty room list with an error message
-            request.setAttribute("error", "Error retrieving room list: " + e.getMessage());
-            request.setAttribute("rooms", List.of());
+            // Forward to the JSP page to display accommodation and room details
+            request.getRequestDispatcher("view/agent/accommodation/detailAccommodation.jsp").forward(request, response);
+        } catch (SQLException ex) {
+            // Log any SQL exceptions that occur during data retrieval
+            Logger.getLogger(DetailAccommodation.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        // Forward to the JSP page to display the room list
-        request.getRequestDispatcher("/view/agent/accommodation/room/agentRoom.jsp").forward(request, response);
     } 
 
     /** 

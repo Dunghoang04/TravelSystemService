@@ -1,61 +1,103 @@
 /*
  * Copyright (C) 2025, Group 6.
- * ProjectCode/Short Name of Application: TravelAgentService 
+ * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0       NguyenVanVang          First implementation
+ * 2025-06-08  1.0        Nguyễn Văn Vang   First implementation
  */
 package dao;
 
-import java.util.List;
 import model.Room;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
- * Interface for Room Data Access Object (DAO) operations.
- * Defines methods for managing rooms in the database.
+ * Defines the interface for Room data access operations.<br>
+ * Provides methods for CRUD operations on room entities.<br>
+ * <p>
+ * Bugs: None known at this time.</p>
  *
- * @author TuanAnhJr
+ * @author Nguyễn Văn Vang
  */
 public interface IRoomDAO {
 
     /**
-     * Adds a new room to the database.
+     * Retrieves all rooms from the database.<br>
      *
-     * @param room the Room object to be added
+     * @return A List containing all Room objects retrieved
+     * @throws SQLException If a database access error occurs
      */
-    void addRoom(Room room);
+    /* 
+     * Declares the method to fetch all rooms from the database.
+     * Must be implemented by the concrete class.
+     */
+    List<Room> getAllRooms() throws SQLException;
 
     /**
-     * Updates an existing room in the database.
+     * Inserts a new room into the database.<br>
      *
-     * @param accommodationID the ID of the accommodation
-     * @param roomTypes the types of the room
-     * @param numberOfRooms the number of rooms
-     * @param priceOfRoom the price of the room
+     * @param room The Room object to insert
+     * @throws SQLException If a database access error occurs
      */
-    void updateRoom(int accommodationID, String roomTypes, int numberOfRooms, double priceOfRoom);
+    /* 
+     * Declares the method to insert a new room record.
+     * Must be implemented by the concrete class.
+     */
+    void addRoom(Room room) throws SQLException;
 
     /**
-     * Deletes a room from the database by its accommodation ID.
+     * Updates an existing room in the database.<br>
      *
-     * @param accommodationID the ID of the accommodation
+     * @param roomID The ID of the room to update
+     * @param roomTypes The type of the room
+     * @param numberOfRooms The number of rooms available
+     * @param priceOfRoom The price of the room
+     * @param status The status of the room
+     * @throws SQLException If a database access error occurs
      */
-    void deleteRoom(int accommodationID);
+    /* 
+     * Declares the method to update an existing room record.
+     * Must be implemented by the concrete class.
+     */
+    void updateRoom(int roomID, String roomTypes, int numberOfRooms, float priceOfRoom, int status) throws SQLException;
 
     /**
-     * Retrieves a list of all rooms from the database.
+     * Deletes a room from the database.<br>
      *
-     * @return a list of Room objects
+     * @param roomID The ID of the room to delete
+     * @throws SQLException If a database access error occurs
      */
-    List<Room> getAllRooms();
+    /* 
+     * Declares the method to delete a room record.
+     * Must be implemented by the concrete class.
+     */
+    // void deleteRoom(int roomID) throws SQLException;
 
     /**
-     * Retrieves a room by its accommodation ID.
+     * Retrieves a room by its ID.<br>
      *
-     * @param id the ID of the accommodation
-     * @return the Room object, or null if not found
+     * @param roomID The ID of the room to retrieve
+     * @return The Room object if found, null otherwise
+     * @throws SQLException If a database access error occurs
      */
-    Room getRoomByAccommodationID(int id);
+    /* 
+     * Declares the method to fetch a room by its ID.
+     * Must be implemented by the concrete class.
+     */
+    Room getRoomByRoomID(int roomID) throws SQLException;
+
+    /**
+     * Retrieves all rooms for a specific accommodation ID.<br>
+     *
+     * @param accommodationID The ID of the accommodation
+     * @return A List containing all Room objects for the accommodation
+     * @throws SQLException If a database access error occurs
+     */
+    /* 
+     * Declares the method to fetch rooms by accommodation ID.
+     * Must be implemented by the concrete class.
+     */
+    List<Room> getRoomsByAccommodationID(int accommodationID) throws SQLException;
 }
