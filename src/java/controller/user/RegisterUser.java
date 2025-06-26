@@ -44,12 +44,12 @@ public class RegisterUser extends HttpServlet {
         if (service.equals("addUser")) {
             String password = request.getParameter("password");
             String repassword = request.getParameter("repassword");
-            String firstName = request.getParameter("firstName");
-            String lastName = request.getParameter("lastName");
+            String firstName = request.getParameter("firstName").trim();
+            String lastName = request.getParameter("lastName").trim();
             String dobStr = request.getParameter("dob");
             String gender = request.getParameter("gender");
-            String address = request.getParameter("address");
-            String phone = request.getParameter("phone");
+            String address = request.getParameter("address").trim();
+            String phone = request.getParameter("phone").trim();
             String gmail = (String) session.getAttribute("gmail");
 
             if (gmail == null) {
@@ -62,14 +62,14 @@ public class RegisterUser extends HttpServlet {
             validateInput(request, lastName, firstName, password, repassword, phone, dobStr, gender, address);
 
             // Lưu lại giá trị đã nhập để hiển thị trong form
-            request.setAttribute("lastName", lastName);
-            request.setAttribute("firstName", firstName);
+            request.setAttribute("lastName", lastName.trim());
+            request.setAttribute("firstName", firstName.trim());
             request.setAttribute("password", password);
             request.setAttribute("repassword", repassword);
-            request.setAttribute("phone", phone);
+            request.setAttribute("phone", phone.trim());
             request.setAttribute("dob", dobStr);
             request.setAttribute("gender", gender);
-            request.setAttribute("address", address);
+            request.setAttribute("address", address.trim());
 
             // Nếu không có lỗi, thực hiện đăng ký
             try {
@@ -125,6 +125,8 @@ public class RegisterUser extends HttpServlet {
             request.setAttribute("addressError", "Địa chỉ không được để trống!");
         } else if (address.length() < 5 || address.length() > 200) {
             request.setAttribute("addressError", "Địa chỉ phải từ 5 đến 200 ký tự!");
+        } else if (!address.matches("^[\\p{L}\\d\\s,.]+$")) {
+            request.setAttribute("addressError", "Địa chỉ chỉ được chứa chữ cái, số, khoảng trắng, dấu phẩy và dấu chấm!");
         }
 
         // Kiểm tra mật khẩu
@@ -148,7 +150,7 @@ public class RegisterUser extends HttpServlet {
         if (phone == null || phone.trim().isEmpty()) {
             request.setAttribute("phoneError", "Số điện thoại không được để trống!");
         } else if (!phone.matches("^0\\d{9}$")) {
-            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số!");
+            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số, không được chứa ký tự đặc biệt!");    
         }
 
         // Kiểm tra ngày sinh

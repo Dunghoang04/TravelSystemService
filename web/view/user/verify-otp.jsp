@@ -99,12 +99,12 @@
         <form class="otp-container" action="${pageContext.request.contextPath}/VerifyOtp" method="post" onsubmit="return combineOTP();">
             <h2>Nhập mã xác minh</h2>
             <div class="otp-inputs">
-                <input type="text" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
-                <input type="text" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
-                <input type="text" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
-                <input type="text" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
-                <input type="text" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
-                <input type="text" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
+                <input type="number" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
+                <input type="number" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
+                <input type="number" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
+                <input type="number" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
+                <input type="number" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
+                <input type="number" maxlength="1" oninput="moveNext(this)" <c:if test="${sessionScope.otp == null}">disabled</c:if>>
             </div>
             <input type="hidden" name="otp" id="otpHidden">
             <button type="submit" <c:if test="${sessionScope.otp == null}">disabled</c:if>>Xác minh</button>

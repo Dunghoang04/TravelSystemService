@@ -62,7 +62,7 @@
 
     </head>
     <body>
-        <header class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+        <header class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0" style="background-color: #fff; color: #000!important">
             <a href="home" class="navbar-brand p-0">
                 <h1 style="font-style: italic" class="text-primary m-0"></i>Go<span style="color: red">Viet</span></h1>
                 <!-- <img src="img/logo.png" alt="Logo"> -->
@@ -72,7 +72,6 @@
             </button>
             <div class="navbar-nav ms-auto py-0">
                 <a href="home" class="nav-item nav-link active">Trang chủ</a>
-                <a href="service.html" class="nav-item nav-link">Dịch vụ</a>
                 <a href="package.html" class="nav-item nav-link">Nổi bật</a>
                 <a href="booking.html" class="nav-item nav-link">Đặt lịch</a>  
 
@@ -92,8 +91,9 @@
                             <a class="btn border dropdown-toggle" href="#" role="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user text-primary"></i>
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="accountDropdown">
+                            <ul class="dropdown-menu" aria-labelledby="accountDropdown">               
                                 <li><a class="dropdown-item" href="${pageContext.request.contextPath}/ProfileUser">Xem tài khoản</a></li>
+                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/amounttopay">Nạp số dư vào tài khoản</a></li>
                                 <li><a class="dropdown-item" href="${pageContext.request.contextPath}/LoginLogout?service=logoutUser">Đăng xuất</a></li>
                             </ul>
                         </div>
