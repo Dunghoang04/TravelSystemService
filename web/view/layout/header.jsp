@@ -91,8 +91,9 @@
                             <a class="btn border dropdown-toggle" href="#" role="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user text-primary"></i>
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="accountDropdown">
+                            <ul class="dropdown-menu" aria-labelledby="accountDropdown">               
                                 <li><a class="dropdown-item" href="${pageContext.request.contextPath}/ProfileUser">Xem tài khoản</a></li>
+                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/amounttopay">Nạp số dư vào tài khoản</a></li>
                                 <li><a class="dropdown-item" href="${pageContext.request.contextPath}/LoginLogout?service=logoutUser">Đăng xuất</a></li>
                             </ul>
                         </div>

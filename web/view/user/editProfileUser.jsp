@@ -1,3 +1,13 @@
+<%--
+* Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-07  1.0        Hà Thị Duyên      First implementation
+ * 2025-06-25  1.1        Hà Thị Duyên      Added password visibility toggle
+--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
@@ -16,7 +26,6 @@
     <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
 
     <style>
-        /* Giữ nguyên phần CSS của bạn */
         body {
             background: url('${pageContext.request.contextPath}/assets/img/img_10.jpg') no-repeat center center fixed;
             background-size: cover;
@@ -78,7 +87,6 @@
             font-family: 'Poppins', sans-serif;
             transition: background-color 0.3s ease;
         }
-        
         .btn-back {
             height: 50px;
             font-size: 16px;
@@ -96,7 +104,6 @@
             font-family: 'Poppins', sans-serif;
             transition: background-color 0.3s ease;
         }
-        
         footer {
             flex-shrink: 0;
             margin-top: 20px;
@@ -130,6 +137,29 @@
             height: 45px !important;
             padding: 10px;
         }
+        .input-group {
+            position: relative;
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 2px solid #d1d5db;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            height: 45px;
+            display: flex;
+            align-items: center;
+        }
+        .input-group .form-control {
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+        }
+        .input-group-text .fas {
+            color: #6b7280;
+        }
+        .input-group-text .fa-eye-slash {
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
@@ -154,15 +184,20 @@
                             <div class="form-group">
                                 <label class="form-label">Họ:<span class="required">*</span></label>
                                 <input type="text" class="form-control" name="lastName" 
-                                       value="${not empty param.lastName ? param.lastName : sessionScope.loginUser.lastName}" required>
+                                       value="${not empty requestScope.lastName ? requestScope.lastName : sessionScope.loginUser.lastName}" required>
                                 <c:if test="${not empty requestScope.lastNameError}">
                                     <span class="field-error">${requestScope.lastNameError}</span>
                                 </c:if>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Mật khẩu:<span class="required">*</span></label>
-                                <input type="password" class="form-control" name="password" 
-                                       value="${not empty param.password ? param.password : sessionScope.loginUser.password}" required>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="password" id="passwordInput"
+                                           value="${not empty requestScope.password ? requestScope.password : sessionScope.loginUser.password}" required>
+                                    <span class="input-group-text">
+                                        <i class="fas fa-eye" id="togglePassword"></i>
+                                    </span>
+                                </div>
                                 <c:if test="${not empty requestScope.passwordError}">
                                     <span class="field-error">${requestScope.passwordError}</span>
                                 </c:if>
@@ -170,7 +205,7 @@
                             <div class="form-group">
                                 <label class="form-label">Số điện thoại:<span class="required">*</span></label>
                                 <input type="text" class="form-control" name="phone" 
-                                       value="${not empty param.phone ? param.phone : sessionScope.loginUser.phone}" required>
+                                       value="${not empty requestScope.phone ? requestScope.phone : sessionScope.loginUser.phone}" required>
                                 <c:if test="${not empty requestScope.phoneError}">
                                     <span class="field-error">${requestScope.phoneError}</span>
                                 </c:if>
@@ -185,7 +220,7 @@
                             <div class="form-group">
                                 <label class="form-label">Tên:<span class="required">*</span></label>
                                 <input type="text" class="form-control" name="firstName" 
-                                       value="${not empty param.firstName ? param.firstName : sessionScope.loginUser.firstName}" required>
+                                       value="${not empty requestScope.firstName ? requestScope.firstName : sessionScope.loginUser.firstName}" required>
                                 <c:if test="${not empty requestScope.firstNameError}">
                                     <span class="field-error">${requestScope.firstNameError}</span>
                                 </c:if>
@@ -212,7 +247,7 @@
                             <div class="form-group">
                                 <label class="form-label">Địa chỉ:<span class="required">*</span></label>
                                 <input type="text" class="form-control" name="address" 
-                                       value="${not empty param.address ? param.address : sessionScope.loginUser.address}" required>
+                                       value="${not empty requestScope.address ? requestScope.address : sessionScope.loginUser.address}" required>
                                 <c:if test="${not empty requestScope.addressError}">
                                     <span class="field-error">${requestScope.addressError}</span>
                                 </c:if>
@@ -240,5 +275,22 @@
     <script src="${pageContext.request.contextPath}/assets/lib/tempusdominus/js/moment-timezone.min.js"></script>
     <script src="${pageContext.request.contextPath}/assets/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
+
+    <!-- JavaScript for password toggle -->
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('passwordInput');
+            const icon = this;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    </script>
 </body>
 </html>

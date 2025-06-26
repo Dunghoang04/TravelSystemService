@@ -54,6 +54,7 @@ public class BookDetail {
         
     
     public BookDetail(int bookID, int userID, int tourID, int voucherID, Date bookDate, int numberAdult, int paymentMethodId, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status, long bookCode) {
+
         this.bookID = bookID;
         this.userID = userID;
         this.tourID = tourID;
@@ -218,5 +219,6 @@ public class BookDetail {
     public String toString() {
         return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", paymentMethodId=" + paymentMethodId + ", numberChildren=" + numberChildren + ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", isBookedForOther=" + isBookedForOther + ", totalPrice=" + totalPrice + ", status=" + status + ", bookCode=" + bookCode + '}';
     }
+
 
 }

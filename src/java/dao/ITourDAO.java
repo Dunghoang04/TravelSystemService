@@ -140,6 +140,7 @@ public interface ITourDAO {
     public int getTotalTourForSearch() throws SQLException;
     void insertTour(Tour tour) throws SQLException;
 
+
     /**
      * Searches for a tour by its ID.
      *
@@ -158,21 +159,22 @@ public interface ITourDAO {
     void updateTour(Tour tour) throws SQLException;
 
     /**
-     * Changes the status of a tour.
+     * Changes the status of a tour in the database.
      *
-     * @param tourId The ID of the tour
+     * @param tourId The ID of the tour to update
      * @param newStatus The new status value (e.g., 0 for inactive, 1 for active)
      * @throws SQLException If a database error occurs
+     * @author Quynh Mai
      */
     void changeStatusTour(int tourId, int newStatus) throws SQLException;
 
     /**
-     * Deletes a tour if no tour sessions are associated with it.
-     * If associated sessions exist, the tour is deactivated instead.
+     * Retrieves tours from the database based on their status.
      *
-     * @param tourId The ID of the tour to delete
-     * @return Number of affected rows (0 if deactivated due to linked sessions)
+     * @param status The status of the tours to retrieve (e.g., 0 for inactive, 1 for active)
+     * @return A Vector containing matching Tour objects
      * @throws SQLException If a database error occurs
+     * @author Quynh Mai
      */
     int deleteTour(int tourId) throws SQLException;
     
@@ -189,4 +191,6 @@ public interface ITourDAO {
     Vector<Tour> getAllTours() throws SQLException ;
     
     boolean updateQuantityAfterBooking(int tourID, int numberHuman);
+
 }
+

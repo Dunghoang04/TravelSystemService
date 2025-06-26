@@ -1,9 +1,12 @@
 <%-- 
-    Document   : AddRestaurant
-    Created on : May 27, 2025, 4:07:53 PM
-    Author     : ad
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR                   DESCRIPTION
+ * 2025-06-21  1.0        Hoang Tuan Dung          First implementation
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -179,16 +182,16 @@
                                     <!--Tạo ra ảnh xem trước, khung ảnh để người dùng tải lên , sau khi chọn ảnh js sẽ chèn src vô-->
                                     <div class="col-md-6">
                                         <div class="border p-3 mb-3 d-flex align-items-center justify-content-center" style="height: 300px;">
-                                        <c:if test="${not empty requestScope.imageFileName and requestScope.imageFileName != ''}">
-                                            <img id="previewImage" src="${pageContext.request.contextPath}/assets/img-restaurant/${requestScope.imageFileName}" 
+                                        <c:if test="${not empty requestScope.imageFileNameRestaurant and requestScope.imageFileNameRestaurant != ''}">
+                                            <img id="previewImage" src="${pageContext.request.contextPath}/assets/img-restaurant/${requestScope.imageFileNameRestaurant}" 
                                                  alt="Ảnh nhà hàng" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
                                         </c:if>
-                                        <c:if test="${empty requestScope.imageFileName or requestScope.imageFileName == ''}">
+                                        <c:if test="${empty requestScope.imageFileNameRestaurant or requestScope.imageFileNameRestaurant == ''}">
                                             <img id="previewImage" src="" alt="Hãy chọn ảnh" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
                                         </c:if>
                                     </div>
                                     <!--Miêu tả ảnh, tí js sẽ chèn vô-->
-                                    <p id="imagePath"  class="input-group input-group-outline mb-2">${requestScope.imageFileName}</p>
+                                    <p id="imagePath"  class="input-group input-group-outline mb-2">${requestScope.imageFileNameRestaurant}</p>
                                     <c:if test="${not empty requestScope.errorSystem}">
                                         <div class="col-12 errorNoti" style="background-color: #F6E4E1; border: solid 1px red; text-align: center; color: red; padding: 10px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 5px">
                                             <p>${requestScope.errorSystem}</p>
@@ -200,19 +203,6 @@
                                         </div>
                                     </c:if>
                                 </div>
-                                <script>
-                                    function previewImage(event) {
-                                        const file = event.target.files[0];
-                                        if (file) {
-                                            const reader = new FileReader();
-                                            reader.onload = function (e) {
-                                                document.getElementById('previewImage').src = e.target.result;
-                                                document.getElementById('imagePath').innerText = file.name;
-                                            };
-                                            reader.readAsDataURL(file);
-                                        }
-                                    }
-                                </script>
                                 <div class="col-md-6">
                                     <!--Form để thêm sản phẩm lên-->
                                     <form action="addrestaurant" method="POST" enctype="multipart/form-data">
@@ -303,8 +293,6 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorDescription}</p>
                                             </div>
                                         </c:if>
-
-
                                         <br>
                                         <div class="d-flex justify-content-end">
                                             <button type="submit" class="btn btn-info me-2" name="action" value="insert">Thêm nhà hàng</button>
@@ -312,31 +300,6 @@
                                         </div>
                                     </form>
                                 </div>
-                                <script>
-                                    const cacelAdd = document.querySelector(".caceladd");
-                                    cacelAdd.addEventListener("click", (e) => {
-                                        window.history.back();
-                                    });
-
-                                    fetch('https://provinces.open-api.vn/api/?depth=1')
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                const provinceSelect = document.getElementById('province');
-                                                const selectedAddress = '${requestScope.address}'; // Get the address from the servlet
-                                                data.forEach(province => {
-                                                    let opt = document.createElement('option');
-                                                    opt.value = province.name;
-                                                    opt.textContent = province.name;
-                                                    if (selectedAddress && province.name === selectedAddress) {
-                                                        opt.selected = true; // Pre-select the province if it matches
-                                                    }
-                                                    provinceSelect.appendChild(opt);
-                                                });
-                                            });
-
-
-
-                                </script>
                             </div>
                         </div>
                     </div>
@@ -356,6 +319,39 @@
                         };
                     </script>
                 </c:if>
+                <script>
+                    const cacelAdd = document.querySelector(".caceladd");
+                    cacelAdd.addEventListener("click", (e) => {
+                        window.history.back();
+                    });
+
+                    fetch('https://provinces.open-api.vn/api/?depth=1')
+                            .then(response => response.json())
+                            .then(data => {
+                                const provinceSelect = document.getElementById('province');
+                                const selectedAddress = '${requestScope.address}'; // Get the address from the servlet
+                                data.forEach(province => {
+                                    let opt = document.createElement('option');
+                                    opt.value = province.name;
+                                    opt.textContent = province.name;
+                                    if (selectedAddress && province.name === selectedAddress) {
+                                        opt.selected = true; // Pre-select the province if it matches
+                                    }
+                                    provinceSelect.appendChild(opt);
+                                });
+                            });
+                    function previewImage(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                document.getElementById('previewImage').src = e.target.result;
+                                document.getElementById('imagePath').innerText = file.name;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                </script>
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">

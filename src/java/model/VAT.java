@@ -101,6 +101,7 @@ public class VAT {
     @Override
     public String toString() {
         return "VAT{" + "vatId=" + vatId + ", vatRate=" + vatRate + ", description=" + description + ", startDate=" + startDate + ", endDate=" + endDate + ", status=" + status + ", createDate=" + createDate + ", updateDate=" + updateDate + '}';
+
     }
     
     

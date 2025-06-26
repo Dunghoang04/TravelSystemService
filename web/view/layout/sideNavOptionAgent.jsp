@@ -45,6 +45,7 @@
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-face-smile"></i></i></div>
                                 Quản lý giải trí
                             </a>
+
                             <a class="nav-link" href="${pageContext.request.contextPath}/ManageTravelAgentProfile">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></i></div>
                                 Thông tin cá nhân

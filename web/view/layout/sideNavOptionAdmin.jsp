@@ -28,11 +28,13 @@
                             <a class="nav-link" href="ManagementAccount">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-gears"></i></div>
                                 Quản lý tài khoản
+
                             </a>
 
                             <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
                                 Quản lý doanh thu 
+
                             </a>
                             
                             <a class="nav-link" href="">
@@ -42,6 +44,7 @@
                             <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
                                 Quản lý điều khoản 
+
                             </a>                           
                         </div>
                     </div>

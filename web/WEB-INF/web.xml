@@ -187,6 +187,7 @@
     <servlet>
         <servlet-name>WalletPaymentSuccess</servlet-name>
         <servlet-class>controller.payment.WalletPaymentSuccess</servlet-class>
+
     </servlet>
     <servlet-mapping>
         <servlet-name>ListStaffAccount</servlet-name>
@@ -388,6 +389,7 @@
         <servlet-name>WalletPaymentSuccess</servlet-name>
         <url-pattern>/walletpaymentsuccess</url-pattern>
     </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
@@ -420,6 +422,7 @@
         <servlet-class>controller.user.AmountToPay</servlet-class>
     </servlet>
     <servlet>
+
         <servlet-name>Payment</servlet-name>
         <servlet-class>controller.user.Payment</servlet-class>
     </servlet>

@@ -80,14 +80,14 @@ public class ProfileUser extends HttpServlet {
 
         //Xử lí thông tin người dùng 
         if (service.equals("updateUser")) {
-            String firstName = request.getParameter("firstName");
-            String lastName = request.getParameter("lastName");
-            String password = request.getParameter("password");
+            String firstName = request.getParameter("firstName").trim();
+            String lastName = request.getParameter("lastName").trim();
+            String password = request.getParameter("password").trim();
             String gender = request.getParameter("gender");
             String dobStr = request.getParameter("dob");
-            String address = request.getParameter("address");
+            String address = request.getParameter("address").trim();
             String gmail = request.getParameter("gmail");
-            String phone = request.getParameter("phone");
+            String phone = request.getParameter("phone").trim();
             //Lấy thông tin từ người dùng hiện tại từ session
             User loginUser = (User) session.getAttribute("loginUser");
             if (loginUser == null) {
@@ -97,13 +97,13 @@ public class ProfileUser extends HttpServlet {
             }
 
             // Lưu giá trị đã nhập để hiển thị lại trong form
-            request.setAttribute("lastName", lastName);
-            request.setAttribute("firstName", firstName);
-            request.setAttribute("password", password);
-            request.setAttribute("phone", phone);
+            request.setAttribute("lastName", lastName.trim());
+            request.setAttribute("firstName", firstName.trim());
+            request.setAttribute("password", password.trim());
+            request.setAttribute("phone", phone.trim());
             request.setAttribute("dob", dobStr);
             request.setAttribute("gender", gender);
-            request.setAttribute("address", address);
+            request.setAttribute("address", address.trim());
             request.setAttribute("gmail", gmail);
 
             // Nếu không thay đổi mật khẩu, giữ nguyên mật khẩu cũ
@@ -127,13 +127,13 @@ public class ProfileUser extends HttpServlet {
                     Date updateDate = Date.valueOf(now);
 
                     //Cập nhật thông tin người dùng
-                    loginUser.setLastName(lastName);
-                    loginUser.setFirstName(firstName);
-                    loginUser.setPassword(password);
+                    loginUser.setLastName(lastName.trim());
+                    loginUser.setFirstName(firstName.trim());
+                    loginUser.setPassword(password.trim());
                     loginUser.setGender(gender);
-                    loginUser.setPhone(phone);
+                    loginUser.setPhone(phone.trim());
                     loginUser.setDob(Date.valueOf(dob));
-                    loginUser.setAddress(address);
+                    loginUser.setAddress(address.trim());
                     loginUser.setUpdateDate(updateDate);
 
                     //Gọi DAO để cập nhật vào cơ sở dữ liệu 
@@ -204,8 +204,8 @@ public class ProfileUser extends HttpServlet {
         // Kiểm tra số điện thoại
         if (phone == null || phone.trim().isEmpty()) {
             request.setAttribute("phoneError", "Số điện thoại không được để trống!");
-        } else if (!phone.matches("^0[35789]\\d{8}$")) {
-            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng 03, 05, 07, 08 hoặc 09 và có đúng 10 chữ số!");
+        } else if (!phone.matches("^0\\d{9}$")) {
+            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số!");
         }
 
         // Kiểm tra ngày sinh
