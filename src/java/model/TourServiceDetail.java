@@ -32,10 +32,10 @@ public class TourServiceDetail {
     }
 
     public TourServiceDetail(int tourID, int serviceID, String serviceName, int status) {
-        this.detailID = detailID;
         this.tourID = tourID;
         this.serviceID = serviceID;
         this.serviceName = serviceName;
+        this.status = status;
     }
 
     public int getDetailID() {

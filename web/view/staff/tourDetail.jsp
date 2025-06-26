@@ -6,6 +6,7 @@
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
  * 2025-06-14  1.0        Quynh Mai          First implementation
+
 --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -19,6 +20,7 @@
         <title>Thông tin Tour</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
         <link href="${pageContext.request.contextPath}/assets/css/styles2.css" rel="stylesheet" />
+
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <style>
             html, body {
@@ -92,6 +94,7 @@
             .action-button.reject {
                 background-color: #dc3545;
             }
+
             .action-button:hover {
                 background-color: #218838;
                 color: white;
@@ -100,6 +103,7 @@
                 background-color: #c82333;
                 color: white;
             }
+
             .modal-content {
                 border-radius: 10px;
             }
@@ -128,12 +132,14 @@
                 text-align: center;
                 margin-bottom: 20px;
             }
+
         </style>
     </head>
     <body>
         <%@include file="../layout/headerAdmin.jsp" %>
         <div id="layoutSidenav">
             <jsp:include page="../layout/sideNavOptionStaff.jsp" />
+
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4 container-centered">
@@ -141,6 +147,7 @@
                         <c:if test="${not empty requestScope.errorMessage}">
                             <div class="error-message">${requestScope.errorMessage}</div>
                         </c:if>
+
                         <c:if test="${requestScope.tour.status == 3}">
                             <div style="color: red; font-size: 20px; text-align: center; margin-bottom: 20px">
                                 Lý do từ chối: ${requestScope.tour.reason}
@@ -184,6 +191,7 @@
                                 <div class="info-row">
                                     <label class="label">Trạng thái:</label>
                                     <p class="value">
+
                                         <c:choose>
                                             <c:when test="${requestScope.tour.status == 2}">Chờ duyệt</c:when>
                                             <c:when test="${requestScope.tour.status == 1}">Hoạt động</c:when>
@@ -233,6 +241,7 @@
                             <c:if test="${requestScope.tour.status == 2}">
                                 <button type="button" class="action-button" data-bs-toggle="modal" data-bs-target="#approveModal">Duyệt</button>
                                 <button type="button" class="action-button reject" data-bs-toggle="modal" data-bs-target="#rejectModal">Từ chối</button>
+
                             </c:if>
                         </div>
                         <!-- Approve Modal -->
@@ -345,6 +354,7 @@
                     }
                 });
             }
+
         </script>
     </body>
 </html>

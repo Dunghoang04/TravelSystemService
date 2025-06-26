@@ -174,6 +174,7 @@
                                 type="text" 
                                 name="searchName"
                                 value="${requestScope.searchName}"
+
                                 maxlength="100"
                                 class="form-control me-2 shadow-sm" 
                                 placeholder="Tìm giải trí theo tên..." 
@@ -184,6 +185,7 @@
                                 Tìm kiếm
                             </button>
                         </form>
+
 
                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; justify-content: space-between;">
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -196,6 +198,7 @@
                                 </select>
                             </div>
                             <a href="${pageContext.request.contextPath}/addentertainment">
+
                                 <button style="padding: 5px 68px" class="btn btn-info"><i class="fa-solid fa-user-plus"></i>Thêm giải trí</button>
                             </a>
                         </div>
@@ -242,6 +245,7 @@
                                                     <div class="box-action">
                                                         <button type="button" class="btn btn-warning updatebtn" 
                                                                 data-href="updateentertainment?id=${ent.getServiceId()}&page=${requestScope.currentPage}" data-name="${ent.getName()}">
+
                                                             Cập nhập
                                                         </button>
                                                         <button type="button" class="btn btn-primary detailbtn" 
@@ -312,6 +316,7 @@
                         </div>
                     </div>
                 </footer>
+
             </div>
         </div>
         <script>
@@ -352,6 +357,7 @@
             });
 
             // Handle detail button clicks
+
             const detailButtons = document.querySelectorAll(".detailbtn");
             detailButtons.forEach(button => {
                 button.addEventListener("click", function (e) {
@@ -400,6 +406,7 @@
             } else {
                 statusFilterDropdown.value = "";
             }
+
 
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
