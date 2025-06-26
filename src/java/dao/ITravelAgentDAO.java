@@ -151,4 +151,5 @@ public interface ITravelAgentDAO {
      * @throws SQLException if a database access error occurs
      */
     void changeStatusTravelAgent(int userID, int newStatus) throws SQLException;
+
 }

@@ -14,8 +14,6 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
-        
-        
     </head>
     <body>
         <div id="layoutSidenav_nav">
@@ -23,46 +21,24 @@
                     <div class="sb-sidenav-menu">
                         <div class="nav">
                             <div class="sb-sidenav-menu-heading">Bảng điều khiển</div>
-                            <a class="nav-link" href="saticalagent">
+                            <a class="nav-link" href="StatisticalAdmin">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Thống kê
                             </a>
-<<<<<<< Mai_interation2
-                            <a class="nav-link" href="ListTour?service=list">
-=======
-                            <a class="nav-link" href="tourmanagementagent">
->>>>>>> master
+                            <a class="nav-link" href="ManagementAccount">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-gears"></i></div>
-                                Quản lí danh sách chuyến đi
+                                Quản lí tài khoản
                             </a>
 
-<<<<<<< Mai_interation2
-                            <a class="nav-link" href="ManagementAccommodation">
+                            <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
-                                Quản lí khách sạn
+                                Quản lí doanh thu 
                             </a>
                             
-                            <a class="nav-link" href="managerestaurant">
+                            <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
-                                Quản lí nhà hàng
-                            </a>
-=======
-                            <a class="nav-link" href="managementhotel">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
-                                Quản lí khách sạn
-                            </a>
-
->>>>>>> master
-                            <a class="nav-link" href="managementertainment">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-face-smile"></i></i></div>
-                                Quản lí giải trí
-                            </a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/ManageTravelAgentProfile">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></i></div>
-                                Thông tin cá nhân
-                            </a>
-
-
+                                Quản lí thuế
+                            </a>                           
                         </div>
                     </div>
 
