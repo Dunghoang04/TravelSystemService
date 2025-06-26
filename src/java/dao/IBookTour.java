@@ -18,7 +18,8 @@ public interface IBookTour {
     
     ArrayList<BookDetail> getBookDetailsByAgent(int agentId) throws SQLException;
     ArrayList<BookDetail> getBookDetailByStatus(int status) throws SQLException;
-    ArrayList<BookDetail> createBookDetail(int userId, int tourID,int voucherID,Date bookDate,int numberAdult,int numberChildren,String payMethod,String firstName,String lastName,String phone,String gmail,String note,int isBookedForOther,float totalPrice,int status) throws SQLException;
-    
-    
+    ArrayList<BookDetail> createBookDetail(int userId, int tourID,int voucherID,Date bookDate,int numberAdult,int numberChildren,String payMethod,String firstName,String lastName,String phone,String gmail,String note,int isBookedForOther,float totalPrice,int status, int paymentMethodID) throws SQLException;
+    boolean insertBookDetail(int userID, int tourID, Integer voucherID, int numberAdult, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, double totalPrice, int status, int paymentMethodID, long bookCode) throws SQLException;
+    boolean updateBookStatusByBookCode(long bookCode, int newStatus) throws SQLException;
+    BookDetail getBookDetailByBookCode(long bookCode) throws SQLException;
 }

@@ -11,7 +11,7 @@ import java.util.Date;
  * @author Hung
  */
 public class VAT {
-    private int vatID;
+    private int vatId;
     private double vatRate;
     private String description;
     private Date startDate;
@@ -23,8 +23,8 @@ public class VAT {
     public VAT() {
     }
 
-    public VAT(int vatID, double vatRate, String description, Date startDate, Date endDate, int status, Date createDate, Date updateDate) {
-        vatID = vatID;
+    public VAT(int vatId, double vatRate, String description, Date startDate, Date endDate, int status, Date createDate, Date updateDate) {
+        this.vatId = vatId;
         this.vatRate = vatRate;
         this.description = description;
         this.startDate = startDate;
@@ -34,12 +34,12 @@ public class VAT {
         this.updateDate = updateDate;
     }
 
-    public int vatID() {
-        return vatID;
+    public int getVatId() {
+        return vatId;
     }
 
-    public void vatID(int vatID) {
-        vatID = vatID;
+    public void setVatId(int vatId) {
+        this.vatId = vatId;
     }
 
     public double getVatRate() {
@@ -98,19 +98,10 @@ public class VAT {
         this.updateDate = updateDate;
     }
 
-    public int getVatID() {
-        return vatID;
-    }
-
-    public void setVatID(int vatID) {
-        this.vatID = vatID;
-    }
-    
-    
-
     @Override
     public String toString() {
-        return "VAT{" + "vatID=" + vatID + ", vatRate=" + vatRate + ", description=" + description + ", startDate=" + startDate + ", endDate=" + endDate + ", status=" + status + ", createDate=" + createDate + ", updateDate=" + updateDate + '}';
+        return "VAT{" + "vatId=" + vatId + ", vatRate=" + vatRate + ", description=" + description + ", startDate=" + startDate + ", endDate=" + endDate + ", status=" + status + ", createDate=" + createDate + ", updateDate=" + updateDate + '}';
+
     }
     
     

@@ -138,7 +138,8 @@ public interface ITourDAO {
     
     
     public int getTotalTourForSearch() throws SQLException;
-    int insertTour(Tour tour) throws SQLException;
+    void insertTour(Tour tour) throws SQLException;
+
 
     /**
      * Searches for a tour by its ID.
@@ -175,36 +176,21 @@ public interface ITourDAO {
      * @throws SQLException If a database error occurs
      * @author Quynh Mai
      */
+    int deleteTour(int tourId) throws SQLException;
+    
+    /**
+     * Searches for a tour by its ID.
+     *
+     * @param tourId The ID of the tour to search for
+     * @return The Tour object if found, null otherwise
+     * @throws SQLException If a database error occurs
+     */
+    Tour searchTour(int tourId) throws SQLException;
+    
     Vector<Tour> searchTourByStatus(int status) throws SQLException;
+    Vector<Tour> getAllTours() throws SQLException ;
+    
+    boolean updateQuantityAfterBooking(int tourID, int numberHuman);
 
-    /**
-     * Retrieves all tours from the database.
-     *
-     * @return A Vector containing all Tour objects
-     * @throws SQLException If a database error occurs
-     * @author Quynh Mai
-     */
-    Vector<Tour> getAllTours() throws SQLException;
-
-    /**
-     * Retrieves tours for a specific travel agent by status.
-     *
-     * @param travelAgentID The ID of the travel agent
-     * @param status The status of the tours to retrieve (e.g., 0 for inactive, 1 for active)
-     * @return A Vector containing matching Tour objects
-     * @throws SQLException If a database error occurs
-     * @author Quynh Mai
-     */
-    public Vector<Tour> searchTourByStatusAndAgent(int travelAgentID, int status) throws SQLException;
-
-    /**
-     * Retrieves all tours for a specific travel agent.
-     *
-     * @param travelAgentID The ID of the travel agent
-     * @return A Vector containing all Tour objects associated with the travel agent
-     * @throws SQLException If a database error occurs
-     * @author Quynh Mai
-     */
-    public Vector<Tour> getAllToursByAgent(int travelAgentID) throws SQLException;
 }
 

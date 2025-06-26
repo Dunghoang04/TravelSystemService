@@ -9,6 +9,7 @@
  */
 package controller.staff;
 
+import dao.UserDAO;
 import dao.VoucherDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.User;
 import model.Voucher;
 
 /**
@@ -69,12 +71,12 @@ public class UpdateVoucher extends HttpServlet {
             throws ServletException, IOException {
         //Kiểm tra session
         HttpSession session = request.getSession(false); // false: không tạo session mới nếu chưa có
-            if (session == null || session.getAttribute("gmail") == null) {
+        if (session == null || session.getAttribute("gmail") == null) {
             // Chưa đăng nhập
             response.sendRedirect("LoginLogout");
             return;
         }
-        
+
         String id_raw = request.getParameter("voucherId"); // Lấy voucher ID từ URL
 
         try {
@@ -107,8 +109,16 @@ public class UpdateVoucher extends HttpServlet {
             throws ServletException, IOException {
         VoucherDAO voucherDao = new VoucherDAO();
 
+        HttpSession session = request.getSession();
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            response.sendRedirect("LoginLogout");
+            return;
+        }
+
         // Lấy và làm sạch dữ liệu từ form
         String id_raw = request.getParameter("voucherId").trim();
+        String voucherCode = request.getParameter("voucherCode").trim();
         String voucherName = request.getParameter("voucherName").trim();
         String description = request.getParameter("description").trim();
         String percentDiscount_raw = request.getParameter("percentDiscount").trim();
@@ -118,41 +128,46 @@ public class UpdateVoucher extends HttpServlet {
         String endDate_raw = request.getParameter("endDate").trim();
         String quantity_raw = request.getParameter("quantity").trim();
         String status_raw = request.getParameter("status").trim();
-
+        Voucher voucher = null;
         try {
             int id = Integer.parseInt(id_raw); // ID của voucher cần cập nhật
-            Voucher voucher = voucherDao.getVoucherById(id);
+            voucher = voucherDao.getVoucherById(id);
             request.setAttribute("voucher", voucher); // Đặt lại dữ liệu nếu có lỗi
 
-            float percentDiscount = Float.parseFloat(percentDiscount_raw);
+            int percentDiscount = Integer.parseInt(percentDiscount_raw);
             if (voucherName.length() < 5 || voucherName.length() > 50) {
                 request.setAttribute("voucherNameErro", "Tên voucher phải nằm trong 5-50 kí tự");
-                request.getRequestDispatcher("view/staff/addVoucher.jsp").forward(request, response);
+                setVoucher(request);
+                request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
 
             if (description.length() < 10) {
                 request.setAttribute("description", "Mô tả phải từ 10 kí tự đổ lên");
-                request.getRequestDispatcher("view/staff/addVoucher.jsp").forward(request, response);
+                setVoucher(request);
+                request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
 
             if (percentDiscount < 1 || percentDiscount > 100) {
                 request.setAttribute("percenDiscountErro", "Giảm giá không thể âm hoặc lớn hơn 100");
+                setVoucher(request);
                 request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
 
-            float maxDiscountAmount = Float.parseFloat(maxDiscountAmount_raw);
+            int maxDiscountAmount = (int)Integer.parseInt(maxDiscountAmount_raw);
             if (maxDiscountAmount < 0 || maxDiscountAmount > 100000000) {
                 request.setAttribute("maxDiscountAmountErro", "Giảm tối đa không thể âm và lớn hơn 100.000.000");
+                setVoucher(request);
                 request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
 
-            float minAmountApply = Float.parseFloat(minAmountApply_raw);
-            if (minAmountApply < 0|| minAmountApply >1000000000) {
+            int minAmountApply =(int) Integer.parseInt(minAmountApply_raw);
+            if (minAmountApply < 0 || minAmountApply > 1000000000) {
                 request.setAttribute("minAmountApplyErro", "Giá tiền tối thiểu không thể âm và lớn hơn 1 tỷ đồng");
+                setVoucher(request);
                 request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
@@ -164,6 +179,7 @@ public class UpdateVoucher extends HttpServlet {
             Date startDate = sdf.parse(startDate_raw);
             if (startDate.before(dateNow)) {
                 request.setAttribute("startDateErro", "Ngày bắt đầu không được ở quá khứ");
+                setVoucher(request);
                 request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
@@ -171,6 +187,7 @@ public class UpdateVoucher extends HttpServlet {
             Date endDate = sdf.parse(endDate_raw);
             if (endDate.before(startDate)) {
                 request.setAttribute("endDateErro", "Ngày kết thúc phải sau ngày bắt đầu");
+                setVoucher(request);
                 request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
@@ -178,6 +195,7 @@ public class UpdateVoucher extends HttpServlet {
             int quantity = Integer.parseInt(quantity_raw);
             if (quantity < 1 || quantity > 100) {
                 request.setAttribute("quantityErro", "Số lượng không hợp lệ (1-100)");
+                setVoucher(request);
                 request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
                 return;
             }
@@ -185,23 +203,40 @@ public class UpdateVoucher extends HttpServlet {
             int status = Integer.parseInt(status_raw); // Trạng thái (1 = active, 0 = deactive)
 
             // Cập nhật voucher nếu hợp lệ
-            if (voucherDao.updateVoucher(id, voucherName, description, percentDiscount,
+            if (voucherDao.updateVoucher(id, loginUser.getUserID(), voucherName, description, percentDiscount,
                     maxDiscountAmount, minAmountApply, startDate, endDate, quantity, status)) {
                 response.sendRedirect("listvoucher?success=1");
                 return;
             }
 
         } catch (NumberFormatException e) {
-            request.setAttribute("messErro", "Nhập không khả dụng, vui lòng nhập lại");
+            request.setAttribute("messErro", "Nhập không khả dụng, vui lòng nhập lại");     
+            setVoucher(request);
             request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
         } catch (ParseException ex) {
             request.setAttribute("messErro", "Cập nhập thẻ khuyến mãi thất bại");
+            setVoucher(request);
             request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
         } catch (SQLException ex) {
+            request.setAttribute("messErro", "Lỗi hệ thống khi cập nhật thẻ khuyến mãi. Vui lòng thử lại sau.");
+            setVoucher(request);
+            request.getRequestDispatcher("view/staff/updateVoucher.jsp").forward(request, response);
             Logger.getLogger(UpdateVoucher.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    private void setVoucher(HttpServletRequest request){
+        String id_raw = request.getParameter("voucherId").trim();
+        VoucherDAO voucherDao = new VoucherDAO();
+        try {
+            int id = Integer.parseInt(id_raw); // ID của voucher cần cập nhật
+            Voucher voucher = voucherDao.getVoucherById(id);
+            request.setAttribute("voucher", voucher);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * Returns a short description of the servlet.
      *
