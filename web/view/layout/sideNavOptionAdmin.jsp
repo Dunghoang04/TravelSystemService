@@ -13,7 +13,8 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>JSP Page</title>        
+
     </head>
     <body>
         <div id="layoutSidenav_nav">
@@ -27,17 +28,24 @@
                             </a>
                             <a class="nav-link" href="ManagementAccount">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-gears"></i></div>
-                                Quản lí tài khoản
+                                Quản lý tài khoản
+
                             </a>
 
                             <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
-                                Quản lí doanh thu 
+                                Quản lý doanh thu 
+
                             </a>
                             
                             <a class="nav-link" href="">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
-                                Quản lí thuế
+                                Quản lý thuế
+                            </a>                           
+                            <a class="nav-link" href="">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
+                                Quản lý điều khoản 
+
                             </a>                           
                         </div>
                     </div>

@@ -78,9 +78,23 @@ public class UpdateEntertainment extends HttpServlet {
             NumberFormat numberFormat = NumberFormat.getInstance();
             numberFormat.setGroupingUsed(true);
             String formattedTicketPrice = numberFormat.format(entertainmentUpdate.getTicketPrice());
-            request.setAttribute("formattedTicketPrice", formattedTicketPrice);
+
+            // Đặt các thuộc tính riêng lẻ vào request thay vì đối tượng Entertainment
+            request.setAttribute("serviceId", entertainmentUpdate.getServiceId());
+            request.setAttribute("name", entertainmentUpdate.getName());
+            request.setAttribute("image", entertainmentUpdate.getImage());
+            request.setAttribute("address", entertainmentUpdate.getAddress());
+            request.setAttribute("phone", entertainmentUpdate.getPhone());
+            request.setAttribute("description", entertainmentUpdate.getDescription());
+            request.setAttribute("rate", entertainmentUpdate.getRate());
+            request.setAttribute("type", entertainmentUpdate.getType());
+            request.setAttribute("status", entertainmentUpdate.getStatus());
+            request.setAttribute("timeOpen", entertainmentUpdate.getTimeOpen() != null ? entertainmentUpdate.getTimeOpen().toString().substring(0, 5) : "");
+            request.setAttribute("timeClose", entertainmentUpdate.getTimeClose() != null ? entertainmentUpdate.getTimeClose().toString().substring(0, 5) : "");
+            request.setAttribute("dayOfWeekOpen", entertainmentUpdate.getDayOfWeekOpen());
+            request.setAttribute("ticketPrice", formattedTicketPrice);
             request.setAttribute("page", currentPage);
-            request.setAttribute("entertainmentUpdate", entertainmentUpdate);
+
             request.getRequestDispatcher("view/agent/entertainment/updateEntertainment.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             sendError(request, response, "errorSystem", "ID dịch vụ không hợp lệ.");
@@ -128,14 +142,26 @@ public class UpdateEntertainment extends HttpServlet {
             Part filePart = request.getPart("image");
             String existingImage = request.getParameter("existingImage") != null ? request.getParameter("existingImage").trim() : "";
 
-            // Preserve form data for error case
-            Entertainment entertainmentUpdate = entertainmentDAO.getEntertainmentByServiceId(id);
-            request.setAttribute("entertainmentUpdate", entertainmentUpdate);
+            // Lưu dữ liệu đã nhập vào request để hiển thị lại khi validate thất bại
+            request.setAttribute("serviceId", serviceIdParam);
+            request.setAttribute("name", name);
+            request.setAttribute("type", type);
+            request.setAttribute("address", address);
+            request.setAttribute("phone", phone);
+            request.setAttribute("rate", rateStr);
+            request.setAttribute("timeOpen", timeOpenStr);
+            request.setAttribute("timeClose", timeCloseStr);
+            request.setAttribute("dayOfWeekOpen", dayOfWeekOpen != null ? String.join(" , ", dayOfWeekOpen) : "");
+            request.setAttribute("ticketPrice", ticketPriceStr);
+            request.setAttribute("description", description);
+            request.setAttribute("status", statusStr);
+            request.setAttribute("image", existingImage); // Giữ lại đường dẫn ảnh hiện tại
+            request.setAttribute("page", currentPageParam);
 
             // Validate status
             int status;
             try {
-                status = (statusStr != null && !statusStr.isEmpty()) ? Integer.parseInt(statusStr) : entertainmentUpdate.getStatus(); // Preserve existing status
+                status = (statusStr != null && !statusStr.isEmpty()) ? Integer.parseInt(statusStr) : 1; // Mặc định status nếu không có
                 if (status != 0 && status != 1) {
                     throw new IllegalArgumentException("Trạng thái không hợp lệ.");
                 }
@@ -170,6 +196,7 @@ public class UpdateEntertainment extends HttpServlet {
                     }
                 }
                 filePart.write(uploadsDirPath + File.separator + imageFileName);
+                request.setAttribute("image", relativeImagePath); // Cập nhật đường dẫn ảnh mới
             } else if (imageFileName == null || imageFileName.trim().isEmpty()) {
                 sendError(request, response, "errorImage", "Vui lòng chọn ảnh cho dịch vụ.");
                 return;
@@ -250,13 +277,18 @@ public class UpdateEntertainment extends HttpServlet {
             if (dayOfWeekOpen != null && dayOfWeekOpen.length > 0) {
                 dayOfWeekAll = String.join(" , ", dayOfWeekOpen);
             } else {
-                sendError(request, response, "errorDayOffWeek", "Vui lòng chọn ít nhất 1 ngày mở cửa.");
+                sendError(request, response, "errorDayOfWeek", "Vui lòng chọn ít nhất 1 ngày mở cửa.");
                 return;
             }
 
             // Validation: ticketPrice
             if (ticketPriceStr.isEmpty()) {
                 sendError(request, response, "errorTicketPrice", "Giá vé không được để trống.");
+                return;
+            }
+            // Không cho phép chứa dấu chấm
+            if (ticketPriceStr.contains(".")) {
+                sendError(request, response, "errorTicketPrice", "Giá vé không được chứa dấu chấm (chỉ dùng dấu phẩy để phân tách hàng nghìn).");
                 return;
             }
             String cleanedTicketPriceStr = ticketPriceStr.replaceAll(",", "");
@@ -280,8 +312,8 @@ public class UpdateEntertainment extends HttpServlet {
 
             // Update database
             entertainmentDAO.updateEntertainment(id, name, relativeImagePath, address, phone, description, rate, type, status, timeOpenStr, timeCloseStr, dayOfWeekAll, ticketPrice);
-//            response.sendRedirect("managementertainment?statusType=" + (statusType != null ? statusType : ""));
-            response.sendRedirect("managementertainment?page=" + currentPage);
+            request.setAttribute("success", "Cập nhập giải trí thành công");
+            request.getRequestDispatcher("view/agent/entertainment/updateEntertainment.jsp").forward(request, response);
         } catch (SQLException e) {
             sendError(request, response, "errorSystem", "Lỗi cơ sở dữ liệu: " + e.getMessage());
         } catch (IOException e) {

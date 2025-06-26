@@ -29,13 +29,12 @@
                         </a>
                         <a class="nav-link" href="ManageTourCreate?service=list">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Quản lí chuyến đi
+                            Quản lý chuyến đi
                         </a>
                         <a class="nav-link" href="ManageTravelAgentRegister?service=list">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Quản lí đại lý
+                            Quản lý đại lý
                         </a>
-
 
                     </div>
                 </div>

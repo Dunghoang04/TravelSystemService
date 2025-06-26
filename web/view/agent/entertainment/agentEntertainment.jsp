@@ -167,13 +167,14 @@
                 <div id="layoutSidenav_content">
                     <main>
                         <div class="container-fluid px-4">
-                            <!--.-->
                             <h1 class="mt-4" style="font-family: 'Ancizar Serif', serif;">Danh sách giải trí</h1>
-                            <form action="managementertainment" method="GET" class="d-flex align-items-center">
-                                <input 
-                                    type="text" 
-                                    name="searchName"
-                                    value="${requestScope.searchName}"
+
+                            <form action="${pageContext.request.contextPath}/managementertainment" method="GET" class="d-flex align-items-center">
+                            <input 
+                                type="text" 
+                                name="searchName"
+                                value="${requestScope.searchName}"
+
                                 maxlength="100"
                                 class="form-control me-2 shadow-sm" 
                                 placeholder="Tìm giải trí theo tên..." 
@@ -184,7 +185,8 @@
                                 Tìm kiếm
                             </button>
                         </form>
-<!--.-->
+
+
                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; justify-content: space-between;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <label class="form-label">Lọc theo trạng thái:</label>
@@ -195,7 +197,8 @@
                                     <option value="">Tất cả</option>
                                 </select>
                             </div>
-                            <a href="addentertainment">
+                            <a href="${pageContext.request.contextPath}/addentertainment">
+
                                 <button style="padding: 5px 68px" class="btn btn-info"><i class="fa-solid fa-user-plus"></i>Thêm giải trí</button>
                             </a>
                         </div>
@@ -241,7 +244,8 @@
                                                 <td class="box-button">
                                                     <div class="box-action">
                                                         <button type="button" class="btn btn-warning updatebtn" 
-                                                                data-href="updateentertainment?id=${ent.getServiceId()}" data-name="${ent.getName()}">
+                                                                data-href="updateentertainment?id=${ent.getServiceId()}&page=${requestScope.currentPage}" data-name="${ent.getName()}">
+
                                                             Cập nhập
                                                         </button>
                                                         <button type="button" class="btn btn-primary detailbtn" 
@@ -262,45 +266,57 @@
                             </div>
                         </div>
                     </div>
-                    <c:set var="nameParam" value="${param.searchName}" />
-                    <c:set var="typeParam" value="${param.statusType}" />
-                    <div class="pagination d-flex justify-content-center mt-3">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination">
-                                <li class="page-item ${requestScope.currentPage == 1 ? 'disabled' : ''}">
-                                    <a class="page-link btn-danger" aria-label="Previous"
-                                       href="?page=${requestScope.currentPage - 1}&searchName=${fn:escapeXml(nameParam)}&statusType=${fn:escapeXml(typeParam)}">
-                                        <span aria-hidden="true">« Trang trước</span>
-                                    </a>
+                </main>
+                <c:set var="nameParam" value="${param.searchName}" />
+                <c:set var="typeParam" value="${param.statusType}" />
+                <c:set var="queryParams" value="" />
+                <c:if test="${not empty param.searchName}">
+                    <c:set var="queryParams" value="${queryParams}&searchName=${fn:escapeXml(param.searchName)}" />
+                </c:if>
+                <c:if test="${not empty param.statusType}">
+                    <c:set var="queryParams" value="${queryParams}&statusType=${fn:escapeXml(param.statusType)}" />
+                </c:if>
+                <div class="pagination d-flex justify-content-center mt-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <!-- Previous page -->
+                            <li class="page-item ${requestScope.currentPage == 1 ? 'disabled' : ''}">
+                                <a class="page-link btn-danger" aria-label="Previous"
+                                   href="?page=${requestScope.currentPage - 1}${queryParams}">
+                                    <span aria-hidden="true">« Trang trước</span>
+                                </a>
+                            </li>
+
+                            <!-- Page numbers -->
+                            <c:forEach begin="1" end="${requestScope.numberPage}" var="pageNum">
+                                <li class="page-item ${requestScope.currentPage == pageNum ? 'active' : ''}" >
+                                    <a class="page-link btn-danger" href="?page=${pageNum}${queryParams}">${pageNum}</a>
                                 </li>
-                                <!--Page numbers--> 
-                                <c:forEach begin="1" end="${requestScope.numberPage}" var="pageNum">
-                                    <li class="page-item ${requestScope.currentPage == pageNum ? 'active' : ''}" >
-                                        <a class="page-link btn-danger" href="?page=${pageNum}&searchName=${fn:escapeXml(nameParam)}&statusType=${fn:escapeXml(typeParam)}">${pageNum}</a>
-                                    </li>
-                                </c:forEach>
-                                <!--Next page--> 
-                                <li class="page-item ${requestScope.currentPage == requestScope.numberPage ? 'disabled' : ''}">
-                                    <a class="page-link btn-danger" aria-label="Next"
-                                       href="?page=${requestScope.currentPage + 1}&searchName=${fn:escapeXml(nameParam)}&statusType=${fn:escapeXml(typeParam)}">
-                                        <span aria-hidden="true">Trang sau »</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                    <footer class="py-4 bg-light mt-auto">
-                        <div class="container-fluid px-4">
-                            <div class="d-flex align-items-center justify-content-between small">
-                                <div class="text-muted">Copyright © Go Việt</div>
-                                <div>
-                                    <a href="#">Điều khoản</a>
-                                    ·
-                                    <a href="#">Terms & Conditions</a>
-                                </div>
+                            </c:forEach>
+
+                            <!-- Next page -->
+                            <li class="page-item ${requestScope.currentPage == requestScope.numberPage ? 'disabled' : ''}">
+                                <a class="page-link btn-danger" aria-label="Next"
+                                   href="?page=${requestScope.currentPage + 1}${queryParams}">
+                                    <span aria-hidden="true">Trang sau »</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright © Go Việt</div>
+                            <div>
+                                <a href="#">Điều khoản</a>
+                                ·
+                                <a href="#">Terms & Conditions</a>
                             </div>
                         </div>
-                    </footer>
+                    </div>
+                </footer>
+
             </div>
         </div>
         <script>
@@ -340,7 +356,8 @@
                 });
             });
 
-//            // Handle detail button clicks
+            // Handle detail button clicks
+
             const detailButtons = document.querySelectorAll(".detailbtn");
             detailButtons.forEach(button => {
                 button.addEventListener("click", function (e) {
@@ -389,6 +406,8 @@
             } else {
                 statusFilterDropdown.value = "";
             }
+
+
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="./assets/js/scripts.js"></script>

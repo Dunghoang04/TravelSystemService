@@ -27,16 +27,20 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Thống kê
                             </a>
-<<<<<<< Mai_interation2
+                            <a class="nav-link" href="ManageTourServlet?service=list">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-gears"></i></div>
+                                Quản lý danh sách chuyến đi
+                            </a>
+
+                            <a class="nav-link" href="ManagementAccommodation">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
+                                Quản lý khách sạn
                             <a class="nav-link" href="ListTour?service=list">
-=======
-                            <a class="nav-link" href="tourmanagementagent">
->>>>>>> master
+
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-gears"></i></div>
                                 Quản lí danh sách chuyến đi
                             </a>
 
-<<<<<<< Mai_interation2
                             <a class="nav-link" href="ManagementAccommodation">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
                                 Quản lí khách sạn
@@ -44,15 +48,13 @@
                             
                             <a class="nav-link" href="managerestaurant">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
-                                Quản lí nhà hàng
+                                Quản lý nhà hàng
                             </a>
-=======
-                            <a class="nav-link" href="managementhotel">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
-                                Quản lí khách sạn
+                            <a class="nav-link" href="managementertainment">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-face-smile"></i></i></div>
+                                Quản lý giải trí
                             </a>
 
->>>>>>> master
                             <a class="nav-link" href="managementertainment">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-face-smile"></i></i></div>
                                 Quản lí giải trí

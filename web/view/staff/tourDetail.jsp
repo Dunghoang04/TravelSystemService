@@ -5,8 +5,8 @@
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-14  1.0        Quynh Mai         First implementation
- * 2025-06-24  1.1        Quynh Mai         Added Edit and Delete buttons for travel agents, success message display
+ * 2025-06-14  1.0        Quynh Mai          First implementation
+
 --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -20,7 +20,7 @@
         <title>Thông tin Tour</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
         <link href="${pageContext.request.contextPath}/assets/css/styles2.css" rel="stylesheet" />
-        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <style>
             html, body {
@@ -94,9 +94,7 @@
             .action-button.reject {
                 background-color: #dc3545;
             }
-            .action-button.edit {
-                background-color: #007bff;
-            }
+
             .action-button:hover {
                 background-color: #218838;
                 color: white;
@@ -105,10 +103,7 @@
                 background-color: #c82333;
                 color: white;
             }
-            .action-button.edit:hover {
-                background-color: #0056b3;
-                color: white;
-            }
+
             .modal-content {
                 border-radius: 10px;
             }
@@ -137,27 +132,14 @@
                 text-align: center;
                 margin-bottom: 20px;
             }
-            .success-message {
-                color: #28A745;
-                font-size: 16px;
-                text-align: center;
-                margin-bottom: 20px;
-                background-color: #d4edda;
-                padding: 10px;
-                border-radius: 5px;
-                display: none; /* Ẩn mặc định, sẽ hiển thị bằng JS */
-            }
+
         </style>
     </head>
     <body>
         <%@include file="../layout/headerAdmin.jsp" %>
         <div id="layoutSidenav">
-            <c:if test="${not empty loginUser and loginUser.roleID == 2}">
-                <jsp:include page="../layout/sideNavOptionStaff.jsp" />
-            </c:if>
-            <c:if test="${not empty loginUser and loginUser.roleID == 4}">
-                <jsp:include page="../layout/sideNavOptionAgent.jsp" />
-            </c:if>
+            <jsp:include page="../layout/sideNavOptionStaff.jsp" />
+
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4 container-centered">
@@ -165,7 +147,7 @@
                         <c:if test="${not empty requestScope.errorMessage}">
                             <div class="error-message">${requestScope.errorMessage}</div>
                         </c:if>
-                        <div id="customSuccessMessage" class="success-message">Đã sửa, sửa thành công</div>
+
                         <c:if test="${requestScope.tour.status == 3}">
                             <div style="color: red; font-size: 20px; text-align: center; margin-bottom: 20px">
                                 Lý do từ chối: ${requestScope.tour.reason}
@@ -208,7 +190,8 @@
                                 </div>
                                 <div class="info-row">
                                     <label class="label">Trạng thái:</label>
-                                    <p class="value" id="tourStatus">
+                                    <p class="value">
+
                                         <c:choose>
                                             <c:when test="${requestScope.tour.status == 2}">Chờ duyệt</c:when>
                                             <c:when test="${requestScope.tour.status == 1}">Hoạt động</c:when>
@@ -255,19 +238,10 @@
                         </div>
                         <div class="text-center mt-4">
                             <a href="javascript:history.back()" class="action-button" style="background-color: #0d6efd">Quay lại</a>
-                            <c:if test="${not empty loginUser and loginUser.roleID == 2}">
-                                <c:if test="${requestScope.tour.status == 2}">
-                                    <button type="button" class="action-button" data-bs-toggle="modal" data-bs-target="#approveModal">Duyệt</button>
-                                    <button type="button" class="action-button reject" data-bs-toggle="modal" data-bs-target="#rejectModal">Từ chối</button>
-                                </c:if>
-                            </c:if>
-                            <c:if test="${not empty loginUser and loginUser.roleID == 4}">
-                                <c:if test="${requestScope.tour.status == 1}">
-                                    <a href="${pageContext.request.contextPath}/EditTour?tourId=${requestScope.tour.tourID}" class="action-button edit" style="background-color: #28A745">Sửa</a>
-                                    <button type="button" class="action-button reject changeStatusbtn" 
-                                            data-tour-id="${requestScope.tour.tourID}" 
-                                            data-name="${requestScope.tour.tourName}">Xóa</button>
-                                </c:if>
+                            <c:if test="${requestScope.tour.status == 2}">
+                                <button type="button" class="action-button" data-bs-toggle="modal" data-bs-target="#approveModal">Duyệt</button>
+                                <button type="button" class="action-button reject" data-bs-toggle="modal" data-bs-target="#rejectModal">Từ chối</button>
+
                             </c:if>
                         </div>
                         <!-- Approve Modal -->
@@ -330,7 +304,6 @@
         </div>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function openModal(src) {
                 var modal = document.getElementById("imageModal");
@@ -382,70 +355,6 @@
                 });
             }
 
-            // JavaScript for delete button with SweetAlert2 and AJAX
-            const changeStatusbtn = document.querySelectorAll(".changeStatusbtn");
-            changeStatusbtn.forEach(btn => {
-                btn.addEventListener("click", function (e) {
-                    e.preventDefault();
-                    const tourId = this.dataset.tourId;
-                    const name = this.dataset.name;
-                    Swal.fire({
-                        title: `Bạn có chắc chắn muốn thay đổi trạng thái tour ${name}?`,
-                        text: "Hành động này không thể hoàn tác!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Thay đổi',
-                        cancelButtonText: 'Hủy'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: '${pageContext.request.contextPath}/ListTour',
-                                method: 'GET',
-                                data: {
-                                    service: 'delete',
-                                    tourId: tourId,
-                                    status: 0 // Đặt trạng thái thành "Không hoạt động" (0)
-                                },
-                                success: function(response) {
-                                    Swal.fire({
-                                        title: 'Đã Đổi trạng thái!',
-                                        text: 'Thay đổi trạng thái thành công.',
-                                        icon: 'success',
-                                        timer: 1500,
-                                        showConfirmButton: false
-                                    }).then(() => {
-                                        // Chuyển hướng đến trang danh sách tour không hoạt động
-                                        window.location.href = "${pageContext.request.contextPath}/ListTour?service=list&status=0";
-                                    });
-                                },
-                                error: function(xhr, status, error) {
-                                    Swal.fire({
-                                        title: 'Lỗi!',
-                                        text: 'Không thể thay đổi trạng thái. Vui lòng thử lại.',
-                                        icon: 'error',
-                                        confirmButtonText: 'OK'
-                                    });
-                                }
-                            });
-                        }
-                    });
-                });
-            });
-
-            // Hiển thị success message nếu có
-            window.onload = function() {
-                const successMessage = "${param.successMessage}";
-                if (successMessage) {
-                    const customSuccessMessage = document.getElementById("customSuccessMessage");
-                    customSuccessMessage.textContent = successMessage;
-                    customSuccessMessage.style.display = "block";
-                    setTimeout(() => {
-                        customSuccessMessage.style.display = "none";
-                    }, 3000); // Ẩn sau 3 giây
-                }
-            };
         </script>
     </body>
 </html>

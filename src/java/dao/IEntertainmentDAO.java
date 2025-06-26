@@ -54,8 +54,6 @@ public interface IEntertainmentDAO {
      */
     List<Entertainment> getListEntertainment(int page, int pageSize) throws SQLException;
     
-    List<Entertainment> getListEntertainmentNoPage(int serviceId) throws SQLException;
-
     /**
      * Counts all entertainment records.
      *
