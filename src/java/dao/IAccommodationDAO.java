@@ -1,13 +1,13 @@
 /*
  * Copyright (C) 2025, Group 6.
- * ProjectCode/Short Name of Application: TravelAgentService 
+ * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0       NguyenVanVang     First definition
- * 2025-06-08  1.1       TuanAnhJr         Updated serviceID to serviceId for naming consistency
+ * 2025-06-08  1.0        Nguyễn Văn Vang   First implementation
  */
+
 package dao;
 
 import java.sql.SQLException;
@@ -16,111 +16,85 @@ import model.Accommodation;
 import model.Room;
 
 /**
- * Interface for Data Access Object (DAO) to manage Accommodation data in the database.
- * Defines methods for CRUD operations and additional functionality for accommodations.
  *
- * @author NguyenVanVang
+ * @author Nguyễn Văn Vang
  */
 public interface IAccommodationDAO {
 
     /**
-     * Inserts a new service into the database and returns its generated ID.
+     * Inserts a new service into the database and returns the generated service ID.<br>
      *
-     * @param serviceName the name of the service
-     * @return the generated service ID
-     * @throws SQLException if a database error occurs
+     * @param serviceName The name of the service to insert
+     * @return The generated service ID as an integer
+     * @throws SQLException If a database error occurs
      */
-    int insertService(String serviceName) throws SQLException;
+//    public int insertService(String serviceName) throws SQLException;
 
     /**
-     * Retrieves a list of all accommodations from the database.
+     * Retrieves a list of all accommodations from the database.<br>
      *
-     * @return a list of Accommodation objects
+     * @return A List of Accommodation objects
      */
-    List<Accommodation> getListAccommodation();
+    public List<Accommodation> getListAccommodation();
 
     /**
-     * Inserts a new accommodation into the database.
+     * Inserts a new accommodation into the database.<br>
      *
-     * @param roomID the ID of the room
-     * @param name the name of the accommodation
-     * @param image the image URL or path
-     * @param address the address of the accommodation
-     * @param phone the contact phone number
-     * @param description the description of the accommodation
-     * @param rate the rating of the accommodation
-     * @param type the type of accommodation
-     * @param status the status of the accommodation
-     * @param checkInTime the check-in time
-     * @param checkOutTime the check-out time
+     * @param name The name of the accommodation
+     * @param image The image URL or path for the accommodation
+     * @param address The address of the accommodation
+     * @param phone The contact phone number
+     * @param description A description of the accommodation
+     * @param rate The rating of the accommodation
+     * @param type The type of accommodation (e.g., hotel, hostel)
+     * @param status The status of the accommodation (e.g., available, unavailable)
+     * @param checkInTime The check-in time for the accommodation
+     * @param checkOutTime The check-out time for the accommodation
      */
-    void insertAccommodation(int roomID, String name, String image, String address, String phone,
-            String description, float rate, String type, int status, String checkInTime, String checkOutTime);
+    public void insertAccommodation(int agentID,String name, String image, String address, String phone, String description,
+                                    float rate, String type, int status, String checkInTime, String checkOutTime);
 
     /**
-     * Deletes an accommodation and its associated service from the database.
+     * Retrieves an accommodation by its service ID.<br>
      *
-     * @param serviceId the ID of the service to delete
+     * @param serviceId The unique identifier of the accommodation service
+     * @return An Accommodation object if found, null otherwise
      */
-    void deleteAccommodation(int serviceId);
+    public Accommodation getAccommodationByServiceId(int serviceId);
 
     /**
-     * Retrieves an accommodation by its service ID.
+     * Updates an existing accommodation in the database.<br>
      *
-     * @param serviceId the ID of the service
-     * @return the Accommodation object, or null if not found
+     * @param serviceId The unique identifier of the accommodation service
+     * @param name The updated name of the accommodation
+     * @param image The updated image URL or path
+     * @param address The updated address
+     * @param phone The updated contact phone number
+     * @param description The updated description
+     * @param rate The updated rating
+     * @param type The updated type of accommodation
+     * @param status The updated status
+     * @param checkInTime The updated check-in time
+     * @param checkOutTime The updated check-out time
      */
-    Accommodation getAccommodationByServiceId(int serviceId);
+    public void updateAccommodation(int serviceId, String name, String image, String address, String phone,
+                                    String description, float rate, String type, int status, String checkInTime,
+                                    String checkOutTime);
 
     /**
-     * Updates an existing accommodation in the database.
+     * Searches for accommodations by name.<br>
      *
-     * @param serviceId the ID of the service
-     * @param roomID the ID of the room
-     * @param name the name of the accommodation
-     * @param image the image URL or path
-     * @param address the address of the accommodation
-     * @param phone the contact phone number
-     * @param description the description of the accommodation
-     * @param rate the rating of the accommodation
-     * @param type the type of accommodation
-     * @param status the status of the accommodation
-     * @param checkInTime the check-in time
-     * @param checkOutTime the check-out time
+     * @param name The name or partial name to search for
+     * @return A List of Accommodation objects matching the search criteria
      */
-    void updateAccommodation(int serviceId, int roomID, String name, String image, String address, String phone,
-            String description, float rate, String type, int status, String checkInTime, String checkOutTime);
+    public List<Accommodation> searchAccommodationByName(String name);
 
     /**
-     * Searches for accommodations by name (partial match).
+     * Retrieves a list of rooms associated with a specific accommodation service ID.<br>
      *
-     * @param name the name or partial name to search for
-     * @return a list of matching Accommodation objects
+     * @param serviceId The unique identifier of the accommodation service
+     * @return A List of Room objects associated with the accommodation
+     * @throws SQLException If a database access error occurs
      */
-    List<Accommodation> searchAccommodationByName(String name);
-
-    /**
-     * Retrieves a room by its accommodation ID.
-     *
-     * @param accommodationID the ID of the accommodation
-     * @return the Room object, or null if not found
-     */
-    Room getRoomById(int accommodationID);
-
-    /**
-     * Retrieves the status of an accommodation by its service ID.
-     *
-     * @param serviceId the ID of the service
-     * @return the status value, or -1 if not found
-     */
-    int getStatusByServiceId(int serviceId);
-
-    /**
-     * Changes the status of an accommodation.
-     *
-     * @param serviceId the ID of the service
-     * @param status the new status value
-     * @return true if the update was successful, false otherwise
-     */
-    boolean changeStatus(int serviceId, int status);
+    public List<Room> getRoomsByServiceId(int serviceId) throws SQLException;
 }

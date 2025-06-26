@@ -7,29 +7,28 @@
  * DATE        Version    AUTHOR            DESCRIPTION
  * 2025-06-08  1.0        Nguyễn Văn Vang   First implementation
  */
-/*
- * Click nb://SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nb://SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-package controller.agent.accommodation.room;
+package controller.agent.accommodation;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import dao.RoomDAO;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import model.Room;
+import model.Accommodation;
+import dao.AccommodationDAO;
 
 /**
- * Servlet to handle the management and display of rooms for an accommodation.
+ * Servlet to handle the management and display of accommodations.
  * @author Nhat Anh
  */
-@WebServlet(name="ManagementRoom", urlPatterns={"/ManagementRoom"})
-public class ManagementRoom extends HttpServlet {
+@MultipartConfig
+@WebServlet(name="ManagementAccommodation", urlPatterns={"/ManagementAccommodation"})
+public class ManagementAccommodation extends HttpServlet {
    
     /** 
      * Processes HTTP GET and POST requests.
@@ -47,10 +46,10 @@ public class ManagementRoom extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ManagementRoom</title>");  
+            out.println("<title>Servlet ManagementAccommodation</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ManagementRoom at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet ManagementAccommodation at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -58,7 +57,7 @@ public class ManagementRoom extends HttpServlet {
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
-     * Handles HTTP GET request to retrieve and display the list of rooms.
+     * Handles HTTP GET request to retrieve and display a list of accommodations.
      * @param request The HttpServletRequest object containing client request data
      * @param response The HttpServletResponse object to send the response to the client
      * @throws ServletException If a servlet-specific error occurs
@@ -67,45 +66,29 @@ public class ManagementRoom extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        // Initialize RoomDAO to interact with the database
-        RoomDAO dao = new RoomDAO();
-        List<Room> rooms;
+        // Get the current HTTP session
+        HttpSession session = request.getSession();
+        List<Accommodation> list;
+        // Initialize AccommodationDAO to interact with the database
+        AccommodationDAO accDao = new AccommodationDAO();
 
-        try {
-            // Retrieve accommodationID from request parameters
-            String accommodationIDStr = request.getParameter("id");
-
-            if (accommodationIDStr != null && !accommodationIDStr.trim().isEmpty()) {
-                try {
-                    // Parse accommodationID and fetch rooms by accommodationID
-                    int accommodationID = Integer.parseInt(accommodationIDStr);
-                    rooms = dao.getRoomsByAccommodationID(accommodationID);
-                    if (rooms.isEmpty()) {
-                        // Set error message if no rooms are found for the accommodationID
-                        request.setAttribute("error", "No rooms found for accommodationID: " + accommodationID);
-                    }
-                } catch (NumberFormatException e) {
-                    // Handle invalid accommodationID format and fetch all rooms
-                    request.setAttribute("error", "Invalid accommodationID format.");
-                    rooms = dao.getAllRooms();
-                }
-            } else {
-                // Fetch all rooms if no accommodationID is provided
-                rooms = dao.getAllRooms();
-            }
-
-            // Set rooms and accommodationID attributes for use in JSP
-            request.setAttribute("rooms", rooms);
-            request.setAttribute("accommodationID", accommodationIDStr);
-
-        } catch (Exception e) {
-            // Handle any exceptions and set an empty room list with an error message
-            request.setAttribute("error", "Error retrieving room list: " + e.getMessage());
-            request.setAttribute("rooms", List.of());
+        // Retrieve search parameter for accommodation name
+        String name = request.getParameter("name");
+        // Trim the name parameter, default to empty string if null
+        name = (name != null) ? name.trim() : "";
+        if (!name.isEmpty()) {
+            // Search accommodations by name if provided
+            list = accDao.searchAccommodationByName(name);
+            // Set the search name for display in the search field
+            request.setAttribute("name", name);
+        } else {
+            // Fetch all accommodations if no search name is provided
+            list = accDao.getListAccommodation();
         }
-
-        // Forward to the JSP page to display the room list
-        request.getRequestDispatcher("/view/agent/accommodation/room/agentRoom.jsp").forward(request, response);
+        // Store the accommodation list in the session
+        session.setAttribute("listAcc", list);
+        // Forward to the JSP page to display the accommodation list
+        request.getRequestDispatcher("view/agent/accommodation/agentAccommodation.jsp").forward(request, response);
     } 
 
     /** 
