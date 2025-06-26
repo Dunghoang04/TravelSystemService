@@ -44,7 +44,6 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
 
     private static final String INSERT_RESTAURANT_SQL = "INSERT INTO Restaurant(serviceId, name,image,address,phone, description,rate,type,status, timeOpen, timeClose) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
     private static final String SELECT_ALL_RESTAURANTS_SQL = "SELECT * FROM Restaurant order by serviceId desc OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String SELECT_ALL_RESTAURANTS_SQL_NO_PAGE = "SELECT * FROM Restaurant where serviceId=? desc";
     private static final String COUNT_ALL_RESTAURANTS_SQL = "SELECT COUNT(*) AS Total FROM Restaurant";
     private static final String SEARCH_BY_TYPE_AND_NAME_SQL = "SELECT * FROM Restaurant WHERE LOWER(name) LIKE LOWER(?) AND status =? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
     private static final String COUNT_BY_TYPE_AND_NAME_SQL = "SELECT COUNT(*) AS Total FROM Restaurant WHERE LOWER(name) LIKE LOWER(?) AND status =?";
@@ -173,36 +172,6 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         return restaurantList;
     }
 
-    @Override
-    public List<Restaurant> getListRestaurantNoPage(int serviceId) throws SQLException {
-        Connection conn = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        List<Restaurant> restaurantList = new ArrayList<>();
-        try {
-            conn = getConnection();
-            String sql = "SELECT * FROM Restaurant WHERE serviceId = ?"; // Lọc theo serviceId
-            preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, serviceId);
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                restaurantList.add(createRestaurantFromResultSet(resultSet));
-            }
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return restaurantList;
-    }
 
     @Override
     public List<Restaurant> searchRestaurantByName(String name, int page, int pageSize) throws SQLException {
@@ -455,11 +424,14 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
             preparedStatement.setInt(11, serviceId);
             preparedStatement.executeUpdate();
 
+            
             ServiceDao serviceDAO = new ServiceDao();
             serviceDAO.updateServiceName(serviceId, name);
 
             TourServiceDetailDAO tourServiceDetailDAO = new TourServiceDetailDAO();
-            tourServiceDetailDAO.updateServiceNameByServiceId(serviceId, name);
+            if(tourServiceDetailDAO.getTourServiceDetailsByServiceId(serviceId).size()>0){
+                tourServiceDetailDAO.updateServiceNameByServiceId(serviceId, name);
+            }
             conn.commit(); // Commit transaction
         } catch (SQLException e) {
             if (conn != null) {
@@ -674,7 +646,7 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
 
     public static void main(String[] args) throws SQLException {
         IRestaurantDAO res = new RestaurantDAO();
-        System.out.println(res.getListRestaurant(1, 4));
+        System.out.println(res.getRestaurantByServiceId(139));
     }
 
 }

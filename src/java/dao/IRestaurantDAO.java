@@ -64,15 +64,6 @@ public interface IRestaurantDAO {
      */
     public List<Restaurant> getListRestaurant(int page, int pageSize) throws SQLException;
     
-    /**
-     * Retrieves a paginated list of all restaurant records.
-     *
-     * @param page the page number (1-based)
-     * @param pageSize the number of records per page
-     * @return a list of Restaurant objects
-     * @throws SQLException if a database error occurs
-     */
-    public List<Restaurant> getListRestaurantNoPage(int serviceId) throws SQLException;
 
     /**
      * Searches restaurant records by name with pagination.
