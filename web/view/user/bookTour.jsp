@@ -2,6 +2,388 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<<<<<<< OURS
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="utf-8">
+        <title>Tourist - Travel Agency HTML Template</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="" name="keywords">
+        <meta content="" name="description">
+
+        <!-- Favicon -->
+        <link href="img/favicon.ico" rel="icon">
+
+        <!-- Google Web Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+        <!-- Icon Font Stylesheet -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+        <!-- Libraries Stylesheet -->
+        <link href="assets/lib/animate/animate.min.css" rel="stylesheet">
+        <link href="assets/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+        <link href="assets/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Template Stylesheet -->
+        <link href="assets/css/style.css" rel="stylesheet">
+        <style>
+            .tour-description {
+                white-space: pre-line;
+            }
+            .voucher-tile:hover {
+                background-color: #f8f9fa;
+            }
+            .btn-qty {
+                width: 2.5rem;
+            }
+            .form-control-qty {
+                text-align: center;
+            }
+            
+            body {
+                padding-top: 100px;
+            }
+        </style>
+    </head>
+    <body class="bg-light">
+
+        <%@include file="../layout/header.jsp" %>
+
+        <div style="margin: 1rem 0 1rem 2rem;">
+            <a href="javascript:history.back()" class="btn btn-success">
+                <i class="fa fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+
+        <form action="booktourservlet" method="post">
+            <input type="hidden" name="tourID" value="${tour.tourID}" />
+            <div class="container mt-5">
+                <div class="row g-4">
+
+                    <!-- LEFT COL -->
+                    <div class="col-md-8">
+                        <!-- Thông tin chuyến đi -->
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Thông tin chuyến đi</h5>
+                                <p class="fw-bold">${tour.tourName}</p>
+                                <p class="text-muted fw-bold">${tour.numberOfDay}N${tour.numberOfDay - 1}Đ</p>
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="fw-bold">Khởi hành: <fmt:formatDate value="${tour.startDay}" pattern="dd/MM/yyyy"/></p>
+                                    </div>
+                                    <div class="col">
+                                        <p class="fw-bold">Kết thúc: <fmt:formatDate value="${tour.endDay}" pattern="dd/MM/yyyy"/></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="fw-bold">Khởi hành từ: ${requestScope.tour.startPlace}</p>
+                                    </div>
+                                    <div class="col">
+                                        <p class="fw-bold">Kết thúc: ${requestScope.tour.endPlace}</p>
+                                    </div>
+                                </div>
+                                <p class="mt-3 fw-bold">Số chỗ còn: ${requestScope.tour.quantity}</p>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin liên hệ -->
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Thông tin liên hệ</h5>
+                                <div class="row g-3">
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Họ</label>
+                                        <input type="text" name="firstName" value="${param.firstName}" class="form-control" />
+                                        <c:if test="${not empty firstNameError}">
+                                            <div class="text-danger small">${firstNameError}</div>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tên</label>
+                                        <input type="text" name="lastName" value="${param.lastName}" class="form-control" />
+                                        <c:if test="${not empty lastNameError}">
+                                            <div class="text-danger small">${lastNameError}</div>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" name="email" value="${param.email}" class="form-control" />
+                                        <c:if test="${not empty errorGmail}">
+                                            <div class="text-danger small">${errorGmail}</div>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="tel" name="phone" value="${param.phone}" class="form-control" />
+                                        <c:if test="${not empty phoneError}">
+                                            <div class="text-danger small">${phoneError}</div>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Người lớn (≥12 tuổi)</label>
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-outline-secondary btn-qty" onclick="decreaseAdult(this)">−</button>
+                                            <input type="number" name="adult" id="adultCount" min="1"
+                                                   value="${empty param.adult ? 1 : param.adult}"
+                                                   class="form-control form-control-qty" />
+                                            <button type="button" class="btn btn-outline-secondary btn-qty" onclick="increase(this)">+</button>
+                                        </div>
+                                        <c:if test="${not empty numberAdultError}">
+                                            <div class="text-danger small">${numberAdultError}</div>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Trẻ em (<12 tuổi)</label>
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-outline-secondary btn-qty" onclick="decrease(this)">−</button>
+                                            <input type="number" name="children" id="childrenCount" min="0"
+                                                   value="${empty param.children ? 0 : param.children}"
+                                                   class="form-control form-control-qty" />
+                                            <button type="button" class="btn btn-outline-secondary btn-qty" onclick="increase(this)">+</button>
+                                        </div>
+                                        <c:if test="${not empty numberChildrenError}">
+                                            <div class="text-danger small">${numberChildrenError}</div>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Ghi chú</label>
+                                        <textarea name="note" rows="4" class="form-control"
+                                                  placeholder="Nhập ghi chú (nếu có)...">${param.note}</textarea>
+                                    </div>
+
+                                    <div class="col-12 form-check">
+                                        <input type="hidden" name="isOther" value="0">
+                                        <input class="form-check-input" type="checkbox" name="isOther" value="1" id="isOther"
+                                               <c:if test="${param.isOther == '1'}">checked</c:if>>
+                                               <label class="form-check-label" for="isOther">Tôi đặt phòng giúp cho người khác</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                                               
+                                               <!-- Phương thức thanh toán -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Phương thức thanh toán</h5>
+
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="paymentMethodID" id="vietqr" value="1" checked>
+            <label class="form-check-label" for="vietqr">
+                Chuyển khoản bằng ví
+            </label>
+        </div>
+
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="radio" name="paymentMethodID" id="vnpay" value="2">
+            <label class="form-check-label" for="vnpay">
+                <img src="assets/img/vnpay.png" alt="VNPay QR" style="height: 24px; margin-right: 5px;">
+                VNPay QR
+            </label>
+        </div>
+    </div>
+</div>
+                                               
+                            <!-- Thông tin dịch vụ -->
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">Thông tin dịch vụ</h5>
+
+                                    <h6 class="mt-3">Bao Gồm</h6>
+                                    <p class="tour-description">${tour.tourInclude}</p>
+
+                                <h6 class="mt-3">Không Bao Gồm</h6>
+                                <p class="tour-description">${tour.tourNonInclude}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COL -->
+                    <div class="col-md-4">
+                        <div class="card sticky-top shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Thông tin thanh toán</h5>
+
+                                <c:if test="${not empty error}">
+                                    <div class="alert alert-danger">${error}</div>
+                                </c:if>
+                                <c:if test="${param.success == 'true'}">
+                                    <div class="alert alert-success">Đặt thành công</div>
+                                </c:if>
+
+                                <img src="${pageContext.request.contextPath}/${not empty tour.image ? tour.image : 'https://via.placeholder.com/600x400'}"
+                                     alt="Tour" class="img-fluid rounded mb-3">
+
+                                <p class="fw-semibold">${tour.tourName}</p>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>Giá trẻ em: <fmt:formatNumber value="${tour.childrenPrice}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></li>
+                                    <li>Giá người lớn: <fmt:formatNumber value="${tour.adultPrice}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></li>
+                                    <li>Tổng tiền gốc: <span id="totalPrice">0 ₫</span></li>
+                                </ul>
+                                <hr>
+                                <p id="vatPrice" class="small text-muted">Phí VAT (${vat.vatRate}%) : 0 ₫</p>
+
+                                <div id="voucher-section" class="border border-dashed rounded p-3 mb-2 text-center voucher-tile" data-bs-toggle="modal" data-bs-target="#voucherModal">
+                                    <i class="bi bi-plus-circle me-2"></i>Chọn mã giảm giá
+                                </div>
+                                
+                                <div id="voucher-applied" class="d-none border rounded bg-light p-2 mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><strong id="voucher-code">--</strong> – <small id="voucher-desc">--</small></span>
+                                        <button type="button" class="btn btn-link text-danger p-0" onclick="removeVoucher()">Hủy</button>
+                                    </div>
+                                </div>
+                                <h6>Giảm giá: <span id="discountAmount">0 ₫</span></h6>
+                                <h5 class="text-success">Tổng cần thanh toán: <span id="discountedPrice">0 ₫</span></h5>
+
+                                <input type="hidden" id="selectedVoucherId" name="voucherId" value="">
+                                <input type="hidden" id="finalAmount" name="finalAmount" value="">
+
+                                <button type="submit" class="btn btn-danger w-100">Thanh toán</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
+        <!-- Voucher Modal -->
+        <div class="modal fade" id="voucherModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chọn mã giảm giá</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 d-flex">
+                            <input type="text" id="voucher-search" class="form-control me-2" placeholder="Tìm mã giảm giá...">
+                            <button class="btn btn-success">Tìm</button>
+                        </div>
+                        <div class="list-group">
+                            <c:forEach var="v" items="${voucherlist}">
+                                <label class="list-group-item voucher-tile">
+                                    <input type="radio" name="voucherRadio" value="${v.voucherId}"
+                                           data-code="${v.voucherCode}"
+                                           data-desc="${v.voucherName}"
+                                           data-percent="${v.percentDiscount}"
+                                           data-max-discount="${v.maxDiscountAmount}"
+                                           data-min-apply="${v.minAmountApply}"
+                                           class="form-check-input me-2">
+                                    <strong>${v.voucherCode}</strong> – ${v.voucherName}
+                                    <br><small><fmt:formatDate value="${v.endDate}" pattern="dd/MM/yyyy"/></small>
+                                </label>
+                            </c:forEach>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-danger" onclick="applyVoucher()">Áp dụng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+                            const adultPrice = ${empty tour.adultPrice ? 0 : tour.adultPrice};
+                            const childrenPrice = ${empty tour.childrenPrice ? 0 : tour.childrenPrice};
+                            const vatRate = ${empty vat.vatRate ? 0 : vat.vatRate};
+
+                            function getTotal() {
+                                const a = parseInt($('#adultCount').val()) || 0;
+                                const c = parseInt($('#childrenCount').val()) || 0;
+                                return a * adultPrice + c * childrenPrice;
+                            }
+
+                            function updateTotalPrice() {
+                                const total = getTotal();
+                                let discount = 0;
+                                const radio = document.querySelector('input[name="voucherRadio"]:checked');
+                                if (radio) {
+                                    const pct = Number(radio.dataset.percent);
+                                    const max = +radio.dataset.maxDiscount;
+                                    const minApply = +radio.dataset.minApply;
+                                    if (total >= minApply)
+                                        discount = Math.min(total * pct / 100, max);
+                                }
+                                const after = total - discount;
+                                const vatAmt = after * vatRate / 100;
+                                const finalAmt = after + vatAmt;
+                                const fmt = new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND', minimumFractionDigits: 0});
+                                $('#totalPrice').text(fmt.format(total));
+                                $('#discountAmount').text('- ' + fmt.format(discount));
+                                $('#vatPrice').text(`Phí VAT (${vat.vatRate}%): ` + fmt.format(vatAmt));
+                                $('#discountedPrice').text(fmt.format(finalAmt));
+                                $('#finalAmount').val(finalAmt);
+                            }
+
+                            function applyVoucher() {
+                                const radio = document.querySelector('input[name="voucherRadio"]:checked');
+                                if (!radio)
+                                    return;
+                                $('#selectedVoucherId').val(radio.value);
+                                $('#voucher-code').text(radio.dataset.code);
+                                $('#voucher-desc').text(radio.dataset.desc);
+                                $('#voucher-applied').removeClass('d-none');
+                                $('#voucher-section').addClass('d-none');
+                                const mod = bootstrap.Modal.getInstance(document.getElementById('voucherModal'));
+                                mod.hide();
+                                updateTotalPrice();
+                            }
+
+                            function removeVoucher() {
+                                $('#voucher-applied').addClass('d-none');
+                                $('#voucher-section').removeClass('d-none');
+                                $('#discountAmount').text('0 ₫');
+                                $('#selectedVoucherId').val('');
+                                $('input[name="voucherRadio"]:checked').prop('checked', false);
+                                updateTotalPrice();
+                            }
+
+                            function increase(btn) {
+                                const inp = btn.parentElement.querySelector('input');
+                                inp.stepUp();
+                                updateTotalPrice();
+                            }
+                            function decrease(btn) {
+                                const inp = btn.parentElement.querySelector('input');
+                                inp.stepDown();
+                                updateTotalPrice();
+                            }
+                            function decreaseAdult(btn) {
+                                const inp = btn.parentElement.querySelector('input');
+                                if (parseInt(inp.value) > 1)
+                                    inp.stepDown();
+                                updateTotalPrice();
+                            }
+                            $(document).ready(() => {
+                                $('#adultCount,#childrenCount').on('input', updateTotalPrice);
+                                updateTotalPrice();
+                            });
+        </script>
+    </body>
+    <footer> <%@include file="../layout/footer.jsp" %>
+    </footer>
+=======
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -355,4 +737,5 @@
         </script>
 
 
+>>>>>>> THEIRS
 </html>

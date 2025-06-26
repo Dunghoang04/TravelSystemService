@@ -129,40 +129,64 @@
         <servlet-class>controller.admin.adminServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ManagementAccommodation</servlet-name>
-        <servlet-class>controller.agent.accommodations.ManagementAccommodation</servlet-class>
+        <servlet-name>ManagementAccommodationa</servlet-name>
+        <servlet-class>controller.agent.accommodations.ManagementAccommodationa</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AddAccommodation</servlet-name>
-        <servlet-class>controller.agent.accommodations.AddAccommodation</servlet-class>
+        <servlet-name>AddAccommodationa</servlet-name>
+        <servlet-class>controller.agent.accommodations.AddAccommodationa</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>DeleteAccommodation</servlet-name>
-        <servlet-class>controller.agent.accommodations.DeleteAccommodation</servlet-class>
+        <servlet-name>DeleteAccommodationa</servlet-name>
+        <servlet-class>controller.agent.accommodations.DeleteAccommodationa</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>UpdateAccommodation</servlet-name>
-        <servlet-class>controller.agent.accommodations.UpdateAccommodation</servlet-class>
+        <servlet-name>UpdateAccommodationa</servlet-name>
+        <servlet-class>controller.agent.accommodations.UpdateAccommodationa</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>DetailAccommodation</servlet-name>
-        <servlet-class>controller.agent.accommodations.DetailAccommodation</servlet-class>
+        <servlet-name>DetailAccommodationa</servlet-name>
+        <servlet-class>controller.agent.accommodations.DetailAccommodationa</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ManagementRoom</servlet-name>
-        <servlet-class>controller.agent.accommodation.room.ManagementRoom</servlet-class>
+        <servlet-name>ManagementRooma</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.ManagementRooma</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AddRoom</servlet-name>
-        <servlet-class>controller.agent.accommodation.room.AddRoom</servlet-class>
+        <servlet-name>AddRooma</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.AddRooma</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>DeleteRoom</servlet-name>
-        <servlet-class>controller.agent.accommodation.room.DeleteRoom</servlet-class>
+        <servlet-name>DeleteRooma</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.DeleteRooma</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>UpdateRoom</servlet-name>
-        <servlet-class>controller.agent.accommodation.room.UpdateRoom</servlet-class>
+        <servlet-name>UpdateRooma</servlet-name>
+        <servlet-class>controller.agent.accommodation.room.UpdateRooma</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentReturnServlet</servlet-name>
+        <servlet-class>controller.payment.PaymentReturnServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentCancelServlet</servlet-name>
+        <servlet-class>controller.payment.PaymentCancelServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewCurrentTour</servlet-name>
+        <servlet-class>controller.user.ViewCurrentTour</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReturnPayment</servlet-name>
+        <servlet-class>controller.payment.ReturnPayment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CancelPayment</servlet-name>
+        <servlet-class>controller.payment.CancelPayment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WalletPaymentSuccess</servlet-name>
+        <servlet-class>controller.payment.WalletPaymentSuccess</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ListStaffAccount</servlet-name>
@@ -289,44 +313,44 @@
         <url-pattern>/admin</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ManagementAccommodation</servlet-name>
-        <url-pattern>/ManagementAccommodation</url-pattern>
+        <servlet-name>ManagementAccommodationa</servlet-name>
+        <url-pattern>/ManagementAccommodationa</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AddAccommodation</servlet-name>
-        <url-pattern>/AddAccommodation</url-pattern>
+        <servlet-name>AddAccommodationa</servlet-name>
+        <url-pattern>/AddAccommodationa</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>DeleteAccommodation</servlet-name>
-        <url-pattern>/deleteaccommodation</url-pattern>
+        <servlet-name>DeleteAccommodationa</servlet-name>
+        <url-pattern>/deleteaccommodationa</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>UpdateAccommodation</servlet-name>
-        <url-pattern>/updateaccommodation</url-pattern>
+        <servlet-name>UpdateAccommodationa</servlet-name>
+        <url-pattern>/updateaccommodationa</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>DetailAccommodation</servlet-name>
-        <url-pattern>/detailaccommodation</url-pattern>
+        <servlet-name>DetailAccommodationa</servlet-name>
+        <url-pattern>/detailaccommodationa</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>ChangeStatus</servlet-name>
         <servlet-class>controller.agent.accommodations.ChangeStatus</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>ManagementRoom</servlet-name>
-        <url-pattern>/managementroom</url-pattern>
+        <servlet-name>ManagementRooma</servlet-name>
+        <url-pattern>/managementrooma</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AddRoom</servlet-name>
-        <url-pattern>/addroom</url-pattern>
+        <servlet-name>AddRooma</servlet-name>
+        <url-pattern>/addrooma</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>DeleteRoom</servlet-name>
-        <url-pattern>/deleteroom</url-pattern>
+        <servlet-name>DeleteRooma</servlet-name>
+        <url-pattern>/deleterooma</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>UpdateRoom</servlet-name>
-        <url-pattern>/updateroom</url-pattern>
+        <servlet-name>UpdateRooma</servlet-name>
+        <url-pattern>/updaterooma</url-pattern>
     </servlet-mapping>
     <servlet>
         <servlet-name>changeStatus</servlet-name>
@@ -340,29 +364,79 @@
         <servlet-name>ChangeStatus</servlet-name>
         <url-pattern>/changestatus</url-pattern>
     </servlet-mapping>
-    
+    <servlet-mapping>
+        <servlet-name>PaymentReturnServlet</servlet-name>
+        <url-pattern>/paymentreturnservlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentCancelServlet</servlet-name>
+        <url-pattern>/paymentcancelservlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewCurrentTour</servlet-name>
+        <url-pattern>/viewcurrenttour</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReturnPayment</servlet-name>
+        <url-pattern>/returnpayment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CancelPayment</servlet-name>
+        <url-pattern>/cancelpayment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WalletPaymentSuccess</servlet-name>
+        <url-pattern>/walletpaymentsuccess</url-pattern>
+    </servlet-mapping>
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
-    
     <servlet>
         <servlet-name>BookDetailManagement</servlet-name>
         <servlet-class>controller.agent.BookDetailManagement</servlet-class>
     </servlet>
-    
     <servlet-mapping>
         <servlet-name>BookDetailManagement</servlet-name>
         <url-pattern>/bookdetailmanagement</url-pattern>
     </servlet-mapping>
-    
-    
     <servlet>
         <servlet-name>BookTourServlet</servlet-name>
         <servlet-class>controller.user.BookTourServlet</servlet-class>
     </servlet>
-    
     <servlet-mapping>
         <servlet-name>BookTourServlet</servlet-name>
         <url-pattern>/booktourservlet</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ChangeStatusRestaurant</servlet-name>
+        <servlet-class>controller.agent.restaurant.ChangeStatusRestaurant</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ChangeStatusRestaurant</servlet-name>
+        <url-pattern>/ChangeRestaurantStatus</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>AmountToPay</servlet-name>
+        <servlet-class>controller.user.AmountToPay</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Payment</servlet-name>
+        <servlet-class>controller.user.Payment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ListPayment</servlet-name>
+        <servlet-class>controller.admin.ListPayment</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AmountToPay</servlet-name>
+        <url-pattern>/amounttopay</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Payment</servlet-name>
+        <url-pattern>/payment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListPayment</servlet-name>
+        <url-pattern>/listpayment</url-pattern>
     </servlet-mapping>
 </web-app>

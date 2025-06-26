@@ -57,7 +57,7 @@ public interface IVoucherDAO {
      * @return true if the update was successful, false otherwise
      * @throws SQLException if a database access error occurs
      */
-    boolean updateVoucher(int voucherId, String voucherName, String description, float percentDiscount,
+    boolean updateVoucher(int voucherId,int userId, String voucherName, String description, float percentDiscount,
                           float maxDiscountAmount, float minAmountApply, Date startDate,
                           Date endDate, int quantity, int status) throws SQLException;
 
@@ -99,4 +99,8 @@ public interface IVoucherDAO {
     boolean addVoucher(String voucherCode, String voucherName, String description, float percentDiscount,
                        float maxDiscountAmount, float minAmountApply, Date startDate,
                        Date endDate, int quantity, int status) throws SQLException;
+    
+    ArrayList<Voucher> getAllVoucherActive() throws SQLException;
+    
+    boolean updateQuantityVoucher(int voucherID);
 }
