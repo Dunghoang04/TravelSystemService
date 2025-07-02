@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -17,6 +18,7 @@ public class BookDetail {
     private int voucherID;
     private Date bookDate;
     private int numberAdult;
+    private int paymentMethodId;
     private int numberChildren;
     private String firstName;
     private String lastName;
@@ -26,17 +28,18 @@ public class BookDetail {
     private int isBookedForOther;
     private float totalPrice;
     private int status;
+    private long bookCode;
 
     public BookDetail() {
     }
 
-    public BookDetail(int bookID, int userID, int tourID, int voucherID, Date bookDate, int numberAdult, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status) {
-        this.bookID = bookID;
+
+    public BookDetail(int userID, int tourID, int voucherID, int numberAdult, int paymentMethodId, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status, long bookCode) {
         this.userID = userID;
         this.tourID = tourID;
         this.voucherID = voucherID;
-        this.bookDate = bookDate;
         this.numberAdult = numberAdult;
+        this.paymentMethodId = paymentMethodId;
         this.numberChildren = numberChildren;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -46,7 +49,50 @@ public class BookDetail {
         this.isBookedForOther = isBookedForOther;
         this.totalPrice = totalPrice;
         this.status = status;
+        this.bookCode = bookCode;
     }
+
+        
+    
+    public BookDetail(int bookID, int userID, int tourID, int voucherID, Date bookDate, int numberAdult, int paymentMethodId, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status, long bookCode) {
+
+        this.bookID = bookID;
+        this.userID = userID;
+        this.tourID = tourID;
+        this.voucherID = voucherID;
+        this.bookDate = bookDate;
+        this.numberAdult = numberAdult;
+        this.paymentMethodId = paymentMethodId;
+        this.numberChildren = numberChildren;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.gmail = gmail;
+        this.note = note;
+        this.isBookedForOther = isBookedForOther;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.bookCode = bookCode;
+    }
+
+    public long getBookCode() {
+        return bookCode;
+    }
+
+    public void setBookCode(long bookCode) {
+        this.bookCode = bookCode;
+    }
+
+    
+
+    public int getPaymentMethodId() {
+        return paymentMethodId;
+    }
+
+    public void setPaymentMethodId(int paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
+    }
+
 
     public int getBookID() {
         return bookID;
@@ -58,6 +104,7 @@ public class BookDetail {
 
     public int getUserID() {
         return userID;
+
     }
 
     public void setUserID(int userID) {
@@ -173,9 +220,9 @@ public class BookDetail {
     @Override
     public String toString() {
         return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren +  ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", isBookedForOther=" + isBookedForOther + ", totalPrice=" + totalPrice + ", status=" + status + '}';
+
     }
 
-    
 
     
 

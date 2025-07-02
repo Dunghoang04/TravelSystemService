@@ -213,7 +213,6 @@ public class Login extends HttpServlet {
      * @param password The user's password
      * @return Error message if invalid, null if valid
      */
-
     // Block comment to describe the method
     /* 
      * Checks if email and password fields are filled.

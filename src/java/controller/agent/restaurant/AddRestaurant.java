@@ -245,3 +245,4 @@ public class AddRestaurant extends HttpServlet {
         return "Handles addition of new restaurants with form validation and image upload.";
     }
 }
+

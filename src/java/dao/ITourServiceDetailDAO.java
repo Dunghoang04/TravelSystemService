@@ -58,6 +58,8 @@ public interface ITourServiceDetailDAO {
      * @return The TourServiceDetail object if found, or null if not found
      * @throws SQLException If a database access error occurs
      */
+    
+    public void deleteTourServiceDetails(int tourId) throws SQLException;
     TourServiceDetail searchTourServiceDetail(int detailId) throws SQLException;
 
     /**

@@ -1,3 +1,4 @@
+
 /********** Template CSS **********/
 body{
     overflow-x: hidden;
@@ -87,7 +88,8 @@ body{
     position: relative;
     margin-right: 25px;
     padding: 35px 0;
-    color: #FFFFFF !important;
+    background-color: #FFFFFF!important;
+    color: #000!important;
     font-size: 18px;
     font-weight: 600;
     outline: none;
@@ -117,6 +119,7 @@ body{
     .sticky-top.navbar-light {
         position: relative;
         background: #FFFFFF;
+        
     }
 
     .navbar-light .navbar-collapse {
@@ -128,7 +131,7 @@ body{
     .sticky-top.navbar-light .navbar-nav .nav-link {
         padding: 10px 0;
         margin-left: 0;
-        color: var(--dark) !important;
+        color: #000!important;
     }
 
     .navbar-light .navbar-brand img {
@@ -140,6 +143,7 @@ body{
     .navbar-light {
         position: absolute;
         width: 100%;
+        color: #000;
         top: 0;
         left: 0;
         border-bottom: 1px solid rgba(256, 256, 256, .1);
@@ -444,4 +448,5 @@ body{
     margin-right: 0;
     padding-right: 0;
     border-right: none;
+
 }

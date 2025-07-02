@@ -20,9 +20,9 @@ public class Voucher {
     private String voucherCode;          // Code used to apply the voucher
     private String voucherName;          // Name/title of the voucher
     private String description;          // Description or notes about the voucher
-    private float percentDiscount;       // Percentage discount offered by the voucher
-    private float maxDiscountAmount;     // Maximum amount that can be discounted
-    private float minAmountApply;        // Minimum order value required to apply the voucher
+    private int percentDiscount;       // Percentage discount offered by the voucher
+    private int maxDiscountAmount;     // Maximum amount that can be discounted
+    private int minAmountApply;        // Minimum order value required to apply the voucher
     private Date startDate;              // Start date of voucher validity
     private Date endDate;                // End date of voucher validity
     private int quantity;                // Number of vouchers available
@@ -51,7 +51,7 @@ public class Voucher {
      * @param status status of the voucher (e.g., 1 = active, 0 = inactive)
      */
     public Voucher(int voucherId, String voucherCode, String voucherName, String description, 
-                   float percentDiscount, float maxDiscountAmount, float minAmountApply, 
+                   int percentDiscount, int maxDiscountAmount, int minAmountApply, 
                    Date startDate, Date endDate, int quantity, int status) {
         this.voucherId = voucherId;
         this.voucherCode = voucherCode;
@@ -132,7 +132,7 @@ public class Voucher {
     /**
      * @param percentDiscount the discount percentage to set
      */
-    public void setPercentDiscount(float percentDiscount) {
+    public void setPercentDiscount(int percentDiscount) {
         this.percentDiscount = percentDiscount;
     }
 
@@ -146,7 +146,7 @@ public class Voucher {
     /**
      * @param maxDiscountAmount the maximum discount amount to set
      */
-    public void setMaxDiscountAmount(float maxDiscountAmount) {
+    public void setMaxDiscountAmount(int maxDiscountAmount) {
         this.maxDiscountAmount = maxDiscountAmount;
     }
 
@@ -160,7 +160,7 @@ public class Voucher {
     /**
      * @param minAmountApply the minimum order amount to apply the voucher
      */
-    public void setMinAmountApply(float minAmountApply) {
+    public void setMinAmountApply(int minAmountApply) {
         this.minAmountApply = minAmountApply;
     }
 

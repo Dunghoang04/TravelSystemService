@@ -222,6 +222,7 @@
         </style>
     </head>
 
+
     <body>
         <c:if test="${empty param.tourId}">
             <%@include file="../../layout/headerAdmin.jsp" %>

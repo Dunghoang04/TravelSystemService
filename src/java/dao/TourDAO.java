@@ -18,6 +18,7 @@ import java.util.Vector;
 import model.Tour;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.sql.Statement;
 
 /**
  * Data Access Object for managing Tour entities. Extends DBContext for database
@@ -433,6 +434,48 @@ public class TourDAO extends DBContext implements ITourDAO {
         return tours;
     }
 
+
+    /**
+     * Searches for tours by tour name.
+     *
+     * @param searchQuery The query to search for (partial match)
+     * @return A Vector of matching Tour objects
+     * @throws SQLException If a database error occurs
+     */
+    @Override
+    public Vector<Tour> searchToursByName(String searchQuery, int page, int pageSize) throws SQLException {
+        Vector<Tour> tours = new Vector<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "SELECT * FROM Tour WHERE tourName LIKE ? AND status = 1 ORDER BY tourID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try {
+            conn = getConnection(); // Establish database connection
+            ps = conn.prepareStatement(sql); // Prepare SQL query
+            ps.setString(1, "%" + searchQuery + "%"); // Set search query parameter
+            ps.setInt(2, (page - 1) * pageSize);
+            ps.setInt(3, pageSize);
+            rs = ps.executeQuery(); // Execute query
+            while (rs.next()) { // Process result set
+                Tour tour = createTourFromResultSet(rs); // Create tour object
+                tours.add(tour); // Add tour to result list
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to search tours by name: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+        return tours;
+    }
+
     /**
      * Retrieves the top 3 newest tours.
      *
@@ -478,46 +521,58 @@ public class TourDAO extends DBContext implements ITourDAO {
      * @throws SQLException If a database error occurs
      */
     @Override
-    public void insertTour(Tour tour) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        String sql = "INSERT INTO [dbo].[Tour] ([tourCategoryID], [travelAgentID], [tourName], [numberOfDay], "
-                + "[startPlace], [endPlace], [quantity], [image], [tourIntroduce], [tourSchedule], "
-                + "[tourInclude], [tourNonInclude], [rate], [status], [startDay], [endDay], "
-                + "[adultPrice], [childrenPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try {
-            conn = getConnection(); // Establish database connection
-            ps = conn.prepareStatement(sql); // Prepare SQL query
-            ps.setInt(1, tour.getTourCategoryID()); // Set category ID
-            ps.setInt(2, tour.getTravelAgentID()); // Set travel agent ID
-            ps.setString(3, tour.getTourName()); // Set tour name
-            ps.setInt(4, tour.getNumberOfDay()); // Set number of days
-            ps.setString(5, tour.getStartPlace()); // Set start place
-            ps.setString(6, tour.getEndPlace()); // Set end place
-            ps.setInt(7, tour.getQuantity()); // Set quantity
-            ps.setString(8, tour.getImage()); // Set image
-            ps.setString(9, tour.getTourIntroduce()); // Set tour introduction
-            ps.setString(10, tour.getTourSchedule()); // Set tour schedule
-            ps.setString(11, tour.getTourInclude()); // Set included items
-            ps.setString(12, tour.getTourNonInclude()); // Set non-included items
-            ps.setFloat(13, tour.getRate()); // Set rate
-            ps.setInt(14, tour.getStatus()); // Set status
-            ps.setDate(15, tour.getStartDay()); // Set start day
-            ps.setDate(16, tour.getEndDay()); // Set end day
-            ps.setDouble(17, tour.getAdultPrice()); // Set adult price
-            ps.setDouble(18, tour.getChildrenPrice()); // Set children price
-            ps.executeUpdate(); // Execute insert
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to insert tour: " + ex.getMessage(), ex);
-        } finally {
-            if (ps != null) {
-                ps.close(); // Close PreparedStatement
-            }
-            if (conn != null) {
-                conn.close(); // Close Connection
-            }
+public int insertTour(Tour tour) throws SQLException {
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    String sql = "INSERT INTO [dbo].[Tour] ([tourCategoryID], [travelAgentID], [tourName], [numberOfDay], "
+            + "[startPlace], [endPlace], [quantity], [image], [tourIntroduce], [tourSchedule], "
+            + "[tourInclude], [tourNonInclude], [rate], [status], [startDay], [endDay], "
+            + "[adultPrice], [childrenPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try {
+        conn = getConnection(); // Establish database connection
+        ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); // Prepare SQL query with generated keys
+        ps.setInt(1, tour.getTourCategoryID()); // Set category ID
+        ps.setInt(2, tour.getTravelAgentID()); // Set travel agent ID
+        ps.setString(3, tour.getTourName()); // Set tour name
+        ps.setInt(4, tour.getNumberOfDay()); // Set number of days
+        ps.setString(5, tour.getStartPlace()); // Set start place
+        ps.setString(6, tour.getEndPlace()); // Set end place
+        ps.setInt(7, tour.getQuantity()); // Set quantity
+        ps.setString(8, tour.getImage()); // Set image
+        ps.setString(9, tour.getTourIntroduce()); // Set tour introduction
+        ps.setString(10, tour.getTourSchedule()); // Set tour schedule
+        ps.setString(11, tour.getTourInclude()); // Set included items
+        ps.setString(12, tour.getTourNonInclude()); // Set non-included items
+        ps.setFloat(13, tour.getRate()); // Set rate
+        ps.setInt(14, tour.getStatus()); // Set status
+        ps.setDate(15, tour.getStartDay()); // Set start day
+        ps.setDate(16, tour.getEndDay()); // Set end day
+        ps.setDouble(17, tour.getAdultPrice()); // Set adult price
+        ps.setDouble(18, tour.getChildrenPrice()); // Set children price
+        ps.executeUpdate(); // Execute insert
+
+        // Retrieve the generated tourID
+        rs = ps.getGeneratedKeys();
+        if (rs.next()) {
+            return rs.getInt(1); // Return the generated tourID
+        } else {
+            throw new SQLException("Failed to retrieve generated tour ID.");
+        }
+    } catch (SQLException ex) {
+        throw new SQLException("Failed to insert tour: " + ex.getMessage(), ex);
+    } finally {
+        if (rs != null) {
+            rs.close(); // Close ResultSet
+        }
+        if (ps != null) {
+            ps.close(); // Close PreparedStatement
+        }
+        if (conn != null) {
+            conn.close(); // Close Connection
         }
     }
+}
 
     /**
      * Searches for a tour by its ID.
@@ -669,52 +724,77 @@ public class TourDAO extends DBContext implements ITourDAO {
         }
     }
 
-    /**
-     * Deletes a tour if no tour sessions are associated with it. If associated
-     * sessions exist, the tour is deactivated instead.
-     *
-     * @param tourId The ID of the tour to delete
-     * @return Number of affected rows (0 if deactivated due to linked sessions)
-     * @throws SQLException If a database error occurs
-     */
+    
+
     @Override
-    public int deleteTour(int tourId) throws SQLException {
+    public int getTotalToursByDestination(String destination) throws SQLException {
         Connection conn = null;
-        PreparedStatement checkPs = null;
-        PreparedStatement deletePs = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
-        int affectedRows = 0;
-        String checkSql = "SELECT * FROM Tour_Session WHERE tourID = ?";
-        String deleteSql = "DELETE FROM [dbo].[Tour] WHERE tourID = ?";
+        LocalDate currentDate = LocalDate.now();
+        LocalDate startRange = currentDate.minusDays(10); // 10 days before
+        LocalDate endRange = currentDate.plusDays(10);   // 10 days after
+        String sql = "SELECT COUNT(*) FROM Tour WHERE endPlace LIKE ? AND status = 1 AND startDay > ? AND startDay BETWEEN ? AND ?";
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + destination + "%");
+            ps.setDate(2, Date.valueOf(currentDate)); // Current date for future check
+            ps.setDate(3, Date.valueOf(startRange));  // Start of 10-day range
+            ps.setDate(4, Date.valueOf(endRange));    // End of 10-day range
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve total tours by destination: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTotalTourForSearch() throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        LocalDate currentDate = LocalDate.now();
+        LocalDate startRange = currentDate.minusDays(10); // 10 days before
+        LocalDate endRange = currentDate.plusDays(10);   // 10 days after
+        String sql = "SELECT COUNT(*) FROM Tour WHERE status = 1 AND startDay > ? AND startDay BETWEEN ? AND ?";
         try {
             conn = getConnection(); // Establish database connection
-            checkPs = conn.prepareStatement(checkSql); // Prepare check query
-            checkPs.setInt(1, tourId); // Set tour ID
-            rs = checkPs.executeQuery(); // Execute check query
-            if (rs.next()) { // If linked sessions exist
-                changeStatusTour(tourId, 0); // Deactivate tour
-                return affectedRows;
+            ps = conn.prepareStatement(sql); // Prepare SQL query
+            ps.setDate(1, Date.valueOf(currentDate)); // Current date for future check
+            ps.setDate(2, Date.valueOf(startRange));  // Start of 10-day range
+            ps.setDate(3, Date.valueOf(endRange));    // End of 10-day range
+            rs = ps.executeQuery(); // Execute query
+            if (rs.next()) { // Process result
+                return rs.getInt(1); // Return count
             }
-            deletePs = conn.prepareStatement(deleteSql); // Prepare delete query
-            deletePs.setInt(1, tourId); // Set tour ID
-            affectedRows = deletePs.executeUpdate(); // Execute delete
         } catch (SQLException ex) {
-            throw new SQLException("Failed to delete tour: " + ex.getMessage(), ex);
+            throw new SQLException("Failed to retrieve total tours: " + ex.getMessage(), ex);
         } finally {
             if (rs != null) {
                 rs.close(); // Close ResultSet
             }
-            if (checkPs != null) {
-                checkPs.close(); // Close check PreparedStatement
-            }
-            if (deletePs != null) {
-                deletePs.close(); // Close delete PreparedStatement
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
             }
             if (conn != null) {
                 conn.close(); // Close Connection
             }
         }
-        return affectedRows;
+        return 0;
     }
 
     @Override
@@ -787,6 +867,7 @@ public class TourDAO extends DBContext implements ITourDAO {
         }
         return 0;
     }
+
 
     @Override
     public int getTotalToursWithFilters(String budget, String departure, String destination,
@@ -964,3 +1045,4 @@ public class TourDAO extends DBContext implements ITourDAO {
     }
 
 }
+

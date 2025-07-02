@@ -150,7 +150,8 @@ public class RegisterUser extends HttpServlet {
         if (phone == null || phone.trim().isEmpty()) {
             request.setAttribute("phoneError", "Số điện thoại không được để trống!");
         } else if (!phone.matches("^0\\d{9}$")) {
-            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số, không được chứa ký tự đặc biệt!");
+
+            request.setAttribute("phoneError", "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số, không được chứa ký tự đặc biệt!");    
         }
 
         // Kiểm tra ngày sinh

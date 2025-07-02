@@ -20,7 +20,6 @@ public interface IBookTour {
      * @throws SQLException if a database error occurs
      */
     ArrayList<BookDetail> getBookDetailsByAgent(int agentId) throws SQLException;
-
     /**
      * Retrieves a paginated list of book details for a specific agent.
      *
@@ -164,3 +163,4 @@ public interface IBookTour {
     
     int getStatusByBookId(int bookId) throws SQLException;
 }
+

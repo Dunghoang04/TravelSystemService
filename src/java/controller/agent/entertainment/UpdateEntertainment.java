@@ -102,6 +102,7 @@ public class UpdateEntertainment extends HttpServlet {
                 request.setAttribute("serviceUsed", "Dịch vụ đã được sử dụng");
             }
 
+
             request.getRequestDispatcher("view/agent/entertainment/updateEntertainment.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             sendError(request, response, "errorSystem", "ID dịch vụ không hợp lệ.");

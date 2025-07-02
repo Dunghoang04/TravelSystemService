@@ -44,6 +44,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         
+
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
         <link href="./assets/css/styles2.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -123,6 +124,8 @@
             position: relative;
             z-index: 0;
             background-image: url(./assets/img/background/background-entertainment2.png);
+
+
             background-size: cover;
             background-repeat: no-repeat;
         }
@@ -135,6 +138,8 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7); /* điều chỉnh độ tối ở đây */
+
+
             z-index: -1;
         }
         footer{
@@ -217,6 +222,8 @@
                 align-items: center;
                 padding: 0;
             }
+
+    </style>
 </style>
 <body>
 
@@ -283,6 +290,8 @@
                                 <div class="show-img">
                                     <!-- Display entertainment image -->
                                     <img src="${requestScope.entertainmentDetail.getImage()}">
+
+
                                 </div>
                             </div>
                             <div class="col-md-6 box-desc">
@@ -291,6 +300,8 @@
                                 </div>
                                 <div class="col-12 rate">
                                     <b>Loại hình : <span>${requestScope.entertainmentDetail.getType()}</span></b>
+
+
                                 </div>
                                 <div class="col-12 address">
                                     <b>Vị trí: </b><span>${requestScope.entertainmentDetail.getAddress()}</span>
@@ -333,6 +344,8 @@
                                             <span>Trở lại</span>
                                         </a>
                                     </c:if>
+
+
                                 </div>
                             </div>
                         </div>
@@ -355,6 +368,7 @@
             <c:if test="${not empty param.tourId}">
                 <%@include file="../../layout/footer.jsp" %>
             </c:if>                 
+
         </div>
     </div>
 

@@ -6,7 +6,7 @@ package controller.user;
 
 import dao.BookTourDAO;
 import dao.TourDAO;
-import dao.VATDAO;
+import dao.VatDAO;
 import dao.VoucherDAO;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -24,12 +24,24 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.SQLException;
 import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Random;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import model.BookDetail;
 import model.Tour;
 import model.User;
 import model.VAT;
@@ -86,7 +98,7 @@ public class BookTourServlet extends HttpServlet {
         }
         TourDAO tourDao = new TourDAO();
         VoucherDAO voucherDao = new VoucherDAO();
-        VATDAO vatDao = new VATDAO();
+        VatDAO vatDao = new VatDAO();
         String id_raw = request.getParameter("tourID");
         try {
             VAT vat = vatDao.getVATActive();
@@ -133,14 +145,14 @@ public class BookTourServlet extends HttpServlet {
             response.sendRedirect("LoginLogout");
             return;
         }
-        
+
         VoucherDAO voucherDao = new VoucherDAO();
         User user = (User) session.getAttribute("loginUser");
         TourDAO tourDao = new TourDAO();
         String numberAdult_raw = request.getParameter("adult");
         String numberChildren_raw = request.getParameter("children");
         String tourId_raw = request.getParameter("tourID");
-        
+        String paymentMethodId_raw = request.getParameter("paymentMethodID");
 
         try {
             ArrayList<Voucher> voucherlist = voucherDao.getAllVoucherActive();
@@ -222,17 +234,158 @@ public class BookTourServlet extends HttpServlet {
             double totalPrice = Double.parseDouble(request.getParameter("finalAmount"));
             NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
             String formattedPrice = formatter.format(totalPrice);
+            long bookCode = generateRandomBookCode();
+            String descriptionPayment = "ThanhToan" + user.getUserID() + "_" + (int) totalPrice + "_" + generateRandomAlphaNumeric(6);
 
             // Thực hiện insert
             BookTourDAO bookTourDao = new BookTourDAO();
-            boolean success = bookTourDao.insertBookDetail(
-                    user.getUserID(), tourId, voucherId,
-                    numberAdult, numberChildren, firstName, lastName,
-                    phone, gmail, note, isBookedForOther, totalPrice, 1
-            );
+            boolean success = false;
+            int paymentMethodId = Integer.parseInt(paymentMethodId_raw);
+            if (paymentMethodId == 1) {
+                success = bookTourDao.insertBookDetail(
+                        user.getUserID(), tourId, voucherId,
+                        numberAdult, numberChildren, firstName, lastName,
+                        phone, gmail, note, isBookedForOther, totalPrice, 1, 1, bookCode
+                );
+                if (success) {
+                    sendBookingConfirmationEmail(firstName, lastName, gmail, tour, numberAdult, numberChildren, formattedPrice);
 
-            if (success) {
-                String subject = "Xác nhận đặt tour thành công - " + tour.getTourName();
+                // Sau khi gửi mail xong redirect hoặc forward
+                response.sendRedirect("walletpaymentsuccess?bookCode=" + bookCode);
+                return;
+            } else {
+                request.setAttribute("error", "Đặt chuyến đi thất bại. Vui lòng xem lại số dư và chắc chắc bạn đủ số dư để thanh toán");
+                request.setAttribute("tour", tour);
+                request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
+            }
+
+            } else if (paymentMethodId == 2) {
+                int waitPaymentStatus = 7;
+                String cancelUrl = "";
+                String returnUrl = "";
+                boolean check = bookTourDao.insertBookDetail(
+                        user.getUserID(), tourId, voucherId,
+                        numberAdult, numberChildren, firstName, lastName,
+                        phone, gmail, note, isBookedForOther, totalPrice, 1, waitPaymentStatus, bookCode
+                );
+                if(!check){
+                    String checkoutUrl = payOS(bookCode, (int) totalPrice, descriptionPayment, firstName + " " + lastName, gmail, phone, tour.getTourName(), numberAdult + numberChildren, cancelUrl, returnUrl);
+
+                    if (checkoutUrl != null) {
+                        response.sendRedirect(checkoutUrl+"?bookCode="+bookCode);
+                        return;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("exception", "Có lỗi xảy ra khi xử lý đặt chuyến đi.");
+            request.getRequestDispatcher("view/common/error.jsp").forward(request, response);
+        }
+    }
+
+    public static long generateRandomBookCode() {
+        long min = 100000000000L;             // Số tối thiểu (12 chữ số)
+        long max = 9007199254740991L;         // Giới hạn tối đa theo yêu cầu PayOS
+        return min + (long) (Math.random() * (max - min));
+    }
+
+    private static String generateSignature(String data, String checksumKey) throws Exception {
+        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec(checksumKey.getBytes("UTF-8"), "HmacSHA256");
+        sha256_HMAC.init(secretKey);
+
+        byte[] hashBytes = sha256_HMAC.doFinal(data.getBytes("UTF-8"));
+        StringBuilder hash = new StringBuilder();
+        for (byte b : hashBytes) {
+            hash.append(String.format("%02x", b));
+        }
+        return hash.toString();
+    }
+
+    private String generateRandomAlphaNumeric(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
+
+    private static String payOS(long bookCode, int totalPrice, String descriptionPayment, String name, String email, String phone, String tourName, int totalPeople, String cancelUrl, String returnUrl) {
+        try {
+            long expiredAt = Instant.now().getEpochSecond() + 1800;
+
+            String data = "amount=" + totalPrice
+                    + "&cancelUrl=" + cancelUrl
+                    + "&description=" + descriptionPayment
+                    + "&orderCode=" + bookCode
+                    + "&returnUrl=" + returnUrl;
+
+            String checksumKey = "efe3011fe6a87a5e7be4d32bcc001dd2bd6de461001ac49b6d784a65f949cddc";
+            String signature = generateSignature(data, checksumKey);
+
+            String url = "https://api-merchant.payos.vn/v2/payment-requests";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("x-client-id", "e9654ff3-74c1-47f3-95a3-4374182de555");
+            con.setRequestProperty("x-api-key", "7f110b74-cf82-483b-b4d5-9e0725616a39");
+            con.setDoOutput(true);
+
+            String jsonInputString = "{\n"
+                    + "\"orderCode\": " + bookCode + ",\n"
+                    + "\"amount\": " + totalPrice + ",\n"
+                    + "\"description\": \"" + descriptionPayment + "\",\n"
+                    + "\"buyerName\": \"" + name + "\",\n"
+                    + "\"buyerEmail\": \"" + email + "\",\n"
+                    + "\"buyerPhone\": \"" + phone + "\",\n"
+                    + "\"items\": [\n"
+                    + "{\n"
+                    + "\"name\": \"" + tourName + "\",\n"
+                    + "\"quantity\": " + totalPeople + ",\n"
+                    + "\"price\": " + totalPrice + "\n"
+                    + "}\n"
+                    + "],\n"
+                    + "\"cancelUrl\": \"" + cancelUrl + "\",\n"
+                    + "\"returnUrl\": \"" + returnUrl + "\",\n"
+                    + "\"expiredAt\": " + expiredAt + ",\n"
+                    + "\"signature\": \"" + signature + "\"\n"
+                    + "}";
+
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // ✅ Trích xuất "checkoutUrl"
+            String jsonResponse = response.toString();
+            int index = jsonResponse.indexOf("\"checkoutUrl\":\"");
+            if (index != -1) {
+                int start = index + 15;
+                int end = jsonResponse.indexOf("\"", start);
+                String checkoutUrl = jsonResponse.substring(start, end);
+                return checkoutUrl;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    private void sendBookingConfirmationEmail(String firstName, String lastName, String gmail, Tour tour, int numberAdult, int numberChildren, String formattedPrice) {
+        String subject = "Xác nhận đặt tour thành công - " + tour.getTourName();
                 String content = "<h3>Chào " + firstName + " " + lastName + ",</h3>"
                         + "<p>Bạn đã đặt thành công tour: <strong>" + tour.getTourName() + "</strong></p>"
                         + "<ul>"
@@ -282,31 +435,8 @@ public class BookTourServlet extends HttpServlet {
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 }
-
-                // Sau khi gửi mail xong redirect hoặc forward
-                response.sendRedirect("booktourservlet?success=true&tourID=" + tour.getTourID());
-                return;
-            } else {
-                request.setAttribute("error", "Đặt chuyến đi thất bại. Vui lòng xem lại số dư và chắc chắc bạn đủ số dư để thanh toán");
-                request.setAttribute("tour", tour);
-                request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("exception", "Có lỗi xảy ra khi xử lý đặt chuyến đi.");
-            request.getRequestDispatcher("view/common/error.jsp").forward(request, response);
-        }
+    
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
 }

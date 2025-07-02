@@ -95,6 +95,7 @@ public class UpdateRestaurant extends HttpServlet {
             throws ServletException, IOException {
         IRestaurantDAO restaurantDao = new RestaurantDAO();
         IService serviceDao = new ServiceDao();
+
         String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1";
 
         try {
@@ -108,6 +109,7 @@ public class UpdateRestaurant extends HttpServlet {
                 throw new IllegalArgumentException("Mã nhà hàng phải là số nguyên dương.");
             }
             int serviceUsed = serviceDao.countServiceUsed(restaurantDao.getRestaurantByServiceId(id).getServiceId());
+
 
             // Retrieve restaurant details
             Restaurant updateRestaurant = restaurantDao.getRestaurantByServiceId(id);
@@ -146,6 +148,7 @@ public class UpdateRestaurant extends HttpServlet {
             if (serviceUsed > 0) {
                 request.setAttribute("serviceUsed", "Dịch vụ đã được sử dụng");
             }
+
             request.getRequestDispatcher("view/agent/restaurant/updateRestaurant.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             sendError(request, response, "errorSystem", "Mã nhà hàng không hợp lệ.");
@@ -261,6 +264,7 @@ public class UpdateRestaurant extends HttpServlet {
                 sendError(request, response, "errorName", "Tên không được vượt quá 255 ký tự.");
                 return;
             }
+
 
             if (phone.length() > 20) {
                 sendError(request, response, "errorPhone", "Số điện thoại không được vượt quá 20 ký tự.");

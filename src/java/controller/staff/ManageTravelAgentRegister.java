@@ -182,6 +182,7 @@ public class ManageTravelAgentRegister extends HttpServlet {
             }
             body.append("<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>");
 
+
             try {
                 EmailSender.send(email, "Xác nhận " + " đại lý - " + java.time.LocalDate.now(), body.toString());
                 System.out.println("Email gửi thành công cho hành động " + actionStatus + " tới: " + email);

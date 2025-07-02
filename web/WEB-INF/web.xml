@@ -164,6 +164,31 @@
         <servlet-name>UpdateRooma</servlet-name>
         <servlet-class>controller.agent.accommodation.room.UpdateRooma</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PaymentReturnServlet</servlet-name>
+        <servlet-class>controller.payment.PaymentReturnServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentCancelServlet</servlet-name>
+        <servlet-class>controller.payment.PaymentCancelServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewCurrentTour</servlet-name>
+        <servlet-class>controller.user.ViewCurrentTour</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReturnPayment</servlet-name>
+        <servlet-class>controller.payment.ReturnPayment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CancelPayment</servlet-name>
+        <servlet-class>controller.payment.CancelPayment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WalletPaymentSuccess</servlet-name>
+        <servlet-class>controller.payment.WalletPaymentSuccess</servlet-class>
+
+    </servlet>
     <servlet-mapping>
         <servlet-name>ListStaffAccount</servlet-name>
         <url-pattern>/liststaffaccount</url-pattern>
@@ -340,6 +365,31 @@
         <servlet-name>ChangeStatus</servlet-name>
         <url-pattern>/changestatus</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentReturnServlet</servlet-name>
+        <url-pattern>/paymentreturnservlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentCancelServlet</servlet-name>
+        <url-pattern>/paymentcancelservlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewCurrentTour</servlet-name>
+        <url-pattern>/viewcurrenttour</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReturnPayment</servlet-name>
+        <url-pattern>/returnpayment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CancelPayment</servlet-name>
+        <url-pattern>/cancelpayment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WalletPaymentSuccess</servlet-name>
+        <url-pattern>/walletpaymentsuccess</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>home</welcome-file>
     </welcome-file-list>
@@ -372,6 +422,7 @@
         <servlet-class>controller.user.AmountToPay</servlet-class>
     </servlet>
 <servlet>
+
         <servlet-name>Payment</servlet-name>
         <servlet-class>controller.user.Payment</servlet-class>
     </servlet>

@@ -182,6 +182,7 @@
                                         <div class="border p-3 mb-3 d-flex align-items-center justify-content-center" style="height: 300px;">
                                         <c:if test="${not empty requestScope.imageFileName and requestScope.imageFileName != ''}">
                                             <img id="previewImage" src="${pageContext.request.contextPath}/assets/img-entertainment/${requestScope.imageFileName}" 
+
                                                  alt="Ảnh nhà hàng" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
                                         </c:if>
                                         <c:if test="${empty requestScope.imageFileName or requestScope.imageFileName == ''}">
@@ -198,6 +199,7 @@
                                     <c:if test="${not empty requestScope.errorImage}">
                                         <div class="col-12 errorNoti" style="background-color: #F6E4E1; border: solid 1px red; text-align: center; color: red; padding: 5px 10px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 5px">
                                             <p style="margin-bottom: 0px">${requestScope.errorImage}</p>
+
                                         </div>
                                     </c:if>
                                 </div>
@@ -219,6 +221,7 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorName}</p>
                                             </div>
                                         </c:if>
+
                                         <div class="col-12 form-group">
                                             <label for="type"><b>Loại hình giải trí <span style="color: red"> *</span></b></label>
                                             <select name="type" id="type" class="custom-select" required oninvalid="this.setCustomValidity('Vui lòng chọn loại giải trí')" oninput="setCustomValidity('')">
@@ -232,6 +235,7 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorType}</p>
                                             </div>
                                         </c:if>
+
                                         <div class="col-12 form-group">
                                             <label for="phone"><b>Chọn Tỉnh/Thành phố<span style="color: red">*</span></b></label>
                                             <select id="province" name="address" class="form-control" required 
@@ -265,6 +269,7 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorRate}</p>
                                             </div>
                                         </c:if>
+
                                         <div class="col-12 row form-group time">
                                             <div class="col-6 form-group">
                                                 <label for="timeopen"><b>Thời gian mở cửa<span style="color: red">*</span></b></label>
@@ -282,6 +287,7 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorTime}</p>
                                             </div>
                                         </c:if>
+
                                         <div class="col-12 form-group">
                                             <label for="dayOfWeekOpen"><b>Ngày mở cửa trong tuần (Vui lòng ấn giữ phím Ctrl để chọn nhiều)<span style="color: red">*</span></b></label>
                                             <select style="height: 100px" name="dayOfWeekOpen" class="form-select" multiple required 
@@ -300,6 +306,7 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorDayOfWeek}</p>
                                             </div>
                                         </c:if>
+
                                         <div class="col-12 form-group">
                                             <label for="ticketPrice"><b>Giá vé<span style="color: red">*</span></b></label>
                                             <input type="text" name="ticketPrice" class="form-control" placeholder="Nhập giá vé nếu có(chỉ chấp nhận số)" required 
@@ -311,6 +318,7 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorTicketPrice}</p>
                                             </div>
                                         </c:if>
+
                                         <div class="col-12 form-group">
                                             <label for="description"><b>Mô tả dịch vụ giải trí<span style="color: red">*</span></b></label>
                                             <textarea rows="4" id="description" name="description" class="form-control" required 
@@ -321,6 +329,7 @@
                                                 <p style="margin-bottom: 0px">${requestScope.errorDescription}</p>
                                             </div>
                                         </c:if>
+
                                         <br>
                                         <div class="d-flex justify-content-end">
                                             <button type="submit" class="btn btn-info me-2" name="action" value="insert">Thêm dịch vụ giải trí</button>
@@ -368,6 +377,7 @@
              * JavaScript functions for image preview, cancel, and province data fetch.
              */
 
+
             // Preview image function
             function previewImage(event) {
                 const file = event.target.files[0];
@@ -403,6 +413,7 @@
                             provinceSelectElement.appendChild(optionElement);
                         });
                     });
+
 
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
