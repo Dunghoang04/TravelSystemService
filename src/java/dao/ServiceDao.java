@@ -191,4 +191,61 @@ public class ServiceDao extends DBContext implements IService {
         }
     }
 
+    @Override
+    public int countServiceUsed(int serviceId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int rowsAffected = 0;
+
+        try {
+            conn = getConnection();
+            if (conn == null) {
+                throw new SQLException("Database connection is null");
+            }
+            String sql = "SELECT COUNT(*) as UsedCount "
+                    + "FROM [TravelAgency2021].[dbo].[BookDetail] bd "
+                    + "JOIN [TravelAgency2021].[dbo].[Tour_Service_Detail] tsd ON bd.tourID = tsd.tourID "
+                    + "WHERE tsd.serviceID = ?;";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, serviceId);
+            rs = ps.executeQuery(); // Sử dụng executeQuery cho SELECT
+
+            if (rs.next()) {
+                rowsAffected = rs.getInt("UsedCount"); // Lấy giá trị COUNT(*)
+            }
+
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            // Đóng ResultSet trước khi đóng PreparedStatement và Connection
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+        return rowsAffected;
+    }
+
+    public static void main(String[] args) {
+        ServiceDao sDao = new ServiceDao();
+        try {
+            System.out.println(sDao.countServiceUsed(10));
+        } catch (Exception e) {
+        }
+    }
 }

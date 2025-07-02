@@ -102,6 +102,7 @@ public class TourDetailServlet extends HttpServlet {
             }
             tour = tdao.searchTourByID(id);
             request.setAttribute("tour", tour);
+            request.setAttribute("tourId", id);
             Vector<TourServiceDetail> services = sdao.getTourServiceDetails(id);
             request.setAttribute("services", services);
             request.setAttribute("restaurantList", listOfRestaurants);

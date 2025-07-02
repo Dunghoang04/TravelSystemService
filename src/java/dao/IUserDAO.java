@@ -25,10 +25,6 @@ import java.util.Vector;
 import model.User;
 import java.sql.SQLException;
 
-/**
- *
- * @author Nhat Anh
- */
 public interface IUserDAO {
 
     /**
@@ -114,4 +110,39 @@ public interface IUserDAO {
      * Must be implemented by the concrete class.
      */
     void updatePassword(String gmail, String newPassword) throws SQLException;
+
+    /**
+     * Counts the total number of users in the database.<br>
+     *
+     * @return The number of users
+     * @throws SQLException If a database access error occurs
+     */
+    int countUser();
+
+    /**
+     * Counts the number of users by role ID.<br>
+     *
+     * @param roleId The role ID to filter by
+     * @return The number of users with the specified role ID
+     * @throws SQLException If a database access error occurs
+     */
+    int countUserByRoleID(int roleId);
+
+    /**
+     * Changes the status of a user in the database.<br>
+     *
+     * @param userID The ID of the user to update
+     * @param newStatus The new status to set
+     * @throws SQLException If a database access error occurs
+     */
+    void changeStatus(int userID, int newStatus) throws SQLException;
+
+    /**
+     * Retrieves a user record from the database by their user ID.
+     *
+     * @param userID The ID of the user to retrieve
+     * @return The User object, or null if no user is found
+     * @throws SQLException If a database access error occurs
+     */
+    User getUserByID(int userID) throws SQLException;
 }

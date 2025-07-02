@@ -7,7 +7,7 @@
  * issues.
  *
  * Record of Change: DATE Version AUTHOR DESCRIPTION 2025-06-07 1.0 Hoang Tuan
- * Dung First implementation 2025-06-08 1.1 [Your Name] Updated Javadoc for
+ * Dung First implementation 2025-06-08 1.1  Updated Javadoc for
  * clarity and consistency
  *
  * @author Hoang Tuan Dung
@@ -206,29 +206,25 @@ public class AddEntertainment extends HttpServlet {
             }
 
             // Validation: ticketPrice
-            if (ticketPriceStr == null || ticketPriceStr.trim().isEmpty()) {
-                sendError(request, response,"errorTicketPrice", "Giá vé không được để trống.");
-                return;
-            }
-            ticketPriceStr = ticketPriceStr.trim();
-
-            if (!ticketPriceStr.matches("^[0-9]{1,3}([.,]?[0-9]{3})*$")) {
-                sendError(request, response, "errorTicketPrice","Giá vé không hợp lệ. Vui lòng chỉ nhập số, có thể dùng '.' hoặc ',' ngăn cách <br>hàng chục, hàng trăm, hàng nghìn.<br>Không được thừa ký tự ở đầu và cuối giá tiền");
+            if (ticketPriceStr.isEmpty()) {
+                sendError(request, response, "errorTicketPrice", "Giá vé không được để trống.");
                 return;
             }
 
-            String cleanedTicketPriceStr = ticketPriceStr.replaceAll("[.,]", "");
+            String cleanedTicketPriceStr = ticketPriceStr.replace(".", "");
+
             float ticketPrice;
             try {
                 ticketPrice = Float.parseFloat(cleanedTicketPriceStr);
                 if (ticketPrice < 0) {
-                    sendError(request, response,"errorTicketPrice", "Giá vé không được là số âm.");
+                    sendError(request, response, "errorTicketPrice", "Giá vé không được là số âm.");
                     return;
                 }
             } catch (NumberFormatException e) {
-                sendError(request, response, "errorTicketPrice","Giá vé phải là số hợp lệ.");
+                sendError(request, response, "errorTicketPrice", "Giá vé phải là số hợp lệ (chỉ dùng dấu chấm '.' để phân cách, ví dụ: 500.000).");
                 return;
             }
+
             // Validation: description
             if (description.isEmpty() || description.trim().split("\\s+").length < 10) {
                 sendError(request, response, "errorDescription","Vui lòng điền mô tả dịch vụ từ 10 từ trở lên.");

@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller.admin;
+package controller.user;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Hung
  */
-public class TouristManager extends HttpServlet {
+public class Payment extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,10 +33,10 @@ public class TouristManager extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TouristManager</title>");  
+            out.println("<title>Servlet Payment</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TouristManager at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet Payment at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -53,7 +53,16 @@ public class TouristManager extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        String amount_raw = request.getParameter("amount");
+        String code = request.getParameter("code");
+        try{
+            int amount = Integer.parseInt(amount_raw);
+            request.setAttribute("code", code);
+            request.setAttribute("amount", amount);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        request.getRequestDispatcher("view/user/payment.jsp").forward(request, response);
     } 
 
     /** 

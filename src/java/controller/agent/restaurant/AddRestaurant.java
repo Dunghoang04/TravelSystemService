@@ -1,10 +1,32 @@
+/*
+ * Copyright(C) 2025, GROUP 6.
+ * Restaurant Management System:
+ *  A web application for managing restaurant information.
+ *
+ * Record of change:
+ * DATE            Version    AUTHOR            DESCRIPTION
+ * 2025-06-21      1.0        Hoang Tuan Dung   Initial implementation
+ * 2025-06-22      1.1        Hoang Tuan Dung   Fixed image preview persistence after validation errors
+ */
+
+/**
+ * The AddRestaurant servlet handles HTTP requests to add a new restaurant to the system.
+ * It processes form data from addRestaurant.jsp, validates inputs against database schema,
+ * uploads restaurant images, and interacts with RestaurantDAO to persist data. All input
+ * data is trimmed to remove leading/trailing spaces before processing. The servlet throws
+ * exceptions for database or I/O errors to be handled by the error page.
+ *
+ * <p>
+ * Bugs: Fixed issue where image preview disappeared after validation errors.
+ *
+ * @author Hoang Tuan Dung
+ */
 package controller.agent.restaurant;
 
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import dao.IRestaurantDAO;
 import dao.RestaurantDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
@@ -18,71 +40,55 @@ import java.time.Duration;
 import java.time.LocalTime;
 import model.TravelAgent;
 
-/**
- *
- * @author ad
- */
-@MultipartConfig
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
+)
 public class AddRestaurant extends HttpServlet {
 
+    // Constant for image upload directory
     private static final String UPLOAD_DIRECTORY = "assets/img-restaurant";
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Handles the HTTP GET method by forwarding to the add restaurant form page.
+     * Clears the session's imageFileNameRestaurant attribute to reset the form state.
      *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet AddRestaurant</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet AddRestaurant at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
+     * @param request the HttpServletRequest object containing client request data
+     * @param response the HttpServletResponse object for sending response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        session.removeAttribute("imageFileNameRestaurant"); // Clear session image data
         request.getRequestDispatcher("view/agent/restaurant/addRestaurant.jsp").forward(request, response);
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP POST method to process form data for adding a new restaurant.
+     * Validates input fields against database schema, uploads the restaurant image,
+     * and inserts data into the database via RestaurantDAO. Preserves form data and
+     * image preview in case of errors and forwards back to the form with appropriate
+     * error messages.
      *
-     * @param request servlet request
-     * @param response servlet response
+     * @param request the HttpServletRequest object containing form data and file part
+     * @param response the HttpServletResponse object for sending response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Initialize DAO and session
         IRestaurantDAO restaurantDAO = new RestaurantDAO();
         HttpSession session = request.getSession();
-        String imageFileName = (String) session.getAttribute("imageFileName");
+        TravelAgent travelAgent = (TravelAgent) session.getAttribute("agent");
+        String imageFileName = (String) session.getAttribute("imageFileNameRestaurant");
 
+        // Retrieve and trim form inputs
         String name = request.getParameter("name") != null ? request.getParameter("name").trim() : "";
         String address = request.getParameter("address") != null ? request.getParameter("address").trim() : "";
         String type = request.getParameter("type") != null ? request.getParameter("type").trim() : "";
@@ -103,84 +109,71 @@ public class AddRestaurant extends HttpServlet {
         request.setAttribute("phone", phone);
         request.setAttribute("rateStr", rateStr);
 
-        TravelAgent travelAgent = (TravelAgent) session.getAttribute("agent");
-
         try {
-
-            // Define relative path for image storage
+            // Validate and process image upload
             String relativeImagePath = null;
             if (filePart != null && filePart.getSize() > 0) {
                 imageFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
                 relativeImagePath = UPLOAD_DIRECTORY + "/" + imageFileName;
-                String uploadsDirPath = getServletContext().getRealPath("/") + UPLOAD_DIRECTORY;
-                File uploadDir = new File(uploadsDirPath);
+                String uploadDirPath = getServletContext().getRealPath("/") + UPLOAD_DIRECTORY;
+                File uploadDir = new File(uploadDirPath);
                 if (!uploadDir.exists()) {
                     if (!uploadDir.mkdirs()) {
-                        throw new IOException("Faild to create upload directory");
+                        throw new IOException("Failed to create upload directory.");
                     }
                 }
-                filePart.write(uploadsDirPath + File.separator + imageFileName);
-                session.setAttribute("imageFileName", imageFileName);
-                request.setAttribute("imageFileName", imageFileName);
+                filePart.write(uploadDirPath + File.separator + imageFileName);
+                session.setAttribute("imageFileNameRestaurant", imageFileName);
+                request.setAttribute("imageFileNameRestaurant", imageFileName); // Set for JSP
             } else if (imageFileName == null || imageFileName.trim().isEmpty()) {
-                request.setAttribute("imageFileName", imageFileName);
+                request.setAttribute("imageFileNameRestaurant", "");
                 sendError(request, response, "errorImage", "Vui lòng chọn ảnh cho nhà hàng.");
                 return;
             } else {
-                relativeImagePath = UPLOAD_DIRECTORY + "/" + imageFileName;
-                request.setAttribute("imageFileName", imageFileName);
+                relativeImagePath = UPLOAD_DIRECTORY + "/" + imageFileName; // Use existing image
+                request.setAttribute("imageFileNameRestaurant", imageFileName); // Set for JSP
             }
 
-            // name
-            if (name == null || name.trim().isEmpty()) {
-                sendError(request, response, "errorName", "Tên nhà hàng không được để trống");
+            // Validate name (max 255 characters)
+            if (name.isEmpty()) {
+                sendError(request, response, "errorName", "Tên nhà hàng không được để trống.");
+                return;
+            }
+            if (name.length() > 255) {
+                sendError(request, response, "errorName", "Tên nhà hàng không được vượt quá 255 ký tự.");
                 return;
             }
 
-            // phone
-            if (phone == null || phone.trim().isEmpty()) {
+            // Validate phone 
+            if (phone.isEmpty()) {
                 sendError(request, response, "errorPhone", "Số điện thoại không được để trống.");
                 return;
             }
-            if (phone.length() != 10) {
-                sendError(request, response, "errorPhone", "Số điện thoại phải có đúng 10 số.");
-                return;
-            }
-            if (!phone.startsWith("0")) {
-                sendError(request, response, "errorPhone", "Số điện thoại phải bắt đầu bằng số 0.");
-                return;
-            }
-            if (!phone.matches("^(0)[0-9]{9}$")) {
-                sendError(request, response, "errorPhone", "Số điện thoại phải bắt đầu bằng 0.");
+            if (!phone.matches("^0[0-9]{9}$")) {
+                sendError(request, response, "errorPhone", "Số điện thoại phải có 10 số và bắt đầu bằng 0.");
                 return;
             }
 
-            // type
-            if (type == null || type.trim().isEmpty()) {
-                sendError(request, response, "errorType", "Loại nhà hàng không được bỏ trống.");
-                return;
-            }
-            //rate
+            // Validate rate
             float rate;
-
             try {
                 rate = Float.parseFloat(rateStr);
                 if (rate < 0 || rate > 10) {
-                    sendError(request, response, "errorRate", "Điểm đánh giá phải nằm trong khoảng 1-10");
+                    sendError(request, response, "errorRate", "Điểm đánh giá phải từ 0 đến 10.");
                     return;
                 }
             } catch (NumberFormatException e) {
-                sendError(request, response, "errorRate", "Điểm đánh giá không hợp lệ , điểm đánh giá phải là số");
+                sendError(request, response, "errorRate", "Điểm đánh giá phải là một số hợp lệ.");
                 return;
             }
-            //time
+
+            // Validate time
             if (timeOpenStr.length() == 5) {
                 timeOpenStr += ":00";
             }
             if (timeCloseStr.length() == 5) {
                 timeCloseStr += ":00";
             }
-
             LocalTime timeOpen, timeClose;
             try {
                 timeOpen = LocalTime.parse(timeOpenStr);
@@ -189,24 +182,33 @@ public class AddRestaurant extends HttpServlet {
                 sendError(request, response, "errorTime", "Thời gian không hợp lệ.");
                 return;
             }
+            // Handle case where timeClose is earlier than timeOpen
+            Duration duration = Duration.between(timeOpen, timeClose);
+            if (duration.toHours() < 1) {
+                sendError(request, response, "errorTime", "Thời gian mở cửa phải cách thời gian đóng cửa ít nhất 1 giờ.");
+                return;
+            }
 
-//        if (!timeOpen.isBefore(timeClose)) {
-//            sendError(request, response, "Thời gian mở cửa phải trước thời gian đóng cửa.");
-//            return;
-//        }
-            if (Duration.between(timeOpen, timeClose).toHours() < 1) {
-                sendError(request, response, "errorTime", "Thời gian mở cửa phải ít nhất 1 tiếng.");
+            // Validate description
+            if (description.isEmpty()) {
+                sendError(request, response, "errorDescription", "Mô tả nhà hàng không được để trống.");
                 return;
             }
-            // description
-            if (description == null || description.trim().split("\\s+").length < 10) {
-                sendError(request, response, "errorDescription", "Vui lòng điền mô tả nhà hàng từ 10 từ trở lên.");
+            if (description.length() > 4000) {
+                sendError(request, response, "errorDescription", "Mô tả nhà hàng không được vượt quá 4000 ký tự.");
                 return;
             }
-            // Thêm vào DB
-            restaurantDAO.insertRestaurantFull(travelAgent.getUserID(), name, relativeImagePath, address, phone, description, rate, type, 1, timeOpenStr, timeCloseStr);
-            // Điều hướng sau khi thêm thành công
-            request.setAttribute("success", "Thêm dịch vụ thành công");
+            String[] words = description.trim().split("\\s+");
+            if (words.length < 10) {
+                sendError(request, response, "errorDescription", "Mô tả nhà hàng phải có ít nhất 10 từ.");
+                return;
+            }
+
+            // Insert into database
+            restaurantDAO.insertRestaurantFull(travelAgent.getUserID(), name, relativeImagePath, address, phone,
+                    description, rate, type, 1, timeOpenStr, timeCloseStr);
+            session.removeAttribute("imageFileNameRestaurant"); // Clear session after success
+            request.setAttribute("success", "Thêm nhà hàng thành công.");
             request.getRequestDispatcher("view/agent/restaurant/addRestaurant.jsp").forward(request, response);
         } catch (SQLServerException e) {
             sendError(request, response, "errorSystem", "Lỗi cơ sở dữ liệu: " + e.getMessage());
@@ -217,6 +219,16 @@ public class AddRestaurant extends HttpServlet {
         }
     }
 
+    /**
+     * Sends an error message back to the form page with the specified error type and message.
+     *
+     * @param request      the HttpServletRequest object to set error attributes
+     * @param response     the HttpServletResponse object for forwarding
+     * @param errorType    the key for the error message (e.g., "errorName")
+     * @param errorMessage the error message to display
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void sendError(HttpServletRequest request, HttpServletResponse response, String typeError, String errorMessage)
             throws ServletException, IOException {
         request.setAttribute(typeError, errorMessage);
@@ -230,7 +242,6 @@ public class AddRestaurant extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Handles addition of new restaurants with form validation and image upload.";
+    }
 }

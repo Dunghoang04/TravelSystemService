@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2025, Group 6.
- * ProjectCode/Short Name of Application: TravelAgentService 
+ * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0       NguyenVanVang     First implementation
- * 2025-06-08  1.1       TuanAnhJr         Updated serviceID to serviceId for naming consistency with database
+ * 2025-06-08  1.0        Nguyễn Văn Vang   First implementation
  */
 package dao;
 
@@ -20,77 +19,107 @@ import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Accommodation;
 import model.Room;
+//import model.Service;
 
 /**
- * Data Access Object (DAO) for managing Accommodation data in the database.
- * Implements IAccommodationDAO interface to provide methods for CRUD operations
- * and additional functionality for accommodations in the TravelAgentService system.
+ * Implements data access operations for Accommodation entities.<br>
+ * Handles insertion, retrieval, updating, and querying of accommodation data
+ * from the database using SQL queries.<br>
+ * <p>
+ * Bugs: Potential SQL injection risk if user input is used directly in SQL
+ * queries.</p>
  *
- * @author NguyenVanVang
+ * @author Nguyễn Văn Vang
  */
 public class AccommodationDAO extends DBContext implements IAccommodationDAO {
 
     /**
-     * Inserts a new service into the database and returns its generated ID.
+     * Inserts a new service into the database and returns the generated service
+     * ID.<br>
      *
-     * @param serviceName the name of the service to be inserted
-     * @return the generated service ID
-     * @throws SQLException if a database error occurs during insertion
+     * @param serviceName The name of the service to insert
+     * @return The generated service ID as an integer
+     * @throws SQLException If a database error occurs
      */
-    @Override
-    public int insertService(String serviceName) throws SQLException {
-        String sql = "INSERT INTO [dbo].[Service] ([serviceCategoryID], [serviceName]) VALUES (?, ?)";
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Connection connection = null;
-        try {
-            // Prepare statement with RETURN_GENERATED_KEYS to retrieve the inserted service ID
-            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, 3); // Hardcoded service category ID for accommodation
-            ps.setString(2, serviceName);
-            ps.executeUpdate();
-
-            // Retrieve the generated service ID
-            rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                throw new SQLException("Failed to retrieve serviceId after inserting Service.");
-            }
-        } finally {
-            // Close ResultSet and PreparedStatement to prevent resource leaks
-            if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
-        }
-    }
-
+    /*
+     * Inserts a new service record with a fixed serviceCategoryID and provided serviceName.
+     * Returns the auto-generated serviceID using Statement.RETURN_GENERATED_KEYS.
+     */
+//    @Override
+//    public int insertService(String serviceName) throws SQLException {
+//        String sql = "INSERT INTO [dbo].[Service] ([serviceCategoryID], [serviceName]) VALUES (?, ?)";
+//        Connection conn = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//        try {
+//            conn = getConnection();
+//            ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+//            ps.setInt(1, 3); // Assumes serviceCategoryID = 3 for "Hotel"
+//            ps.setString(2, serviceName);
+//            ps.executeUpdate();
+//
+//            rs = ps.getGeneratedKeys();
+//            if (rs.next()) {
+//                return rs.getInt(1);
+//            } else {
+//                throw new SQLException("Không thể lấy serviceID sau khi insert Service.");
+//            }
+//        } finally {
+//            if (rs != null) {
+//                try {
+//                    rs.close();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (ps != null) {
+//                try {
+//                    ps.close();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (conn != null) {
+//                try {
+//                    conn.close();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
     /**
-     * Retrieves a list of all accommodations from the database.
+     * Retrieves a list of all accommodations from the database.<br>
      *
-     * @return a list of Accommodation objects
+     * @return A List of Accommodation objects
+     */
+    /*
+     * Queries the Accommodation table to retrieve all records.
+     * Formats check-in and check-out times using SimpleDateFormat and constructs Accommodation objects.
      */
     @Override
     public List<Accommodation> getListAccommodation() {
         String sql = "SELECT * FROM Accommodation";
         List<Accommodation> list = new ArrayList<>();
+        Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Connection connection = null;
         try {
-            // Execute query to fetch all accommodations
-            ps = connection.prepareStatement(sql);
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             while (rs.next()) {
-                // Format check-in and check-out times to HH:mm
-                Time timeOpen = rs.getTime("checkInTime");
-                Time timeClose = rs.getTime("checkOutTime");
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                // Create Accommodation object with retrieved data
+                Time checkInTime = rs.getTime("checkInTime");
+                Time checkOutTime = rs.getTime("checkOutTime");
+                String formattedCheckIn = (checkInTime != null) ? sdf.format(checkInTime) : "00:00:00";
+                String formattedCheckOut = (checkOutTime != null) ? sdf.format(checkOutTime) : "00:00:00";
                 Accommodation acc = new Accommodation(
-                        rs.getInt("serviceId"),
-                        rs.getInt("roomID"),
+                        rs.getInt("serviceID"),
                         rs.getString("name"),
                         rs.getString("image"),
                         rs.getString("address"),
@@ -99,144 +128,141 @@ public class AccommodationDAO extends DBContext implements IAccommodationDAO {
                         rs.getFloat("rate"),
                         rs.getString("type"),
                         rs.getInt("status"),
-                        sdf.format(timeOpen),
-                        sdf.format(timeClose));
+                        formattedCheckIn,
+                        formattedCheckOut);
                 list.add(acc);
             }
         } catch (SQLException e) {
-            // Log any database errors
             e.printStackTrace();
         } finally {
-            // Close ResultSet and PreparedStatement to prevent resource leaks
-            if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return list;
     }
 
     /**
-     * Inserts a new accommodation into the database.
+     * Inserts a new accommodation into the database.<br>
      *
-     * @param roomID the ID of the associated room
-     * @param name the name of the accommodation
-     * @param image the image URL or path for the accommodation
-     * @param address the address of the accommodation
-     * @param phone the contact phone number
-     * @param description the description of the accommodation
-     * @param rate the rating of the accommodation
-     * @param type the type of accommodation
-     * @param status the status of the accommodation (e.g., available or unavailable)
-     * @param checkInTime the check-in time in HH:mm format
-     * @param checkOutTime the check-out time in HH:mm format
+     * @param name The name of the accommodation
+     * @param image The image URL or path for the accommodation
+     * @param address The address of the accommodation
+     * @param phone The contact phone number
+     * @param description A description of the accommodation
+     * @param rate The rating of the accommodation
+     * @param type The type of accommodation (e.g., hotel, hostel)
+     * @param status The status of the accommodation (e.g., available,
+     * unavailable)
+     * @param checkInTime The check-in time for the accommodation
+     * @param checkOutTime The check-out time for the accommodation
+     */
+    /*
+     * Inserts a new service and accommodation record in a single transaction.
+     * Ensures check-in and check-out times are in HH:mm:ss format before insertion.
      */
     @Override
-    public void insertAccommodation(int roomID, String name, String image, String address, String phone,
-            String description, float rate, String type, int status, String checkInTime, String checkOutTime) {
+    public void insertAccommodation(int agentID, String name, String image, String address, String phone, String description,
+            float rate, String type, int status, String checkInTime, String checkOutTime) {
+        Connection conn = null;
         PreparedStatement ps = null;
-        Connection connection = null;
         try {
-            // Disable auto-commit to ensure transaction integrity
-            connection.setAutoCommit(false);
-            
-            // Insert service and get generated service ID
-            int serviceId = insertService("Accommodation Service");
+            conn = getConnection();
+            conn.setAutoCommit(false);
+            ServiceDao serviceDao = new ServiceDao();
+            int serviceId = serviceDao.addService(3, name, agentID);
 
-            // Prepare SQL for inserting accommodation
-            String sql = "INSERT INTO [dbo].[Accommodation] ([serviceId], [roomID], [name], [image], [address], " +
-                         "[phone], [description], [rate], [type], [status], [checkInTime], [checkOutTime]) " +
-                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            ps = connection.prepareStatement(sql);
+            checkInTime = checkInTime.trim();
+            checkOutTime = checkOutTime.trim();
+
+            String sql = "INSERT INTO [dbo].[Accommodation] "
+                    + "([serviceID], [name], [image], [address], [phone], [description], [rate], [type], [status], [checkInTime], [checkOutTime]) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ps = conn.prepareStatement(sql);
             ps.setInt(1, serviceId);
-            ps.setInt(2, roomID);
-            ps.setString(3, name);
-            ps.setString(4, image);
-            ps.setString(5, address);
-            ps.setString(6, phone);
-            ps.setString(7, description);
-            ps.setFloat(8, rate);
-            ps.setString(9, type);
-            ps.setInt(10, status);
-            ps.setTime(11, Time.valueOf(checkInTime));
-            ps.setTime(12, Time.valueOf(checkOutTime));
+            ps.setString(2, name);
+            ps.setString(3, image);
+            ps.setString(4, address);
+            ps.setString(5, phone);
+            ps.setString(6, description);
+            ps.setFloat(7, rate);
+            ps.setString(8, type);
+            ps.setInt(9, status);
+            ps.setTime(10, Time.valueOf(checkInTime));
+            ps.setTime(11, Time.valueOf(checkOutTime));
             ps.executeUpdate();
-            // Commit transaction
-            connection.commit();
+            conn.commit();
         } catch (SQLException e) {
-            // Rollback transaction on error
-            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    throw new SQLException("Lỗi khi thêm nơi ở: " + e.getMessage(), e);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
         } finally {
-            // Close PreparedStatement and restore auto-commit
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
-            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+            if (ps != null) try {
+                ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if (conn != null) try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     /**
-     * Deletes an accommodation and its associated service from the database.
+     * Retrieves an accommodation by its service ID.<br>
      *
-     * @param serviceId the ID of the service to delete
+     * @param serviceId The unique identifier of the accommodation service
+     * @return An Accommodation object if found, null otherwise
      */
-    @Override
-    public void deleteAccommodation(int serviceId) {
-        String sqlAcc = "DELETE FROM [dbo].[Accommodation] WHERE serviceId = ?";
-        String sqlService = "DELETE FROM [dbo].[Service] WHERE serviceId = ?";
-        PreparedStatement psAcc = null;
-        PreparedStatement psService = null;
-        Connection connection = null;
-        try {
-            // Disable auto-commit for transaction
-            connection.setAutoCommit(false);
-            // Delete from Accommodation table
-            psAcc = connection.prepareStatement(sqlAcc);
-            psAcc.setInt(1, serviceId);
-            psAcc.executeUpdate();
-
-            // Delete from Service table
-            psService = connection.prepareStatement(sqlService);
-            psService.setInt(1, serviceId);
-            psService.executeUpdate();
-
-            // Commit transaction
-            connection.commit();
-        } catch (SQLException e) {
-            // Rollback transaction on error
-            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-        } finally {
-            // Close PreparedStatements and restore auto-commit
-            if (psAcc != null) try { psAcc.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (psService != null) try { psService.close(); } catch (SQLException e) { e.printStackTrace(); }
-            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-        }
-    }
-
-    /**
-     * Retrieves an accommodation by its service ID.
-     *
-     * @param serviceId the ID of the service
-     * @return the Accommodation object, or null if not found
+    /*
+     * Queries the Accommodation table by serviceID.
+     * Formats check-in and check-out times and constructs an Accommodation object.
      */
     @Override
     public Accommodation getAccommodationByServiceId(int serviceId) {
-        String sql = "SELECT * FROM Accommodation WHERE serviceId = ?";
+        String sql = "SELECT * FROM Accommodation WHERE serviceID = ?";
+        Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Connection connection = null;
         try {
-            // Execute query to fetch accommodation by service ID
-            ps = connection.prepareStatement(sql);
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
             ps.setInt(1, serviceId);
             rs = ps.executeQuery();
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             if (rs.next()) {
-                // Format check-in and check-out times to HH:mm
-                Time timeOpen = rs.getTime("checkInTime");
-                Time timeClose = rs.getTime("checkOutTime");
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                // Create Accommodation object with retrieved data
-                Accommodation acc = new Accommodation(
-                        rs.getInt("serviceId"),
-                        rs.getInt("roomID"),
+                Time checkInTime = rs.getTime("checkInTime");
+                Time checkOutTime = rs.getTime("checkOutTime");
+                String formattedCheckIn = (checkInTime != null) ? sdf.format(checkInTime) : "00:00:00";
+                String formattedCheckOut = (checkOutTime != null) ? sdf.format(checkOutTime) : "00:00:00";
+                return new Accommodation(
+                        rs.getInt("serviceID"),
                         rs.getString("name"),
                         rs.getString("image"),
                         rs.getString("address"),
@@ -245,98 +271,144 @@ public class AccommodationDAO extends DBContext implements IAccommodationDAO {
                         rs.getFloat("rate"),
                         rs.getString("type"),
                         rs.getInt("status"),
-                        sdf.format(timeOpen),
-                        sdf.format(timeClose));
-                return acc;
+                        formattedCheckIn,
+                        formattedCheckOut);
             }
         } catch (SQLException e) {
-            // Log any database errors
             e.printStackTrace();
         } finally {
-            // Close ResultSet and PreparedStatement
-            if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }
 
     /**
-     * Updates an existing accommodation in the database.
+     * Updates an existing accommodation in the database.<br>
      *
-     * @param serviceId the ID of the service
-     * @param roomID the ID of the associated room
-     * @param name the name of the accommodation
-     * @param image the image URL or path
-     * @param address the address of the accommodation
-     * @param phone the contact phone number
-     * @param description the description of the accommodation
-     * @param rate the rating of the accommodation
-     * @param type the type of accommodation
-     * @param status the status of the accommodation
-     * @param checkInTime the check-in time in HH:mm format
-     * @param checkOutTime the check-out time in HH:mm format
+     * @param serviceId The unique identifier of the accommodation service
+     * @param name The updated name of the accommodation
+     * @param image The updated image URL or path
+     * @param address The updated address
+     * @param phone The updated contact phone number
+     * @param description The updated description
+     * @param rate The updated rating
+     * @param type The updated type of accommodation
+     * @param status The updated status
+     * @param checkInTime The updated check-in time
+     * @param checkOutTime The updated check-out time
+     */
+    /*
+     * Updates the Accommodation table for the specified serviceID.
+     * Ensures check-in and check-out times are in HH:mm:ss format before updating.
      */
     @Override
-    public void updateAccommodation(int serviceId, int roomID, String name, String image, String address, String phone,
-            String description, float rate, String type, int status, String checkInTime, String checkOutTime) {
-        String sql = "UPDATE [dbo].[Accommodation] SET [serviceId] = ?, [roomID] = ?, [name] = ?, [image] = ?, " +
-                     "[address] = ?, [phone] = ?, [description] = ?, [rate] = ?, [type] = ?, [status] = ?, " +
-                     "[checkInTime] = ?, [checkOutTime] = ? WHERE serviceId = ?";
+    public void updateAccommodation(int serviceId, String name, String image, String address, String phone,
+            String description, float rate, String type, int status, String checkInTime,
+            String checkOutTime) {
+        String sql = "UPDATE [dbo].[Accommodation] "
+                + "SET [name] = ?, [image] = ?, [address] = ?, [phone] = ?, [description] = ?, [rate] = ?, [type] = ?, [status] = ?, [checkInTime] = ?, [checkOutTime] = ? "
+                + "WHERE serviceID = ?";
+        Connection conn = null;
         PreparedStatement ps = null;
-        Connection connection = null;
         try {
-            // Prepare and execute update statement
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, serviceId);
-            ps.setInt(2, roomID);
-            ps.setString(3, name);
-            ps.setString(4, image);
-            ps.setString(5, address);
-            ps.setString(6, phone);
-            ps.setString(7, description);
-            ps.setFloat(8, rate);
-            ps.setString(9, type);
-            ps.setInt(10, status);
-            ps.setTime(11, Time.valueOf(checkInTime));
-            ps.setTime(12, Time.valueOf(checkOutTime));
-            ps.setInt(13, serviceId);
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setString(2, image);
+            ps.setString(3, address);
+            ps.setString(4, phone);
+            ps.setString(5, description);
+            ps.setFloat(6, rate);
+            ps.setString(7, type);
+            ps.setInt(8, status);
+            // Chỉ set Time nếu chuỗi không rỗng và hợp lệ
+            ps.setTime(9, checkInTime != null && !checkInTime.isEmpty() ? Time.valueOf(checkInTime) : null);
+            ps.setTime(10, checkOutTime != null && !checkOutTime.isEmpty() ? Time.valueOf(checkOutTime) : null);
+            ps.setInt(11, serviceId);
             ps.executeUpdate();
+            //thêm phân update ở đây vào bảng service
+            ServiceDao serviceDAO = new ServiceDao();
+            serviceDAO.updateServiceName(serviceId, name);
+            //thêm phần update ở bảng tourServiceDetai
+             TourServiceDetailDAO tourServiceDetailDAO = new TourServiceDetailDAO();
+            if (tourServiceDetailDAO.getTourServiceDetailsByServiceId(serviceId).size() > 0) {
+                tourServiceDetailDAO.updateServiceNameByServiceId(serviceId, name);
+            }
         } catch (SQLException e) {
-            // Log any database errors
             e.printStackTrace();
+            try {
+                throw new SQLException("Lỗi khi cập nhật nơi ở: " + e.getMessage(), e);
+            } catch (SQLException ex) {
+                Logger.getLogger(AccommodationDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } finally {
-            // Close PreparedStatement
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     /**
-     * Searches for accommodations by name (partial match).
+     * Searches for accommodations by name.<br>
      *
-     * @param name the name or partial name to search for
-     * @return a list of matching Accommodation objects
+     * @param name The name or partial name to search for
+     * @return A List of Accommodation objects matching the search criteria
+     */
+    /*
+     * Queries the Accommodation table using a LIKE clause for the name field.
+     * Formats check-in and check-out times and constructs Accommodation objects.
      */
     @Override
     public List<Accommodation> searchAccommodationByName(String name) {
         String sql = "SELECT * FROM Accommodation WHERE name LIKE ?";
         List<Accommodation> list = new ArrayList<>();
+        Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Connection connection = null;
         try {
-            // Prepare query with wildcard for partial name search
-            ps = connection.prepareStatement(sql);
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
             ps.setString(1, "%" + name + "%");
             rs = ps.executeQuery();
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             while (rs.next()) {
-                // Format check-in and check-out times to HH:mm
                 Time checkInTime = rs.getTime("checkInTime");
                 Time checkOutTime = rs.getTime("checkOutTime");
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                // Create Accommodation object with retrieved data
+                String formattedCheckIn = (checkInTime != null) ? sdf.format(checkInTime) : "00:00:00";
+                String formattedCheckOut = (checkOutTime != null) ? sdf.format(checkOutTime) : "00:00:00";
                 Accommodation acc = new Accommodation(
-                        rs.getInt("serviceId"),
-                        rs.getInt("roomID"),
+                        rs.getInt("serviceID"),
                         rs.getString("name"),
                         rs.getString("image"),
                         rs.getString("address"),
@@ -345,117 +417,81 @@ public class AccommodationDAO extends DBContext implements IAccommodationDAO {
                         rs.getFloat("rate"),
                         rs.getString("type"),
                         rs.getInt("status"),
-                        sdf.format(checkInTime),
-                        sdf.format(checkOutTime));
+                        formattedCheckIn,
+                        formattedCheckOut);
                 list.add(acc);
             }
         } catch (SQLException e) {
-            // Log any database errors
             e.printStackTrace();
         } finally {
-            // Close ResultSet and PreparedStatement
-            if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return list;
     }
 
     /**
-     * Retrieves a room by its accommodation ID.
+     * Retrieves a list of rooms associated with a specific accommodation
+     * service ID.<br>
      *
-     * @param accommodationID the ID of the accommodation
-     * @return the Room object, or null if not found
+     * @param serviceId The unique identifier of the accommodation service
+     * @return A List of Room objects associated with the accommodation
+     */
+    /*
+     * Delegates to RoomDAO to retrieve rooms by accommodationID.
+     * Assumes serviceId corresponds to accommodationID.
      */
     @Override
-    public Room getRoomById(int accommodationID) {
-        String sql = "SELECT * FROM Room WHERE accommodationID = ?";
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Connection connection = null;
-        try {
-            // Execute query to fetch room by accommodation ID
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, accommodationID);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                // Create Room object with retrieved data
-                Room room = new Room(
-                        rs.getInt("accommodationID"),
-                        rs.getString("roomTypes"),
-                        rs.getInt("numberOfRooms"),
-                        rs.getFloat("priceOfRoom"));
-                return room;
-            }
-        } catch (SQLException e) {
-            // Log any database errors
-            e.printStackTrace();
-        } finally {
-            // Close ResultSet and PreparedStatement
-            if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
-        }
-        return null;
+    public List<Room> getRoomsByServiceId(int serviceId) throws SQLException {
+        RoomDAO roomDAO = new RoomDAO();
+        return roomDAO.getRoomsByAccommodationID(serviceId);
     }
 
     /**
-     * Retrieves the status of an accommodation by its service ID.
-     *
-     * @param serviceId the ID of the service
-     * @return the status value, or -1 if not found
+     * Main method for testing AccommodationDAO functionality.<br>
+    /*
+     * Tests retrieval of an accommodation and its associated rooms by serviceId.
+     * Prints the results to the console.
      */
-    @Override
-    public int getStatusByServiceId(int serviceId) {
-        String sql = "SELECT status FROM [dbo].[Accommodation] WHERE serviceId = ?";
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        int status = -1;
-        Connection connection = null;
-        try {
-            // Execute query to fetch status by service ID
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, serviceId);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                status = rs.getInt("status");
-            }
-        } catch (SQLException e) {
-            // Log any database errors
-            e.printStackTrace();
-        } finally {
-            // Close ResultSet and PreparedStatement
-            if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
-        }
-        return status;
-    }
+    public static void main(String[] args) {
+        AccommodationDAO dao = new AccommodationDAO();
 
-    /**
-     * Changes the status of an accommodation.
-     *
-     * @param serviceId the ID of the service
-     * @param status the new status value
-     * @return true if the update was successful, false otherwise
-     */
-    @Override
-    public boolean changeStatus(int serviceId, int status) {
-        String sql = "UPDATE [dbo].[Accommodation] SET [status] = ? WHERE serviceId = ?";
-        PreparedStatement ps = null;
-        boolean success = false;
-        Connection connection = null;
-        try {
-            // Execute update to change status
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, status);
-            ps.setInt(2, serviceId);
-            int rowsAffected = ps.executeUpdate();
-            success = rowsAffected > 0;
-        } catch (SQLException e) {
-            // Log any database errors
-            e.printStackTrace();
-        } finally {
-            // Close PreparedStatement
-            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+//        String name = "Khách sạn Test";
+//        String image = "assets/img/accommodation/2.png";
+//        String address = "123 Đường ABC, Quận 1, TP.HCM";
+//        String phone = "0123456789";
+//        String description = "Khách sạn thử nghiệm để kiểm tra chức năng insert.";
+//        float rate = 4.5f;
+//        String type = "Hotel";
+//        int status = 1;
+//        String checkInTime = "14:00";   // Sẽ tự động thêm ":00" trong hàm
+//        String checkOutTime = "12:00";  // Sẽ tự động thêm ":00" trong hàm
+
+//        dao.insertAccommodation(name, image, address, phone, description, rate, type, status, checkInTime, checkOutTime);
+//        System.out.println("Đã thêm accommodation thử nghiệm thành công.");
+
+        List<Accommodation> list = dao.searchAccommodationByName("qweqwe");
+        for(Accommodation a: list){
+            System.out.println(a);
         }
-        return success;
     }
 }

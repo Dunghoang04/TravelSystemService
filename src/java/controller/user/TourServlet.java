@@ -6,7 +6,6 @@
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
  * 2025-06-14  1.0        Quynh Mai         Second implement
- * 2025-06-19  1.1        [Your Name]       Modified to use getToursWithFilters for all cases, handle empty filters as all tours
  */
 package controller.user;
 
@@ -56,58 +55,74 @@ public class TourServlet extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    /**
+     * Processes tour search with filters and pagination.
+     *
+     * @param request The HTTP request
+     * @param response The HTTP response
+     * @throws ServletException If a servlet error occurs
+     * @throws IOException If an I/O error occurs
+     */
+    private void processTourSearch(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ITourDAO tdao = new TourDAO();
         ITourCategoryDAO tcdao = new TourCategoryDAO();
         LocalDate currentDate = LocalDate.now();
         int page = getPageParameter(request);
-        request.setAttribute("defaultDepartureDate", currentDate.toString());
+
+        // Get filter parameters
+        String budget = request.getParameter("budget");
+        String departure = request.getParameter("departure");
+        String destination = request.getParameter("destination");
+        String departureDate = request.getParameter("departureDate");
+        String tourCategory = request.getParameter("tourCategory");
+
+        // Set default departureDate to current date if not provided
+        if (departureDate == null || departureDate.trim().isEmpty()) {
+            departureDate = currentDate.toString(); // Format: yyyy-MM-dd
+        }
+
+        // Set attributes for JSP
+        request.setAttribute("defaultDepartureDate", departureDate);
+        request.setAttribute("budget", budget);
+        request.setAttribute("departure", departure);
+        request.setAttribute("destination", destination);
+        request.setAttribute("departureDate", departureDate);
+        request.setAttribute("tourCategory", tourCategory);
 
         try {
-            // Lấy tất cả các tham số từ URL
-            String budget = request.getParameter("budget") != null ? request.getParameter("budget") : "";
-            String departure = request.getParameter("departure") != null ? request.getParameter("departure") : "";
-            String destination = request.getParameter("destination") != null ? request.getParameter("destination") : "";
-            String departureDate = request.getParameter("departureDate") != null ? request.getParameter("departureDate") : currentDate.toString();
-            String tourCategory = request.getParameter("tourCategory") != null ? request.getParameter("tourCategory") : "";
-            String service = request.getParameter("service") != null ? request.getParameter("service") : "";
-
+            // Fetch dynamic options
             request.setAttribute("startPlaces", tdao.getUniqueStartPlaces());
             request.setAttribute("endPlaces", tdao.getUniqueEndPlaces());
             request.setAttribute("categories", tcdao.getAllTourCategory());
 
-            Vector<Tour> tours = new Vector<>();
-            int totalTours = 0;
-            int totalPages = 0;
+            Vector<Tour> tours;
+            int totalTours;
+            int totalPages;
 
             try {
                 Date sqlDepartureDate = Date.valueOf(departureDate);
                 Date sqlCurrentDate = Date.valueOf(currentDate);
 
                 if (sqlDepartureDate.after(sqlCurrentDate) || sqlDepartureDate.equals(sqlCurrentDate)) {
+                    // Fetch filtered tours with pagination using all parameters
                     tours = tdao.getToursWithFilters(budget, departure, destination, departureDate, tourCategory, page, PAGE_SIZE);
                     totalTours = tdao.getTotalToursWithFilters(budget, departure, destination, departureDate, tourCategory);
                     totalPages = (int) Math.ceil((double) totalTours / PAGE_SIZE);
+                    // Set attributes for JSP
+                    request.setAttribute("tours", tours);
+                    request.setAttribute("currentPage", page);
+                    request.setAttribute("totalTours", totalTours);
+                    request.setAttribute("totalPages", totalPages);
                 } else {
+
                     request.setAttribute("error", "Ngày đi không được là ngày trong quá khứ.");
                 }
             } catch (IllegalArgumentException e) {
-                request.setAttribute("error", "Định dạng ngày không hợp lệ.");
+                request.setAttribute("error", "Định dạng ngày không hợp lệ. Vui lòng chọn ngày theo định dạng yyyy-MM-dd.");
             }
 
-            // Đưa các tham số vào request attribute để giữ trạng thái
-            request.setAttribute("tours", tours);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalTours", totalTours);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("budget", budget);
-            request.setAttribute("departure", departure);
-            request.setAttribute("destination", destination);
-            request.setAttribute("departureDate", departureDate);
-            request.setAttribute("tourCategory", tourCategory);
-
+            // Forward to tour.jsp
             request.getRequestDispatcher("view/user/tour.jsp").forward(request, response);
 
         } catch (SQLException ex) {
@@ -119,61 +134,15 @@ public class TourServlet extends HttpServlet {
     }
 
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processTourSearch(request, response);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ITourDAO tdao = new TourDAO();
-        ITourCategoryDAO tcdao = new TourCategoryDAO();
-        int page = getPageParameter(request);
-
-        try {
-            String budget = request.getParameter("budget") != null ? request.getParameter("budget") : "";
-            String departure = request.getParameter("departure") != null ? request.getParameter("departure") : "";
-            String destination = request.getParameter("destination") != null ? request.getParameter("destination") : "";
-            String departureDate = request.getParameter("departureDate") != null ? request.getParameter("departureDate") : LocalDate.now().toString();
-            String tourCategory = request.getParameter("tourCategory") != null ? request.getParameter("tourCategory") : "";
-
-            LocalDate currentDate = LocalDate.now();
-            request.setAttribute("defaultDepartureDate", departureDate);
-
-            request.setAttribute("startPlaces", tdao.getUniqueStartPlaces());
-            request.setAttribute("endPlaces", tdao.getUniqueEndPlaces());
-            request.setAttribute("categories", tcdao.getAllTourCategory());
-
-            Vector<Tour> tours = new Vector<>();
-            int totalTours = 0;
-            int totalPages = 0;
-            try {
-                Date sqlDepartureDate = Date.valueOf(departureDate);
-                Date sqlCurrentDate = Date.valueOf(currentDate);
-
-                if (sqlDepartureDate.after(sqlCurrentDate) || sqlDepartureDate.equals(sqlCurrentDate)) {
-                    tours = tdao.getToursWithFilters(budget, departure, destination, departureDate, tourCategory, page, PAGE_SIZE);
-                    totalTours = tdao.getTotalToursWithFilters(budget, departure, destination, departureDate, tourCategory);
-                    totalPages = (int) Math.ceil((double) totalTours / PAGE_SIZE);
-                } else {
-                    request.setAttribute("error", "Ngày đi không được là ngày trong quá khứ.");
-                }
-            } catch (IllegalArgumentException e) {
-                request.setAttribute("error", "Định dạng ngày không hợp lệ.");
-            }
-
-            request.setAttribute("tours", tours);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalTours", totalTours);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("budget", budget);
-            request.setAttribute("departure", departure);
-            request.setAttribute("destination", destination);
-            request.setAttribute("departureDate", departureDate);
-            request.setAttribute("tourCategory", tourCategory);
-            request.getRequestDispatcher("view/user/tour.jsp").forward(request, response);
-
-        } catch (SQLException ex) {
-            Logger.getLogger(TourServlet.class.getName()).log(Level.SEVERE, null, ex);
-            request.setAttribute("tours", new Vector<>());
-            request.setAttribute("error", "Database error occurred while fetching tours.");
-            request.getRequestDispatcher("view/user/tour.jsp").forward(request, response);
-        }
+        processTourSearch(request, response);
     }
 
     @Override

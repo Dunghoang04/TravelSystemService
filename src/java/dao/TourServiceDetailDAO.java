@@ -276,12 +276,4 @@ public class TourServiceDetailDAO extends DBContext implements ITourServiceDetai
         }
         return serviceId;
     }
-
-    public static void main(String[] args) {
-        TourServiceDetailDAO tdao = new TourServiceDetailDAO();
-        try {
-            System.out.println(tdao.getServiceIdByTourId(12));
-        } catch (Exception e) {
-        }
-    }
 }

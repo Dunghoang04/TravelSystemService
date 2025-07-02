@@ -1,156 +1,229 @@
 /*
+ * Click https://netbeans.org/project/licenses/ to change this license
+ * Click https://netbeans.org/features/ to edit this template
+ */
+ /*
  * Copyright (C) 2025, Group 6.
- * ProjectCode/Short Name of Application: TravelAgentService 
+ * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- *  2025-06-07  1.0       NguyenVanVang     First implementation
+ * 2025-06-07  1.0        Nguyễn Văn Vang   First implementation
  */
 package model;
 
 /**
- * Represents a room in the TravelAgentService system.
- * Contains details such as room ID, room type, number of rooms, price, and associated accommodation.
+ * Represents a room entity in the travel service system.<br>
+ * This class is used to manage room details such as room ID, accommodation ID,
+ * room types, and pricing.<br>
+ * <p>
+ * Bugs: None known at this time.</p>
  *
- * @author NhatAnh
+ * @author Nguyễn Văn Vang
  */
 public class Room {
-    /** The unique identifier for the room (accommodation ID). */
-    private int roomID;
 
-    /** The type of the room (e.g., Phòng đơn, Phòng đôi). */
-    private String roomTypes;
+    private int roomID; // Unique identifier for the room
+    private int accommodationID; // Identifier of the associated accommodation
+    private String roomTypes; // Type of the room (e.g., single, double, suite)
+    private int numberOfRooms; // Number of rooms available of this type
+    private float priceOfRoom; // Price of the room
+    private int status;
 
-    /** The number of available rooms of this type. */
-    private int numberOfRooms;
-
-    /** The price per room. */
-    private float priceOfRoom;
-
-    /** The associated accommodation for this room. */
-    private Accommodation accommodation;
-
+//    CREATE TABLE Room (
+//	roomID int PRIMARY KEY IDENTITY(1,1),
+//	accommodationID int,
+//    roomTypes NVARCHAR(50),
+//    numberOfRooms INT,
+//    priceOfRoom FLOAT,
+//	status INT
+//	FOREIGN KEY (accommodationID) REFERENCES Accommodation(serviceId)
+//);
     /**
-     * Default constructor for Room.
-     * Initializes an empty Room object.
+     * Default constructor for Room.<br>
+     * Creates an empty Room object with default values.
+     */
+    /*
+     * Initializes a new Room instance with default values.
+     * All fields are set to null or 0 depending on their type.
      */
     public Room() {
     }
 
     /**
-     * Parameterized constructor for Room.
+     * Constructs a Room with all specified attributes.<br>
      *
-     * @param roomID        the unique identifier for the room
-     * @param roomTypes     the type of the room
-     * @param numberOfRooms the number of available rooms
-     * @param priceOfRoom   the price per room
+     * @param roomID The unique identifier for the room
+     * @param accommodationID The identifier of the associated accommodation
+     * @param roomTypes The type of the room (e.g., single, double, suite)
+     * @param numberOfRooms The number of rooms available of this type
+     * @param priceOfRoom The price of the room
+     * @param status The price of the room
      */
-    public Room(int roomID, String roomTypes, int numberOfRooms, float priceOfRoom) {
-        // Initialize room attributes
+    /*
+     * Creates a new Room instance with all provided attributes.
+     * Assigns values to all fields directly.
+     */
+    public Room(int roomID, int accommodationID, String roomTypes, int numberOfRooms, float priceOfRoom, int status) {
         this.roomID = roomID;
+        this.accommodationID = accommodationID;
         this.roomTypes = roomTypes;
         this.numberOfRooms = numberOfRooms;
         this.priceOfRoom = priceOfRoom;
+        this.status = status;
     }
 
     /**
-     * Gets the associated accommodation.
+     * Gets the room's unique identifier.<br>
      *
-     * @return the Accommodation object associated with this room
+     * @return The room ID as an integer
      */
-    public Accommodation getAccommodation() {
-        return accommodation;
-    }
-
-    /**
-     * Sets the associated accommodation.
-     *
-     * @param accommodation the Accommodation object to associate with this room
-     */
-    public void setAccommodation(Accommodation accommodation) {
-        this.accommodation = accommodation;
-    }
-
-    /**
-     * Gets the room ID.
-     *
-     * @return the room ID
+    /*
+     * Retrieves the unique identifier of the room.
+     * Returns the current value of roomID.
      */
     public int getRoomID() {
         return roomID;
     }
 
     /**
-     * Sets the room ID.
+     * Sets the room's unique identifier.<br>
      *
-     * @param roomID the room ID to set
+     * @param roomID The room ID to set
+     */
+    /*
+     * Updates the unique identifier of the room.
+     * Assigns the provided value to roomID.
      */
     public void setRoomID(int roomID) {
         this.roomID = roomID;
     }
 
     /**
-     * Gets the room type.
+     * Gets the accommodation's identifier.<br>
      *
-     * @return the room type
+     * @return The accommodation ID as an integer
+     */
+    /*
+     * Retrieves the identifier of the associated accommodation.
+     * Returns the current value of accommodationID.
+     */
+    public int getAccommodationID() {
+        return accommodationID;
+    }
+
+    /**
+     * Sets the accommodation's identifier.<br>
+     *
+     * @param accommodationID The accommodation ID to set
+     */
+    /*
+     * Updates the identifier of the associated accommodation.
+     * Assigns the provided value to accommodationID.
+     */
+    public void setAccommodationID(int accommodationID) {
+        this.accommodationID = accommodationID;
+    }
+
+    /**
+     * Gets the room's type.<br>
+     *
+     * @return The room type as a String
+     */
+    /*
+     * Retrieves the type of the room.
+     * Returns the current value of roomTypes.
      */
     public String getRoomTypes() {
         return roomTypes;
     }
 
     /**
-     * Sets the room type.
+     * Sets the room's type.<br>
      *
-     * @param roomTypes the room type to set
+     * @param roomTypes The room type to set
+     */
+    /*
+     * Updates the type of the room.
+     * Assigns the provided value to roomTypes.
      */
     public void setRoomTypes(String roomTypes) {
         this.roomTypes = roomTypes;
     }
 
     /**
-     * Gets the number of available rooms.
+     * Gets the number of rooms available.<br>
      *
-     * @return the number of rooms
+     * @return The number of rooms as an integer
+     */
+    /*
+     * Retrieves the number of rooms available of this type.
+     * Returns the current value of numberOfRooms.
      */
     public int getNumberOfRooms() {
         return numberOfRooms;
     }
 
     /**
-     * Sets the number of available rooms.
+     * Sets the number of rooms available.<br>
      *
-     * @param numberOfRooms the number of rooms to set
+     * @param numberOfRooms The number of rooms to set
+     */
+    /*
+     * Updates the number of rooms available of this type.
+     * Assigns the provided value to numberOfRooms.
      */
     public void setNumberOfRooms(int numberOfRooms) {
         this.numberOfRooms = numberOfRooms;
     }
 
     /**
-     * Gets the price per room.
+     * Gets the price of the room.<br>
      *
-     * @return the price of the room
+     * @return The price as a float
      */
-    public double getPriceOfRoom() {
+    /*
+     * Retrieves the price of the room.
+     * Returns the current value of priceOfRoom.
+     */
+    public float getPriceOfRoom() {
         return priceOfRoom;
     }
 
     /**
-     * Sets the price per room.
+     * Sets the price of the room.<br>
      *
-     * @param priceOfRoom the price of the room to set
+     * @param priceOfRoom The price to set
+     */
+    /*
+     * Updates the price of the room.
+     * Assigns the provided value to priceOfRoom.
      */
     public void setPriceOfRoom(float priceOfRoom) {
         this.priceOfRoom = priceOfRoom;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
     /**
-     * Returns a string representation of the Room object.
+     * Returns a string representation of the Room object.<br>
      *
-     * @return a string containing room details
+     * @return A string containing all room attributes
      */
+    /*
+     * Generates a string representation of the Room object.
+     * Includes all attributes in the format "Room{...}".
+     */
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return "Room{" + "roomID=" + roomID + ", roomTypes=" + roomTypes + ", numberOfRooms=" + numberOfRooms + ", priceOfRoom=" + priceOfRoom + '}';
+        return "Room{" + "roomID=" + roomID + ", accommodationID=" + accommodationID + ", roomTypes=" + roomTypes + ", numberOfRooms=" + numberOfRooms + ", priceOfRoom=" + priceOfRoom + ", status=" + status + '}';
     }
+
 }

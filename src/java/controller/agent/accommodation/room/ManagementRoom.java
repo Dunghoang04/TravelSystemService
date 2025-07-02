@@ -1,136 +1,134 @@
 /*
  * Copyright (C) 2025, Group 6.
- * ProjectCode/Short Name of Application: TravelAgentService 
+ * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0       NguyenVanVang     First implementation
- *
- * Servlet for managing and displaying rooms in the TravelAgentService system.
+ * 2025-06-08  1.0        Nguyễn Văn Vang   First implementation
+ */
+/*
+ * Click nb://SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nb://SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 package controller.agent.accommodation.room;
 
-import dao.RoomDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import dao.RoomDAO;
 import java.util.List;
 import model.Room;
 
 /**
- * Handles HTTP requests to display a list of rooms, optionally filtered by accommodation ID.
- * Processes GET requests to fetch room data and forward to the management JSP.
+ * Servlet to handle the management and display of rooms for an accommodation.
+ * @author Nhat Anh
  */
+@WebServlet(name="ManagementRoom", urlPatterns={"/ManagementRoom"})
 public class ManagementRoom extends HttpServlet {
-
-    /**
-     * Default method for processing HTTP requests (not used).
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
+   
+    /** 
+     * Processes HTTP GET and POST requests.
+     * @param request The HttpServletRequest object containing client request data
+     * @param response The HttpServletResponse object to send the response to the client
+     * @throws ServletException If a servlet-specific error occurs
+     * @throws IOException If an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
+        // Set the response content type to HTML with UTF-8 encoding
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+            // Output basic HTML content for the response page
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ManagementRoom</title>");
+            out.println("<title>Servlet ManagementRoom</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ManagementRoom at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ManagementRoom at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
-    }
+    } 
 
-    /**
-     * Handles GET requests to fetch and display a list of rooms.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles HTTP GET request to retrieve and display the list of rooms.
+     * @param request The HttpServletRequest object containing client request data
+     * @param response The HttpServletResponse object to send the response to the client
+     * @throws ServletException If a servlet-specific error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Initialize DAO for room data access
+    throws ServletException, IOException {
+        // Initialize RoomDAO to interact with the database
         RoomDAO dao = new RoomDAO();
         List<Room> rooms;
 
         try {
-            // Retrieve search parameters
-            String searchTerm = request.getParameter("searchTerm");
-            String serviceIDStr = request.getParameter("accommodationID");
+            // Retrieve accommodationID from request parameters
+            String accommodationIDStr = request.getParameter("id");
 
-            // Check for accommodation ID parameter
-            if (serviceIDStr != null && !serviceIDStr.trim().isEmpty()) {
+            if (accommodationIDStr != null && !accommodationIDStr.trim().isEmpty()) {
                 try {
-                    // Parse accommodation ID
-                    int serviceID = Integer.parseInt(serviceIDStr);
-                    
-                    // Fetch room by accommodation ID
-                    Room room = dao.getRoomByAccommodationID(serviceID);
-                    if (room != null) {
-                        // Convert single room to list for JSP compatibility
-                        rooms = List.of(room);
-                    } else {
-                        // Set empty list and error message if no room found
-                        rooms = List.of();
-                        request.setAttribute("error", "Không tìm thấy phòng với accommodationID: " + serviceID);
+                    // Parse accommodationID and fetch rooms by accommodationID
+                    int accommodationID = Integer.parseInt(accommodationIDStr);
+                    rooms = dao.getRoomsByAccommodationID(accommodationID);
+                    if (rooms.isEmpty()) {
+                        // Set error message if no rooms are found for the accommodationID
+                        request.setAttribute("error", "No rooms found for accommodationID: " + accommodationID);
                     }
                 } catch (NumberFormatException e) {
-                    // Handle invalid accommodation ID format
-                    request.setAttribute("error", "Mã phòng không hợp lệ.");
+                    // Handle invalid accommodationID format and fetch all rooms
+                    request.setAttribute("error", "Invalid accommodationID format.");
                     rooms = dao.getAllRooms();
                 }
             } else {
-                // Fetch all rooms if no accommodation ID provided
+                // Fetch all rooms if no accommodationID is provided
                 rooms = dao.getAllRooms();
             }
 
-            // Set room list for JSP
+            // Set rooms and accommodationID attributes for use in JSP
             request.setAttribute("rooms", rooms);
+            request.setAttribute("accommodationID", accommodationIDStr);
 
         } catch (Exception e) {
-            // Handle any errors during data retrieval
-            request.setAttribute("error", "Lỗi khi lấy danh sách phòng: " + e.getMessage());
+            // Handle any exceptions and set an empty room list with an error message
+            request.setAttribute("error", "Error retrieving room list: " + e.getMessage());
             request.setAttribute("rooms", List.of());
         }
 
-        // Forward to room management JSP
-        request.getRequestDispatcher("/view/agent/accommodation/room/AgentRoom.jsp").forward(request, response);
-    }
+        // Forward to the JSP page to display the room list
+        request.getRequestDispatcher("/view/agent/accommodation/room/agentRoom.jsp").forward(request, response);
+    } 
 
-    /**
-     * Handles POST requests by delegating to processRequest (not used).
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
+    /** 
+     * Handles HTTP POST request by delegating to processRequest.
+     * @param request The HttpServletRequest object containing client request data
+     * @param response The HttpServletResponse object to send the response to the client
+     * @throws ServletException If a servlet-specific error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
+        // Delegate to processRequest for handling POST requests
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
+    /** 
+     * Returns a brief description of the servlet.
+     * @return A String containing the servlet description
      */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }
+    }// </editor-fold>
+
 }

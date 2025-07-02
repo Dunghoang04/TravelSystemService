@@ -1,9 +1,12 @@
-<%-- 
-    Document   : admin
-    Created on : May 21, 2025, 2:42:06 PM
-    Author     : ad
+<%--
+* Copyright (C) 2025, Group 6.
+* ProjectCode/Short Name of Application: TravelAgentService 
+* Support Management and Provide Travel Service System 
+*
+* Record of change:
+* DATE        Version    AUTHOR            DESCRIPTION
+* 2025-06-25  1.1  Nguyễn Vũ Quỳnh Mai      Redesigned UI for better aesthetics
 --%>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>

@@ -1,3 +1,12 @@
+<%-- 
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR                   DESCRIPTION
+ * 2025-06-21  1.0        Hoang Tuan Dung          First implementation
+--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -18,7 +27,6 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,300..900;1,300..900&family=Ephesis&display=swap" rel="stylesheet">
-    </head>
     <style>
 
 
@@ -140,12 +148,9 @@
         .star i{
             color: #FFCA2C;
         }
-
-
-
-
-
     </style>
+    </head>
+    
     <body>
         <%@include file="../../layout/headerAdmin.jsp" %>
         <div id="layoutSidenav">
@@ -154,9 +159,7 @@
                     <main>
                         <div class="container-fluid px-4">
                             <h1 class="mt-4" style="font-family: 'Ancizar Serif', serif;">Danh sách nhà hàng</h1>
-                            <!--findrestaurant-->
                             <form action="managerestaurant"  method="GET" class="d-flex align-items-center">
-                                <!--nameSearchRestaurant-->
                                 <input 
                                     type="text" 
                                     name="searchName"
@@ -167,6 +170,7 @@
                                 border-radius: 20px;
                                 padding: 20px" 
                                 />
+                            <input type="hidden" name="statusType" value="${requestScope.statusType}" />
                             <button type="submit" class="btn btn-primary d-flex align-items-center px-3" style="border-radius: 20px;">
                                 Tìm kiếm
                             </button>
@@ -342,7 +346,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             Swal.fire({
-                                title: 'Đã xóa!',
+                                title: 'Đã Đổi trạng thái!',
                                 text: 'Thay đổi trạng thái thành công.',
                                 icon: 'success',
                                 timer: 1500,

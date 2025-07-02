@@ -1,98 +1,111 @@
-/*
- * Copyright (C) 2025, Group 6.
- * ProjectCode/Short Name of Application: TravelAgentService 
- * Support Management and Provide Travel Service System 
- *
- * Record of change:
- * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0       NguyenVanVang     First implementation
- *
- * Servlet for deleting a room from the TravelAgentService system.
- */
 package controller.agent.accommodation.room;
 
-import dao.AccommodationDAO;
-import dao.RoomDAO;
-import java.io.IOException;
-import java.io.PrintWriter;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-/**
- * Handles HTTP requests to delete a room from the database.
- * Processes GET requests to delete a room by ID and redirect to the management page.
- */
-public class DeleteRoom extends HttpServlet {
-   
-    /**
-     * Default method for processing HTTP requests (not used).
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet DeleteRoom</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet DeleteRoom at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
-
-    /**
-     * Handles GET requests to delete a room by ID.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Parse room ID from request
-        int id = Integer.parseInt(request.getParameter("id"));
-        
-        // Delete room from database
-        RoomDAO rDao = new RoomDAO();
-        rDao.deleteRoom(id);
-        
-        // Redirect to room management page
-        response.sendRedirect("managementroom");
-    } 
-
-    /**
-     * Handles POST requests by delegating to processRequest (not used).
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }
-}
+///*
+// * Copyright (C) 2025, Group 6.
+// * ProjectCode/Short Name of Application: TravelSystemService 
+// * Support Management and Provide Travel Service System 
+// *
+// * Record of change:
+// * DATE        Version    AUTHOR            DESCRIPTION
+// * 2025-06-08  1.0        Nguyễn Văn Vang   First implementation
+// */
+///*
+// * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+// * Click nb://SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+// */
+//package controller.agent.accommodation.room;
+//
+//import java.io.IOException;
+//import java.io.PrintWriter;
+//import jakarta.servlet.ServletException;
+//import jakarta.servlet.annotation.WebServlet;
+//import jakarta.servlet.http.HttpServlet;
+//import jakarta.servlet.http.HttpServletRequest;
+//import jakarta.servlet.http.HttpServletResponse;
+//import dao.RoomDAO;
+//import java.sql.SQLException;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
+//
+///**
+// * Servlet to handle the deletion of a room from an accommodation.
+// * @author Nhat Anh
+// */
+//@WebServlet(name="DeleteRoom", urlPatterns={"/DeleteRoom"})
+//public class DeleteRoom extends HttpServlet {
+//   
+//    /** 
+//     * Processes HTTP GET and POST requests.
+//     * @param request The HttpServletRequest object containing client request data
+//     * @param response The HttpServletResponse object to send the response to the client
+//     * @throws ServletException If a servlet-specific error occurs
+//     * @throws IOException If an I/O error occurs
+//     */
+//    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+//    throws ServletException, IOException {
+//        // Set the response content type to HTML with UTF-8 encoding
+//        response.setContentType("text/html;charset=UTF-8");
+//        try (PrintWriter out = response.getWriter()) {
+//            // Output basic HTML content for the response page
+//            out.println("<!DOCTYPE html>");
+//            out.println("<html>");
+//            out.println("<head>");
+//            out.println("<title>Servlet DeleteRoom</title>");  
+//            out.println("</head>");
+//            out.println("<body>");
+//            out.println("<h1>Servlet DeleteRoom at " + request.getContextPath () + "</h1>");
+//            out.println("</body>");
+//            out.println("</html>");
+//        }
+//    } 
+//
+//    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+//    /** 
+//     * Handles HTTP GET request to delete a room.
+//     * @param request The HttpServletRequest object containing client request data
+//     * @param response The HttpServletResponse object to send the response to the client
+//     * @throws ServletException If a servlet-specific error occurs
+//     * @throws IOException If an I/O error occurs
+//     */
+//    @Override
+//    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+//    throws ServletException, IOException {
+//        // Retrieve roomID from request parameters
+//        int roomID = Integer.parseInt(request.getParameter("id"));
+//        // Initialize RoomDAO to interact with the database
+//        RoomDAO dao = new RoomDAO();
+//        try {
+//            // Call the method to delete the room from the database
+//            dao.deleteRoom(roomID);
+//            // Redirect to the room management page
+//            response.sendRedirect("ManagementRoom");
+//        } catch (SQLException ex) {
+//            // Log any SQL exceptions that occur during deletion
+//            Logger.getLogger(DeleteRoom.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    } 
+//
+//    /** 
+//     * Handles HTTP POST request by delegating to processRequest.
+//     * @param request The HttpServletRequest object containing client request data
+//     * @param response The HttpServletResponse object to send the response to the client
+//     * @throws ServletException If a servlet-specific error occurs
+//     * @throws IOException If an I/O error occurs
+//     */
+//    @Override
+//    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+//    throws ServletException, IOException {
+//        // Delegate to processRequest for handling POST requests
+//        processRequest(request, response);
+//    }
+//
+//    /** 
+//     * Returns a brief description of the servlet.
+//     * @return A String containing the servlet description
+//     */
+//    @Override
+//    public String getServletInfo() {
+//        return "Short description";
+//    }// </editor-fold>
+//
+//}

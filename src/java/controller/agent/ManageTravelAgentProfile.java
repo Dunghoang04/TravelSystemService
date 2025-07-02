@@ -1,11 +1,11 @@
 /*
  * Copyright (C) 2025, Group 6.
- * ProjectCode/Short Name of Application: TravelSystemService 
- * Support Management and Provide Travel Service System 
+ * ProjectCode/Short Name of Application: TravelSystemService
+ * Support Management and Provide Travel Service System
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-07  1.0        Quynh Mai          First implementation
+ * 2025-06-07  1.0        Quynh Mai         First implementation
  */
 package controller.agent;
 
@@ -25,20 +25,15 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * ManageTravelAgentProfile Servlet handles profile management for travel
- * agents. Supports three separate updates: company info, representative info,
- * and password. Handles multipart form data for image uploads and forwards for
- * password changes.
- */
 @WebServlet(name = "ManageTravelAgentProfile", urlPatterns = {"/ManageTravelAgentProfile"})
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 5 * 5)
 public class ManageTravelAgentProfile extends HttpServlet {
 
-    private static final String UPLOAD_DIR = "uploads";
+    private static final String UPLOAD_DIR = "Uploads";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -77,23 +72,36 @@ public class ManageTravelAgentProfile extends HttpServlet {
                 session.setAttribute("agent", travelAgent);
                 request.getRequestDispatcher("view/agent/editRepresentative.jsp").forward(request, response);
             } else if (service.equals("saveAgent")) {
-                // Extract and trim parameters for company update
                 String travelAgentName = request.getParameter("travelAgentName").trim();
                 String travelAgentAddress = request.getParameter("travelAgentAddress").trim();
                 String travelAgentEmail = request.getParameter("travelAgentEmail").trim();
                 String hotLine = request.getParameter("hotLine").trim();
                 String taxCode = request.getParameter("taxCode").trim();
                 String establishmentDateStr = request.getParameter("establishmentDate").trim();
-                // Handle file upload
                 String businessLicensePath = handleFileUpload(request.getPart("businessLicense"), request);
 
-                // Retrieve existing travel agent
                 TravelAgent travelAgent = agentDAO.searchTravelAgentByGmail(gmail);
                 if (travelAgent == null) {
                     throw new SQLException("Không tìm thấy đại lý để lưu thông tin.");
                 }
 
-                // Update travel agent object with trimmed data
+                Map<String, String> fieldErrors = validateCompanyInput(travelAgentName, travelAgentAddress, travelAgentEmail, hotLine, taxCode, establishmentDateStr);
+                if (!fieldErrors.isEmpty()) {
+                    // Store submitted values to display in form
+                    Map<String, String> submittedValues = new HashMap<>();
+                    submittedValues.put("travelAgentName", travelAgentName);
+                    submittedValues.put("travelAgentAddress", travelAgentAddress);
+                    submittedValues.put("travelAgentEmail", travelAgentEmail);
+                    submittedValues.put("hotLine", hotLine);
+                    submittedValues.put("taxCode", taxCode);
+                    submittedValues.put("establishmentDate", establishmentDateStr);
+                    request.setAttribute("submittedValues", submittedValues);
+                    request.setAttribute("fieldErrors", fieldErrors);
+                    request.setAttribute("agent", travelAgent);
+                    request.getRequestDispatcher("view/agent/editAgentProfile.jsp").forward(request, response);
+                    return;
+                }
+
                 travelAgent.setTravelAgentName(travelAgentName);
                 travelAgent.setTravelAgentAddress(travelAgentAddress);
                 travelAgent.setTravelAgentGmail(travelAgentEmail);
@@ -104,21 +112,12 @@ public class ManageTravelAgentProfile extends HttpServlet {
                     travelAgent.setBusinessLicense(businessLicensePath);
                 }
                 request.setAttribute("agent", travelAgent);
-                // Validate company input
-                Map<String, String> fieldErrors = validateCompanyInput(travelAgentName, travelAgentAddress, travelAgentEmail, hotLine, taxCode, establishmentDateStr);
-                if (!fieldErrors.isEmpty()) {
-                    request.setAttribute("fieldErrors", fieldErrors);
-                    request.getRequestDispatcher("view/agent/editAgentProfile.jsp").forward(request, response);
-                    return;
-                }
 
-                // Save updated company profile
                 agentDAO.updateTravelAgent(travelAgent, "company");
                 session.setAttribute("agent", travelAgent);
                 request.setAttribute("successAgent", "Cập nhật thông tin công ty thành công!");
                 request.getRequestDispatcher("view/agent/editAgentProfile.jsp").forward(request, response);
             } else if (service.equals("saveRepresentative")) {
-                // Extract and trim parameters for representative update
                 String firstName = request.getParameter("firstName").trim();
                 String lastName = request.getParameter("lastName").trim();
                 String phone = request.getParameter("phone").trim();
@@ -127,17 +126,32 @@ public class ManageTravelAgentProfile extends HttpServlet {
                 String gender = request.getParameter("gender").trim();
                 String representativeIDCard = request.getParameter("representativeIDCard").trim();
                 String dateOfIssueStr = request.getParameter("dateOfIssue").trim();
-                // Handle file uploads
                 String frontIDCardPath = handleFileUpload(request.getPart("frontIDCard"), request);
                 String backIDCardPath = handleFileUpload(request.getPart("backIDCard"), request);
 
-                // Retrieve existing travel agent
                 TravelAgent travelAgent = agentDAO.searchTravelAgentByGmail(gmail);
                 if (travelAgent == null) {
                     throw new SQLException("Không tìm thấy đại lý để lưu thông tin.");
                 }
 
-                // Update travel agent object with trimmed data
+                Map<String, String> fieldErrors = validateRepresentativeInput(firstName, lastName, phone, address, dobStr, gender, representativeIDCard, dateOfIssueStr);
+                if (!fieldErrors.isEmpty()) {
+                    Map<String, String> submittedValues = new HashMap<>();
+                    submittedValues.put("firstName", firstName);
+                    submittedValues.put("lastName", lastName);
+                    submittedValues.put("phone", phone);
+                    submittedValues.put("address", address);
+                    submittedValues.put("dob", dobStr);
+                    submittedValues.put("gender", gender);
+                    submittedValues.put("representativeIDCard", representativeIDCard);
+                    submittedValues.put("dateOfIssue", dateOfIssueStr);
+                    request.setAttribute("submittedValues", submittedValues);
+                    request.setAttribute("fieldErrors", fieldErrors);
+                    request.setAttribute("agent", travelAgent);
+                    request.getRequestDispatcher("view/agent/editRepresentative.jsp").forward(request, response);
+                    return;
+                }
+
                 travelAgent.setFirstName(firstName);
                 travelAgent.setLastName(lastName);
                 travelAgent.setPhone(phone);
@@ -153,15 +167,7 @@ public class ManageTravelAgentProfile extends HttpServlet {
                     travelAgent.setBackIDCard(backIDCardPath);
                 }
                 request.setAttribute("agent", travelAgent);
-                // Validate representative input
-                Map<String, String> fieldErrors = validateRepresentativeInput(firstName, lastName, phone, address, dobStr, gender, representativeIDCard, dateOfIssueStr);
-                if (!fieldErrors.isEmpty()) {
-                    request.setAttribute("fieldErrors", fieldErrors);
-                    request.getRequestDispatcher("view/agent/editRepresentative.jsp").forward(request, response);
-                    return;
-                }
 
-                // Save updated representative profile
                 agentDAO.updateTravelAgent(travelAgent, "representative");
                 session.setAttribute("agent", travelAgent);
                 request.setAttribute("successRe", "Cập nhật thông tin người đại diện thành công!");
@@ -200,6 +206,7 @@ public class ManageTravelAgentProfile extends HttpServlet {
 
     private Map<String, String> validateCompanyInput(String travelAgentName, String travelAgentAddress, String travelAgentEmail, String hotLine, String taxCode, String establishmentDateStr) {
         Map<String, String> errors = new HashMap<>();
+        LocalDate currentDate = LocalDate.now();
 
         if (travelAgentName == null || travelAgentName.trim().isEmpty()) {
             errors.put("travelAgentName", "Tên công ty không được để trống!");
@@ -233,12 +240,13 @@ public class ManageTravelAgentProfile extends HttpServlet {
             errors.put("establishmentDate", "Ngày thành lập không được để trống!");
         } else {
             try {
-                Date establishmentDate = Date.valueOf(establishmentDateStr);
-                Date currentDate = Date.valueOf(LocalDate.now());
-                if (establishmentDate.after(currentDate)) {
+                LocalDate establishmentDate = LocalDate.parse(establishmentDateStr);
+                if (establishmentDate.getYear() > 9999) {
+                    errors.put("establishmentDate", "Năm thành lập không được vượt quá 9999!");
+                } else if (establishmentDate.isAfter(currentDate)) {
                     errors.put("establishmentDate", "Ngày thành lập phải trước ngày hiện tại!");
                 }
-            } catch (Exception e) {
+            } catch (DateTimeParseException e) {
                 errors.put("establishmentDate", "Ngày thành lập không hợp lệ!");
             }
         }
@@ -248,6 +256,8 @@ public class ManageTravelAgentProfile extends HttpServlet {
 
     private Map<String, String> validateRepresentativeInput(String firstName, String lastName, String phone, String address, String dobStr, String gender, String representativeIDCard, String dateOfIssueStr) {
         Map<String, String> errors = new HashMap<>();
+        LocalDate currentDate = LocalDate.now();
+        LocalDate dobLocal = null;
 
         if (firstName == null || firstName.trim().isEmpty()) {
             errors.put("firstName", "Họ không được để trống!");
@@ -273,24 +283,24 @@ public class ManageTravelAgentProfile extends HttpServlet {
             errors.put("address", "Địa chỉ phải từ 5 đến 200 ký tự!");
         }
 
-        LocalDate currentDate = LocalDate.now();
-        LocalDate dobLocal = null;
-        
-      
-        
         if (dobStr == null || dobStr.trim().isEmpty()) {
             errors.put("dob", "Ngày sinh không được để trống!");
-        } else if (!dobStr.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
-            errors.put("dob", "Ngày sinh không hợp lệ!");
         } else {
-            Date dob = Date.valueOf(dobStr);
-            dobLocal = LocalDate.parse(dob.toString());
-            if (dob.after(Date.valueOf(currentDate))) {
-                errors.put("dob", "Ngày sinh không được lớn hơn ngày hiện tại!");
-            } else if (dobLocal.plusYears(18).isAfter(currentDate)) {
-                errors.put("dob", "Bạn phải đủ 18 tuổi trở lên!");
-            } else if (dobLocal.isBefore(currentDate.minusYears(100))) {
-                errors.put("dob", "Tuổi không được lớn hơn 100!");
+            try {
+                LocalDate dob = LocalDate.parse(dobStr);
+                if (dob.getYear() > 9999) {
+                    errors.put("dob", "Năm sinh không được vượt quá 9999!");
+                } else if (dob.isAfter(currentDate)) {
+                    errors.put("dob", "Ngày sinh không được lớn hơn ngày hiện tại!");
+                } else if (dob.plusYears(18).isAfter(currentDate)) {
+                    errors.put("dob", "Bạn phải đủ 18 tuổi trở lên!");
+                } else if (dob.isBefore(currentDate.minusYears(100))) {
+                    errors.put("dob", "Tuổi không được lớn hơn 100!");
+                } else {
+                    dobLocal = dob;
+                }
+            } catch (DateTimeParseException e) {
+                errors.put("dob", "Ngày sinh không hợp lệ!");
             }
         }
 
@@ -299,24 +309,25 @@ public class ManageTravelAgentProfile extends HttpServlet {
         }
 
         if (representativeIDCard == null || representativeIDCard.trim().isEmpty()) {
-            errors.put("representativeIDCard", "CCCD không được để trống!");
-        } else if (!representativeIDCard.matches("^\\d{12}$")) {
-            errors.put("representativeIDCard", "CCCD phải có đúng 12 chữ số!");
-        }
+            errors.put("representativeIDCard", "Số căn cước công dân không được để trống!");
+        } else if (!representativeIDCard.matches("^0\\d{11}$")) {
+            errors.put("representativeIDCard", "Số căn cước công dân phải bắt đầu bằng số 0 và có đúng 12 chữ số!");
+        } 
 
         if (dateOfIssueStr == null || dateOfIssueStr.trim().isEmpty()) {
             errors.put("dateOfIssue", "Ngày cấp không được để trống!");
-        } else if (!dateOfIssueStr.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
-            errors.put("dateOfIssue", "Ngày cấp không hợp lệ!");
-        } else if (dobLocal == null) {
-            errors.put("dateOfIssue", "Không thể kiểm tra ngày cấp vì ngày sinh không hợp lệ!");
         } else {
-            Date dateOfIssue = Date.valueOf(dateOfIssueStr);
-            LocalDate dateOfIssueLocal = LocalDate.parse(dateOfIssue.toString());
-            if (dateOfIssue.after(Date.valueOf(currentDate))) {
-                errors.put("dateOfIssue", "Ngày cấp căn cước phải trước ngày hiện tại!");
-            } else if (dateOfIssueLocal.isBefore(dobLocal.plusYears(14))) {
-                errors.put("dateOfIssue", "Ngày cấp căn cước phải sau ngày sinh ít nhất 14 năm!");
+            try {
+                LocalDate dateOfIssue = LocalDate.parse(dateOfIssueStr);
+                if (dateOfIssue.getYear() > 9999) {
+                    errors.put("dateOfIssue", "Năm cấp không được vượt quá 9999!");
+                } else if (dateOfIssue.isAfter(currentDate)) {
+                    errors.put("dateOfIssue", "Ngày cấp căn cước phải trước ngày hiện tại!");
+                } else if (dobLocal != null && dateOfIssue.isBefore(dobLocal.plusYears(14))) {
+                    errors.put("dateOfIssue", "Ngày cấp căn cước phải sau ngày sinh ít nhất 14 năm!");
+                }
+            } catch (DateTimeParseException e) {
+                errors.put("dateOfIssue", "Ngày cấp không hợp lệ!");
             }
         }
 
@@ -342,7 +353,7 @@ public class ManageTravelAgentProfile extends HttpServlet {
 
     private String handleFileUpload(Part filePart, HttpServletRequest request) throws IOException, ServletException {
         if (filePart == null || filePart.getSize() == 0) {
-            return null; // No new file uploaded
+            return null;
         }
 
         String fileName = getFileName(filePart);
@@ -350,7 +361,6 @@ public class ManageTravelAgentProfile extends HttpServlet {
             return null;
         }
 
-        // Validate file type
         String contentType = filePart.getContentType();
         if (!contentType.startsWith("image/")) {
             throw new ServletException("Chỉ chấp nhận file hình ảnh!");

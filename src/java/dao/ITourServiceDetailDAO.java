@@ -1,3 +1,18 @@
+/**
+ * This interface defines the operations for accessing and managing
+ * TourServiceDetail records in the database. It provides methods to retrieve,
+ * insert, update, and delete tour service details, supporting filtering by tour
+ * ID, service ID, and status. All methods throw SQLException to handle database
+ * access errors, which should be managed by the implementing class or controller.
+ *
+ * Project: TravelAgentService
+ * Version: 1.1
+ * Date: 2025-06-22
+ * Bugs: No known issues. Potential need for pagination support.
+ *
+ * @author Hoang Tuan Dung
+ */
+
 package dao;
 
 import java.sql.SQLException;
@@ -80,5 +95,12 @@ public interface ITourServiceDetailDAO {
      */
     List<TourServiceDetail> getTourServiceDetailsByServiceId(int serviceId) throws SQLException;
     
+    /**
+     * Retrieves the service ID associated with a given tour ID.
+     *
+     * @param tourId The ID of the tour (must be a positive integer)
+     * @return The service ID, or -1 if not found
+     * @throws SQLException If a database error occurs
+     */
     int getServiceIdByTourId(int tour) throws SQLException;
 }
