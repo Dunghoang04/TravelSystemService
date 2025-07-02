@@ -12,43 +12,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8" />
+       <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Chi tiết nhà hàng</title>
-
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-
-        <!-- Icon Font Stylesheet -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-        <!-- Libraries Stylesheet -->
-        <link href="assets/lib/animate/animate.min.css" rel="stylesheet">
-        <link href="assets/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-        <link href="assets/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-
-        <!-- Customized Bootstrap Stylesheet -->
-        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Template Stylesheet -->
-        <link href="assets/css/style.css" rel="stylesheet">
-
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,300..900;1,300..900&family=Ephesis&display=swap" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-
+        <title>Dashboard - SB Admin</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-        <link href="./assets/css/styles2.css" rel="stylesheet" />
+        <link href="${pageContext.request.contextPath}/assets/css/styles2.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <style>
+        
+       <style>
 
 
             form {
@@ -129,7 +103,7 @@
                 position: relative;
                 background-repeat: no-repeat;
                 background-size: cover;
-                background-image: url(./assets/img/background/background_restaurant);
+                background-image: url(./assets/img/background/BackgroundTourBooked.png);
             }
             main::before {
                 content: "";
@@ -159,16 +133,7 @@
             .box-desc .name{
                 position: relative;
             }
-            .box-desc .name::before{
-                content: "";
-                top: 47px;
-                left: 1px;
-                color: cyan;
-                width: 51px;
-                height: 1px;
-                background: #fff;
-                position: absolute;
-            }
+            
 
             body span,h3,h1{
                 color: #FFFFFF!important;
@@ -222,129 +187,81 @@
         </style>
     </head>
 
-
     <body>
-        <c:if test="${empty param.tourId}">
-            <%@include file="../../layout/headerAdmin.jsp" %>
-        </c:if>
-        <c:if test="${not empty param.tourId}">
-            <header class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0" style="background-color: #fff; color: #000!important">
-                <a href="home" class="navbar-brand p-0">
-                    <h1 style="font-style: italic;color: #86B817!important;    font-weight: 800;" class="text-primary m-0"></i>Go<span style="color: red!important">Viet</span></h1>
-                    <!-- <img src="img/logo.png" alt="Logo"> -->
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="navbar-nav ms-auto py-0">
-                    <a href="home" class="nav-item nav-link active">Trang chủ</a>
-                    <a href="service.html" class="nav-item nav-link">Dịch vụ</a>
-                    <a href="package.html" class="nav-item nav-link">Nổi bật</a>
-                    <a href="booking.html" class="nav-item nav-link">Đặt lịch</a>  
-
-                    <c:if test="${empty sessionScope.loginUser}">
-                        <a href="${pageContext.request.contextPath}/RegisterTravelAgentServlet" class="nav-item nav-link">Đối tác</a>
-                    </c:if>
-
-                    <a href="contact.html" class="nav-item nav-link">Liên hệ</a>
-
-                    <c:choose>
-                        <c:when test="${empty sessionScope.loginUser}">
-                            <a href="${pageContext.request.contextPath}/GmailUser" class="nav-item nav-link">Đăng ký</a>
-                            <a href="${pageContext.request.contextPath}/LoginLogout" class="nav-item nav-link">Đăng nhập</a>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="dropdown">
-                                <a class="btn border dropdown-toggle" href="#" role="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user text-primary"></i>
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="accountDropdown">
-                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/ProfileUser">Xem tài khoản</a></li>
-                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/LoginLogout?service=logoutUser">Đăng xuất</a></li>
-                                </ul>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-
-            </header>
-        </c:if>
+        <%@include file="../layout/headerAdmin.jsp" %>
         <div id="layoutSidenav">
-            <c:if test="${empty param.tourId}">
-                <jsp:include page="../../layout/sideNavOptionAgent.jsp"></jsp:include>  
-            </c:if>
+                <jsp:include page="../layout/sideNavOptionAgent.jsp"></jsp:include>  
             <div id="layoutSidenav_content">
                 <main>
                     <div class="card-body px-0 pb-2">
                         <div class="container mt-1">
                             <div class="row title">
                                 <div class="detail-title">
-                                    <h1 style="font-family: var(--font1)">Chi tiết nhà hàng</h1>
+                                    <h1 style="font-family: var(--font1)">Chuyến chi tiết chuyến đi được đặt</h1>
                                 </div>
                             </div>
                             <div class="row detail">
                                 <!--Tạo ra ảnh xem trước, khung ảnh để người dùng tải lên , sau khi chọn ảnh js sẽ chèn src vô-->
                                 <div class="col-md-5 box-img">
                                     <div class="show-img">
-                                        <img  src="${requestScope.restaurantDetail.image}">
+                                        <img  src="${item.tourImage}">
                                     </div>
                                 </div>
 
                                 <div class="col-md-6 box-desc">
                                     <div class="col-12 name">
-                                        <h3>Nhà hàng: <span style="font-family: 'Ephesis', cursive;font-size: 40px">${requestScope.restaurantDetail.name}</span></h3>
+                                        <h3>Tên chuyến đi: ${item.tourName}</h3>
                                     </div>
                                     <div class="col-12 rate">
-                                        <b class="mb-1">Loại nhà hàng: </b>
-                                        <span>${requestScope.restaurantDetail.type}</span>
+                                        <b class="mb-1">Tên khách hàng đặt: </b>
+                                        <span>${item.firstName} ${item.lastName}</span>
                                     </div>
                                     <div class="col-12 address">
-                                        <b>Vị trí: </b>
-                                        <span>${requestScope.restaurantDetail.address}</span>
+                                        <b>Ngày đặt: </b>
+                                        <span>${item.bookDate}</span>
+                                    </div>
+                                    <div class="col-12 address">
+                                        <b>Mã giảm giá: </b>
+                                        <span>${item.code}</span>
                                     </div>
                                     <div class="col-12 phone">
                                         <b>Số điện thoại:  </b>
-                                        <span>${requestScope.restaurantDetail.phone}</span>
+                                        <span>${item.phone}</span>
+                                    </div>
+                                    <div class="col-12 gmail">
+                                        <b>Gmail:  </b>
+                                        <span>${item.gmail}</span>
+                                    </div>
+                                    <div class="col-12 gmail">
+                                        <b>Tổng giá tiền  </b>
+                                        <span>${item.totalPrice}</span>
                                     </div>
                                     <div class="col-12 time">
                                         <div class="row mb-0">
                                             <div class="col-6 openTime mb-0">
-                                                <b>Thời gian mở cửa: </b><span>${requestScope.restaurantDetail.timeOpen}</span>
+                                                <b>Số lượng người lớn: </b><span>${item.numberAdult}</span>
                                             </div>
                                             <div class="col-6 close mb-0">
-                                                <b>Thời gian đóng cửa: </b><span>${requestScope.restaurantDetail.timeClose}</span>
+                                                <b>Số lượng trẻ em: </b><span>${item.numberChildren}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-12 rate">
-                                        <b>Đánh giá trung bình: </b><span>(${requestScope.restaurantDetail.rate}/10)</span> 
-                                    </div>
                                     <div class="col-12 desciption">
-                                        <b>Mô tả: </b><span>${requestScope.restaurantDetail.description}</span> 
+                                        <b>Ghi chú:  </b><span>${item.note}</span> 
                                     </div>
-                                    <c:if test="${empty param.tourId}">
                                         <div class="col-12 back">
-                                            <a href="managerestaurant">
+                                            <a href="ManageTourBooked?id=${param.tourId}">
                                                 <i class="fa-solid fa-arrow-left"></i>
                                                 <span class="backTo">Trở lại</span>
                                             </a>
                                         </div>
-                                    </c:if>
-                                    <c:if test="${not empty param.tourId}">
-                                        <div class="col-12 back">
-                                            <a href="TourDetailServlet?tourId=${param.tourId}">
-                                                <i class="fa-solid fa-arrow-left"></i>
-                                                <span class="backTo">Trở lại</span>
-                                            </a>
-                                        </div>
-                                    </c:if>
+                                    
                                 </div>
 
                             </div>
                         </div>
                     </div>
                 </main>
-                <c:if test="${empty param.tourId}">
                     <footer class="py-4 bg-light">
                         <div class="container-fluid px-4">
                             <div class="d-flex align-items-center justify-content-between small">
@@ -356,10 +273,6 @@
                             </div>
                         </div>
                     </footer>
-                </c:if>
-                <c:if test="${not empty param.tourId}">
-                    <%@include file="../../layout/footer.jsp" %>
-                </c:if> 
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
@@ -370,6 +283,5 @@
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="./assets/js/datatables-simple-demo.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     </body>
 </html>

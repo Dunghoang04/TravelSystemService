@@ -125,6 +125,7 @@
             z-index: 0;
             background-image: url(./assets/img/background/background-entertainment2.png);
 
+
             background-size: cover;
             background-repeat: no-repeat;
         }
@@ -137,6 +138,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7); /* điều chỉnh độ tối ở đây */
+
 
             z-index: -1;
         }
@@ -220,6 +222,7 @@
                 align-items: center;
                 padding: 0;
             }
+
     </style>
 </style>
 <body>
@@ -288,6 +291,7 @@
                                     <!-- Display entertainment image -->
                                     <img src="${requestScope.entertainmentDetail.getImage()}">
 
+
                                 </div>
                             </div>
                             <div class="col-md-6 box-desc">
@@ -296,6 +300,7 @@
                                 </div>
                                 <div class="col-12 rate">
                                     <b>Loại hình : <span>${requestScope.entertainmentDetail.getType()}</span></b>
+
 
                                 </div>
                                 <div class="col-12 address">
@@ -339,6 +344,7 @@
                                             <span>Trở lại</span>
                                         </a>
                                     </c:if>
+
 
                                 </div>
                             </div>

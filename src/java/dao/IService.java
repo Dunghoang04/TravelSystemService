@@ -55,5 +55,7 @@ public interface IService {
      * @throws SQLException If a database error occurs during the update process.
      */
     void updateServiceStatus(int serviceId, int newStatus) throws SQLException;
+    
+    public int countServiceUsed(int serviceId) throws SQLException;
 }
 

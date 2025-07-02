@@ -41,7 +41,7 @@ public class Tour {
     private double childrenPrice;
     private String reason;
 
-    public Tour() {
+    public Tour(int tourCategoryID1, int travelAgentID1, String tourName1, int numberOfDays, String startPlace1, String endPlace1, int quantity1, String tourImagePath, String tourDescription, float par, int par1, Date startDate, Date endDate, double adultPrice1, double childrenPrice1) {
     }
 
     public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status, Date startDay, Date endDay, double adultPrice, double childrenPrice, String reason) {

@@ -190,4 +190,5 @@ public interface IRestaurantDAO {
      */
     public int countAllRestaurant() throws SQLException;
 
+   
 }

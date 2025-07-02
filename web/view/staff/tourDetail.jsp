@@ -20,7 +20,6 @@
         <title>Thông tin Tour</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
         <link href="${pageContext.request.contextPath}/assets/css/styles2.css" rel="stylesheet" />
-
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <style>
             html, body {

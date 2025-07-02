@@ -33,6 +33,7 @@ public class BookDetail {
     public BookDetail() {
     }
 
+
     public BookDetail(int userID, int tourID, int voucherID, int numberAdult, int paymentMethodId, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status, long bookCode) {
         this.userID = userID;
         this.tourID = tourID;
@@ -103,6 +104,7 @@ public class BookDetail {
 
     public int getUserID() {
         return userID;
+
     }
 
     public void setUserID(int userID) {
@@ -217,8 +219,11 @@ public class BookDetail {
 
     @Override
     public String toString() {
-        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", paymentMethodId=" + paymentMethodId + ", numberChildren=" + numberChildren + ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", isBookedForOther=" + isBookedForOther + ", totalPrice=" + totalPrice + ", status=" + status + ", bookCode=" + bookCode + '}';
+        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren +  ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", isBookedForOther=" + isBookedForOther + ", totalPrice=" + totalPrice + ", status=" + status + '}';
+
     }
 
+
+    
 
 }

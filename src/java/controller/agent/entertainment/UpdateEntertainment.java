@@ -2,6 +2,8 @@ package controller.agent.entertainment;
 
 import dao.EntertainmentDAO;
 import dao.IEntertainmentDAO;
+import dao.IService;
+import dao.ServiceDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -53,6 +55,7 @@ public class UpdateEntertainment extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         IEntertainmentDAO entertainmentDAO = new EntertainmentDAO();
+        IService serviceDao = new ServiceDao();
         String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1"; // Default to page 1
         try {
             String serviceIdParam = request.getParameter("id");
@@ -64,6 +67,7 @@ public class UpdateEntertainment extends HttpServlet {
             if (entertainmentUpdate == null) {
                 throw new IllegalArgumentException("Không tìm thấy dịch vụ giải trí với id = " + id);
             }
+            int serviceUsed = serviceDao.countServiceUsed(entertainmentDAO.getEntertainmentByServiceId(id).getServiceId());
             int currentPage;
             try {
                 currentPage = Integer.parseInt(currentPageParam);
@@ -94,6 +98,10 @@ public class UpdateEntertainment extends HttpServlet {
             request.setAttribute("dayOfWeekOpen", entertainmentUpdate.getDayOfWeekOpen());
             request.setAttribute("ticketPrice", formattedTicketPrice);
             request.setAttribute("page", currentPage);
+            if (serviceUsed > 0) {
+                request.setAttribute("serviceUsed", "Dịch vụ đã được sử dụng");
+            }
+
 
             request.getRequestDispatcher("view/agent/entertainment/updateEntertainment.jsp").forward(request, response);
         } catch (NumberFormatException e) {

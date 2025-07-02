@@ -421,7 +421,7 @@
         <servlet-name>AmountToPay</servlet-name>
         <servlet-class>controller.user.AmountToPay</servlet-class>
     </servlet>
-    <servlet>
+<servlet>
 
         <servlet-name>Payment</servlet-name>
         <servlet-class>controller.user.Payment</servlet-class>

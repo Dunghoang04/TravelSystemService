@@ -148,11 +148,6 @@ public class AmountToPay extends HttpServlet {
         String amount_raw = request.getParameter("amount").trim();
         try{
             double amount = Math.ceil(Double.parseDouble(amount_raw));
-//            if(amount >1000000000){
-//                request.setAttribute("error", "Số tiền nạp phải nhỏ hơn 1 trăm triệu");
-//                request.getRequestDispatcher("view/user/amountToPay.jsp").forward(request, response);
-//                return
-//            }
             String code = "NAP" + loginUser.getUserID() + "_" + (int) amount + "_" + generateRandomAlphaNumeric(4);
             response.sendRedirect("payment?amount=" + (int) amount + "&code=" + code);
             

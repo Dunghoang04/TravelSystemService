@@ -25,143 +25,142 @@
         <link href="./assets/css/styles2.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <style>
+            form {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+            }
+
+            form input, form select, form button {
+                height: 35px;
+                font-size: 13px;
+            }
+
+            button {
+                white-space: nowrap;
+            }
+
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow-x: hidden;
+            }
+
+            .container-xxl {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                height: 100vh;
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 250px;
+                background: #f8f9fa;
+                overflow-y: auto;
+            }
+
+            .content {
+                margin-left: 250px;
+                padding: 20px;
+                width: calc(100% - 250px);
+                flex: 1;
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                word-break: break-word;
+            }
+
+            table th, table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+                font-size: 13px;
+            }
+
+            table th {
+                background-color: #f1f1f1;
+            }
+
+            #updateentertainment {
+                display: block;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .time div {
+                padding: 0px;
+            }
+
+            .time {
+                display: flex;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                gap: 15px;
+                margin: 0;
+            }
+
+            .time div:nth-child(2) {
+                padding-left: 10px;
+            }
+
+            .selectpicker:hover, .selectpicker {
+                background: #fff;
+                border: 1px solid #CED4DA;
+            }
+
+            .bootstrap-select .dropdown-toggle {
+                border: 1px solid #ced4da !important;
+                box-shadow: none !important;
+                outline: none !important;
+                background-color: #fff !important;
+                text-align: left !important;
+                transition: all 0.2s ease-in-out;
+            }
+
+            .bootstrap-select .dropdown-toggle:hover {
+                border: 1px solid #ced4da !important;
+            }
+
+            .bootstrap-select .dropdown-menu .active,
+            .bootstrap-select .dropdown-menu .dropdown-item.active,
+            .bootstrap-select .dropdown-menu .selected {
+                background-color: transparent !important;
+                color: #333 !important;
+            }
+
+            select data-content i {
+                color: #FFCA2C;
+            }
+
+            .bootstrap-select .dropdown-toggle:focus, .bootstrap-select>select.mobile-device:focus+.dropdown-toggle {
+                outline: 0 !important;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+                outline-offset: 0px !important;
+            }
+
+            .bootstrap-select .dropdown-menu i.fa-star,
+            .bootstrap-select .dropdown-toggle i.fa-star {
+                color: gold !important;
+            }
+
+            .errorNoti p {
+                margin: 0px;
+            }
+        </style>
     </head>
-    <style>
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        form input, form select, form button {
-            height: 35px;
-            font-size: 13px;
-        }
-
-        button {
-            white-space: nowrap;
-        }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        .container-xxl {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 250px;
-            background: #f8f9fa;
-            overflow-y: auto;
-        }
-
-        .content {
-            margin-left: 250px;
-            padding: 20px;
-            width: calc(100% - 250px);
-            flex: 1;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            word-break: break-word;
-        }
-
-        table th, table td {
-            padding: 8px;
-            border: 1px solid #ddd;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        table th {
-            background-color: #f1f1f1;
-        }
-
-        #updateentertainment {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .time div {
-            padding: 0px;
-        }
-
-        .time {
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: stretch;
-            gap: 15px;
-            margin: 0;
-        }
 
 
-        .time div:nth-child(2) {
-            padding-left: 10px;
-        }
-
-        .selectpicker:hover, .selectpicker {
-
-            background: #fff;
-            border: 1px solid #CED4DA;
-        }
-
-        .bootstrap-select .dropdown-toggle {
-            border: 1px solid #ced4da !important;
-            box-shadow: none !important;
-            outline: none !important;
-            background-color: #fff !important;
-            text-align: left !important;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .bootstrap-select .dropdown-toggle:hover {
-            border: 1px solid #ced4da !important;
-        }
-
-        .bootstrap-select .dropdown-menu .active,
-        .bootstrap-select .dropdown-menu .dropdown-item.active,
-        .bootstrap-select .dropdown-menu .selected {
-            background-color: transparent !important;
-            color: #333 !important;
-        }
-
-        select data-content i {
-            color: #FFCA2C;
-        }
-
-        .bootstrap-select .dropdown-toggle:focus, .bootstrap-select>select.mobile-device:focus+.dropdown-toggle {
-            outline: 0 !important;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
-            outline-offset: 0px !important;
-        }
-
-        .bootstrap-select .dropdown-menu i.fa-star,
-        .bootstrap-select .dropdown-toggle i.fa-star {
-            color: gold !important;
-        }
-
-        .errorNoti p {
-
-            margin: 0px;
-        }
-    </style>
     <body>
         <%@include file="../../layout/headerAdmin.jsp" %>
         <div id="layoutSidenav">
@@ -361,6 +360,19 @@
                                 icon: 'success',
                                 showConfirmButton: false,
                                 timer: 1500
+                            }).then(() => {
+                                window.location.href = 'managementertainment?page=${requestScope.page}';
+                            });
+                        };
+                    </script>
+                </c:if>
+                <c:if test="${not empty requestScope.serviceUsed}">
+                    <script>
+                        window.onload = function () {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Dịch vụ giải trí trong trạng thái đã sử dụng",
+                                text: "Không thể cập nhập",
                             }).then(() => {
                                 window.location.href = 'managementertainment?page=${requestScope.page}';
                             });

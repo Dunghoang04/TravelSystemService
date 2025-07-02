@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controller.user;
 
 import dao.BookTourDAO;
@@ -259,6 +258,7 @@ public class BookTourServlet extends HttpServlet {
                 request.setAttribute("tour", tour);
                 request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
             }
+
             } else if (paymentMethodId == 2) {
                 int waitPaymentStatus = 7;
                 String cancelUrl = "";
@@ -438,6 +438,5 @@ public class BookTourServlet extends HttpServlet {
     
     }
 
-    
 
 }

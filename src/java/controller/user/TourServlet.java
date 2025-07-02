@@ -119,7 +119,7 @@ public class TourServlet extends HttpServlet {
                     request.setAttribute("error", "Ngày đi không được là ngày trong quá khứ.");
                 }
             } catch (IllegalArgumentException e) {
-                request.setAttribute("error", "Định dạng ngày không hợp lệ.");
+                request.setAttribute("error", "Định dạng ngày không hợp lệ. Vui lòng chọn ngày theo định dạng yyyy-MM-dd.");
             }
 
             // Forward to tour.jsp

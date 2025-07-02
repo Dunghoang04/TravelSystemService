@@ -197,10 +197,8 @@
                                             Thay đổi hình ảnh nhà hàng <span style="color: red">*</span>
                                         </button>
 
-                                        <div class="col-12 form-group">
-                                            <label for="serviceId"><b>Mã nhà hàng</b></label>
-                                            <input type="text" class="form-control" id="serviceId" name="serviceId" value="${requestScope.serviceId}" readonly />
-                                        </div>
+
+
                                         <c:if test="${not empty requestScope.errorSystem}">
                                             <div class="col-12 errorNoti" style="background-color: #F6E4E1; border: solid 1px red; text-align: center; color: red; padding: 5px 10px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 5px">
                                                 <p style="margin-bottom: 0px">${requestScope.errorSystem}</p>
@@ -327,6 +325,20 @@
                         };
                     </script>
                 </c:if>
+                <c:if test="${not empty requestScope.serviceUsed}">
+                    <script>
+                        window.onload = function () {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Nhà hàng trong trạng thái đã sử dụng",
+                                text: "Không thể cập nhập",
+                            }).then(() => {
+                                window.location.href = 'managerestaurant?page=${requestScope.page}';
+                            });
+                        };
+                    </script>
+                </c:if>
+
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
