@@ -257,7 +257,8 @@ public class AddTour extends HttpServlet {
                     session.removeAttribute("entertainmentIds");
                     session.removeAttribute("imagePath");
                     session.setAttribute("successMessage", "Thêm tour thành công!");
-                    response.sendRedirect(request.getContextPath() + "/ListTour?service=list");
+                    session.setAttribute("showSuccessPopup", "add"); // Trigger pop-up
+                    response.sendRedirect(request.getContextPath() + "/ListTour?service=list&status=2&lastPage=true");
                 }
             }
         } catch (SQLException e) {

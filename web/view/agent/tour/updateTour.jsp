@@ -280,7 +280,7 @@
                                 <!-- Điểm khởi hành, Ngày đi, Ngày về -->
                                 <div class="price-row mt-4">
                                     <div class="price-col">
-                                        <label for="startPlace" class="form-label">Điểm đi <span class="required">*</span></label>
+                                        <label for="startPlace" class="form-label">Điểm khởi hành <span class="required">*</span></label>
                                         <select name="startPlace" id="startPlace" class="form-control">
                                             <option value="">Chọn tỉnh thành</option>
                                         </select>
@@ -308,7 +308,7 @@
                             <!-- Nút submit -->
                             <div class="row mt-4" style="width: 100%">
                                 <div class="col-12 text-center">
-                                    <a href="${pageContext.request.contextPath}/ListTour?service=list" class="btn btn-secondary" style="padding:10px 40px; height: 50px; margin-left: 20px">Quay lại</a>
+                                    <a href="javascript:history.back()" class="btn btn-secondary" style="padding:10px 40px; height: 50px; margin-left: 20px">Quay lại</a>
                                     <button type="submit" class="btn btn-success" style="padding:10px 40px; height: 50px">Cập Nhật</button>                                    
                                 </div>
                             </div>

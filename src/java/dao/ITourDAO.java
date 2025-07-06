@@ -58,23 +58,7 @@ public interface ITourDAO {
      */
     Vector<Tour> getAllTours(int page, int pageSize) throws SQLException;
 
-    /**
-     * Searches for tours by destination (end place).
-     *
-     * @param destination The destination to search for (partial match)
-     * @return A Vector of matching Tour objects
-     * @throws SQLException If a database error occurs
-     */
-    Vector<Tour> searchToursByDestination(String destination, int page, int pageSize) throws SQLException;
 
-    /**
-     * Retrieves the total number of tours matching the destination.
-     *
-     * @param destination The destination to search for (partial match)
-     * @return The total count of matching tours
-     * @throws SQLException If a database error occurs
-     */
-    int getTotalToursByDestination(String destination) throws SQLException;
     
     /**
      * Retrieves tours based on multiple filter criteria.
@@ -112,14 +96,7 @@ public interface ITourDAO {
      */
     void updateQuantity(int tourID, int quantity) throws SQLException;
 
-    /**
-     * Searches for tours by tour name.
-     *
-     * @param searchQuery The query to search for (partial match)
-     * @return A Vector of matching Tour objects
-     * @throws SQLException If a database error occurs
-     */
-    Vector<Tour> searchToursByName(String searchQuery, int page, int pageSize) throws SQLException;
+
 
     /**
      * Retrieves the top 3 newest tours.
@@ -197,6 +174,8 @@ public interface ITourDAO {
      */
     public Vector<Tour> searchTourByStatusAndAgent(int travelAgentID, int status) throws SQLException;
 
+    
+    public int getTotalToursByTravelAgent(int id) throws SQLException;
     /**
      * Retrieves all tours for a specific travel agent.
      *

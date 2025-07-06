@@ -261,14 +261,6 @@
                                     <button type="button" class="action-button reject" data-bs-toggle="modal" data-bs-target="#rejectModal">Từ chối</button>
                                 </c:if>
                             </c:if>
-                            <c:if test="${not empty loginUser and loginUser.roleID == 4}">
-                                <c:if test="${requestScope.tour.status == 1}">
-                                    <a href="${pageContext.request.contextPath}/EditTour?tourId=${requestScope.tour.tourID}" class="action-button edit" style="background-color: #28A745">Sửa</a>
-                                    <button type="button" class="action-button reject changeStatusbtn" 
-                                            data-tour-id="${requestScope.tour.tourID}" 
-                                            data-name="${requestScope.tour.tourName}">Xóa</button>
-                                </c:if>
-                            </c:if>
                         </div>
                         <!-- Approve Modal -->
                         <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
@@ -382,57 +374,7 @@
                 });
             }
 
-            // JavaScript for delete button with SweetAlert2 and AJAX
-            const changeStatusbtn = document.querySelectorAll(".changeStatusbtn");
-            changeStatusbtn.forEach(btn => {
-                btn.addEventListener("click", function (e) {
-                    e.preventDefault();
-                    const tourId = this.dataset.tourId;
-                    const name = this.dataset.name;
-                    Swal.fire({
-                        title: `Bạn có chắc chắn muốn thay đổi trạng thái tour ${name}?`,
-                        text: "Hành động này không thể hoàn tác!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Thay đổi',
-                        cancelButtonText: 'Hủy'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: '${pageContext.request.contextPath}/ListTour',
-                                method: 'GET',
-                                data: {
-                                    service: 'delete',
-                                    tourId: tourId,
-                                    status: 0 // Đặt trạng thái thành "Không hoạt động" (0)
-                                },
-                                success: function(response) {
-                                    Swal.fire({
-                                        title: 'Đã Đổi trạng thái!',
-                                        text: 'Thay đổi trạng thái thành công.',
-                                        icon: 'success',
-                                        timer: 1500,
-                                        showConfirmButton: false
-                                    }).then(() => {
-                                        // Chuyển hướng đến trang danh sách tour không hoạt động
-                                        window.location.href = "${pageContext.request.contextPath}/ListTour?service=list&status=0";
-                                    });
-                                },
-                                error: function(xhr, status, error) {
-                                    Swal.fire({
-                                        title: 'Lỗi!',
-                                        text: 'Không thể thay đổi trạng thái. Vui lòng thử lại.',
-                                        icon: 'error',
-                                        confirmButtonText: 'OK'
-                                    });
-                                }
-                            });
-                        }
-                    });
-                });
-            });
+            
 
             // Hiển thị success message nếu có
             window.onload = function() {

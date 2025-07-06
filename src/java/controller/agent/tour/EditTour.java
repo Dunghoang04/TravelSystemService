@@ -80,7 +80,11 @@ public class EditTour extends HttpServlet {
             request.setAttribute("entertainments", entertainments);
             request.setAttribute("tourServiceDetails", tourServiceDetails);
             request.setAttribute("tour", tour);
-
+            // Store current page number for redirect after edit
+            String page = request.getParameter("page");
+            if (page != null && !page.isEmpty()) {
+                session.setAttribute("currentPage", page);
+            }
             request.getRequestDispatcher("/view/agent/tour/updateTour.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "tourId không hợp lệ: " + e.getMessage());
@@ -256,8 +260,14 @@ public class EditTour extends HttpServlet {
             session.removeAttribute("entertainmentIds");
             session.removeAttribute("validationErrors");
 
-            request.setAttribute("successMessage", "Cập nhật tour thành công!");
-            request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
+            session.setAttribute("successMessage", "Sửa tour thành công!");
+            session.setAttribute("showSuccessPopup", "edit");
+            String page = (String) session.getAttribute("currentPage");
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=1";
+            if (page != null && !page.isEmpty()) {
+                redirectUrl += "&page=" + page;
+            }
+            response.sendRedirect(redirectUrl);
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Dữ liệu không hợp lệ: " + e.getMessage() + " (tourId: " + request.getParameter("tourId") + ")");
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
