@@ -47,7 +47,7 @@
                                     <c:set var="profileLink" value="ManageAdminProfile?service=viewAdminProfile"/>
                                 </c:when>
                                 <c:when test="${sessionScope.loginUser.roleID == 2}">
-                                    <c:set var="profileLink" value="ManageManagerProfile?service=viewProfile"/>
+                                    <c:set var="profileLink" value="ManageStaffProfile?service=viewStaffProfile"/>
                                 </c:when>                              
                                 <c:when test="${sessionScope.loginUser.roleID == 4}">
                                     <c:set var="profileLink" value="ManageTravelAgentProfile?service=viewProfile"/>

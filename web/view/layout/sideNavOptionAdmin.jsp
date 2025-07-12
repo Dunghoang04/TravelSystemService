@@ -30,17 +30,17 @@
                                 Quản lý tài khoản
                             </a>
 
-                            <a class="nav-link" href="">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-hotel"></i></i></div>
+                            <a class="nav-link" href="RevenueManagementServlet">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-chart-line"></i></i></div>
                                 Quản lý doanh thu 
                             </a>
                             
-                            <a class="nav-link" href="">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
+                            <a class="nav-link" href="VATServlet">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-calculator"></i></i></div>
                                 Quản lý thuế
                             </a>                           
                             <a class="nav-link" href="">
-                                <div class="sb-nav-link-icon"><i class="fa-solid fa-utensils"></i></i></div>
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-book"></i></i></div>
                                 Quản lý điều khoản 
                             </a>                           
                         </div>

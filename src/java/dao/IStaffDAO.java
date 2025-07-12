@@ -91,4 +91,6 @@ public interface IStaffDAO {
      * @throws SQLException If a database access error occurs
      */
     boolean isGmailRegister(String gmail) throws SQLException;
+    
+    boolean isPhoneRegistered(String phone) throws SQLException ;
 }

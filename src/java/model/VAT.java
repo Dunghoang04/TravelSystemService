@@ -4,13 +4,14 @@
  */
 package model;
 
-import java.util.Date;
+import java.sql.Date;
 
 /**
  *
  * @author Hung
  */
 public class VAT {
+
     private int vatID;
     private double vatRate;
     private String description;
@@ -24,7 +25,7 @@ public class VAT {
     }
 
     public VAT(int vatID, double vatRate, String description, Date startDate, Date endDate, int status, Date createDate, Date updateDate) {
-        vatID = vatID;
+        this.vatID = vatID;
         this.vatRate = vatRate;
         this.description = description;
         this.startDate = startDate;
@@ -105,13 +106,10 @@ public class VAT {
     public void setVatID(int vatID) {
         this.vatID = vatID;
     }
-    
-    
 
     @Override
     public String toString() {
         return "VAT{" + "vatID=" + vatID + ", vatRate=" + vatRate + ", description=" + description + ", startDate=" + startDate + ", endDate=" + endDate + ", status=" + status + ", createDate=" + createDate + ", updateDate=" + updateDate + '}';
     }
-    
-    
+
 }
