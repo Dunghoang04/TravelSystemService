@@ -6,6 +6,7 @@
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
  * 2025-06-14  1.0        Quynh Mai          First implementation
+ * 2025-06-14  1.1        [Your Name]        Added pagination support
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

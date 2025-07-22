@@ -1,11 +1,15 @@
-/*
+ /*
  * Copyright (C) 2025, Group 6.
  * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-14  1.0        Quynh Mai         Refactored with ITourDAO, improved resource management and comments
+ * 17-07-2025  1.0        Nguyễn Hữu Hưng     First implementation
+ */
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
 
@@ -206,21 +210,6 @@ public class TourServiceDetailDAO extends DBContext implements ITourServiceDetai
             }
         }
     }
-    @Override
-    public void deleteTourServiceDetails(int tourId) throws SQLException {
-       Connection conn = null;
-       PreparedStatement ps = null;
-       try {
-           conn = getConnection();
-           String sql = "Update [dbo].[Tour_Service_Detail] set status = 0 WHERE tourID = ?";
-           ps = conn.prepareStatement(sql);
-           ps.setInt(1, tourId);
-           ps.executeUpdate();
-       } finally {
-           if (ps != null) ps.close();
-           if (conn != null) conn.close();
-       }
-   }
 
     @Override
     public List<TourServiceDetail> getTourServiceDetailsByServiceId(int serviceId) throws SQLException {
@@ -270,6 +259,22 @@ public class TourServiceDetailDAO extends DBContext implements ITourServiceDetai
         }
         return details;
     }
+    @Override
+    public void deleteTourServiceDetails(int tourId) throws SQLException {
+       Connection conn = null;
+       PreparedStatement ps = null;
+       try {
+           conn = getConnection();
+           String sql = "Update [dbo].[Tour_Service_Detail] set status = 0 WHERE tourID = ?";
+           ps = conn.prepareStatement(sql);
+           ps.setInt(1, tourId);
+           ps.executeUpdate();
+       } finally {
+           if (ps != null) ps.close();
+           if (conn != null) conn.close();
+       }
+   }
+
 
     @Override
     public int getServiceIdByTourId(int tourId) throws SQLException {

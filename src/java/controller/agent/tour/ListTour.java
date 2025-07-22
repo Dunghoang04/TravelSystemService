@@ -28,15 +28,11 @@ import java.util.Vector;
 import model.Tour;
 import model.TourServiceDetail;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import model.TourCategory;
 import model.TravelAgent;
 
-/**
- * Servlet for listing and managing tours specific to a travel agent.
- * Retrieves the travel agent's ID from the session's gmail and filters tours accordingly.
- *
- * @author Nhat Anh
- */
 @WebServlet(name = "ListTour", urlPatterns = {"/ListTour"})
 public class ListTour extends HttpServlet {
 
@@ -58,7 +54,6 @@ public class ListTour extends HttpServlet {
         }
 
         try {
-            // Retrieve TravelAgent using gmail
             TravelAgent travelAgent = travelAgentDAO.searchTravelAgentByGmail(gmail);
             if (travelAgent == null) {
                 request.setAttribute("errorMessage", "Không tìm thấy TravelAgent với gmail: " + gmail);
@@ -72,16 +67,27 @@ public class ListTour extends HttpServlet {
                 request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
             } else if ("list".equals(service)) {
                 String status = request.getParameter("status");
+                String page = request.getParameter("page");
                 Vector<Tour> tours;
                 if (status != null && !status.equals("all")) {
                     tours = tourDAO.searchTourByStatusAndAgent(travelAgentID, Integer.parseInt(status));
                 } else {
                     tours = tourDAO.getAllToursByAgent(travelAgentID);
                 }
+                Map<Integer, Boolean> bookingStatus = new HashMap<>();
+                for (Tour tour : tours) {
+                    boolean isBooked = tourDAO.hasBookings(tour.getTourID());
+                    bookingStatus.put(tour.getTourID(), isBooked);
+                }
+                session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                session.setAttribute("currentStatus", status != null ? status : "all");
+                request.setAttribute("bookingStatus", bookingStatus);
                 request.setAttribute("tours", tours);
                 request.getRequestDispatcher("/view/agent/tour/agentTour.jsp").forward(request, response);
             } else if ("delete".equals(service)) {
                 String tourIdStr = request.getParameter("tourId");
+                String page = request.getParameter("page");
                 if (tourIdStr == null || tourIdStr.trim().isEmpty()) {
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID tour không hợp lệ!");
                     return;
@@ -93,23 +99,24 @@ public class ListTour extends HttpServlet {
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID tour không phải là số hợp lệ!");
                     return;
                 }
-                // Verify that the tour belongs to the travel agent
                 Tour tour = tourDAO.searchTourByID(tourId);
                 if (tour == null || tour.getTravelAgentID() != travelAgentID) {
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền xóa tour này!");
                     return;
                 }
                 tourDAO.changeStatusTour(tourId, 0);
-                response.setStatus(HttpServletResponse.SC_OK);
+                String redirectPage = page != null && page.matches("\\d+") ? page : "1";
+                response.sendRedirect(request.getContextPath() + "/ListTour?service=list&status=0&page=" + redirectPage);
             } else if ("viewTourDetail".equals(service)) {
                 int tourID = Integer.parseInt(request.getParameter("tourId"));
+                String page = request.getParameter("page");
+                String status = request.getParameter("status");
                 Tour tour = tourDAO.searchTourByID(tourID);
                 if (tour == null || tour.getTravelAgentID() != travelAgentID) {
                     request.setAttribute("errorMessage", "Không tìm thấy tour hoặc bạn không có quyền truy cập tour với ID: " + tourID);
                     request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
                     return;
                 }
-                // Lấy TourCategory
                 int categoryID = tour.getTourCategoryID();
                 TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
                 if (tourCategory == null) {
@@ -117,7 +124,8 @@ public class ListTour extends HttpServlet {
                     request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
                     return;
                 }
-                // Đặt các thuộc tính vào request
+                session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                session.setAttribute("currentStatus", status != null ? status : "all");
                 request.setAttribute("tour", tour);
                 request.setAttribute("travelAgentName", travelAgent.getTravelAgentName());
                 request.setAttribute("categoryName", tourCategory.getTourCategoryName());

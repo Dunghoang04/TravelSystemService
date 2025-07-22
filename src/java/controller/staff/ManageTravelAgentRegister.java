@@ -5,7 +5,7 @@
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-14  1.0        Quynh Mai          First implementation
+ * 2025-06-14  1.0        Quynh Mai         First implementation
  */
 package controller.staff;
 
@@ -21,7 +21,6 @@ import jakarta.servlet.http.HttpSession;
 import model.TravelAgent;
 import service.EmailSender;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @WebServlet(name = "ManageTravelAgentRegister", urlPatterns = {"/ManageTravelAgentRegister"})
 public class ManageTravelAgentRegister extends HttpServlet {
@@ -34,44 +33,58 @@ public class ManageTravelAgentRegister extends HttpServlet {
         HttpSession session = request.getSession();
         String service = request.getParameter("service");
         try {
-            if ("sendConfirmationEmail".equals(service)) {
-                processSendConfirmationEmail(request, response);
-            } else if ("list".equals(service) || service == null) {
+            if ("list".equals(service) || service == null) {
                 String statusParam = request.getParameter("status");
+                String page = request.getParameter("page");
+                System.out.println("doGet: service=list, page=" + page + ", status=" + statusParam);
                 if (statusParam != null && !statusParam.equals("all")) {
                     int status = Integer.parseInt(statusParam);
                     request.setAttribute("travelAgents", travelAgentDAO.searchByTravelAgentByStatus(status));
                 } else {
                     request.setAttribute("travelAgents", travelAgentDAO.getAllTravelAgent());
                 }
+                session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                session.setAttribute("currentStatus", statusParam != null ? statusParam : "all");
+                System.out.println("doGet: Stored currentPage=" + session.getAttribute("currentPage") + ", currentStatus=" + session.getAttribute("currentStatus"));
                 request.getRequestDispatcher("/view/staff/manageTravelAgentRegister.jsp").forward(request, response);
             } else if ("profile".equals(service)) {
                 int travelAgentID = Integer.parseInt(request.getParameter("travelAgentID"));
+                String page = request.getParameter("page");
+                String status = request.getParameter("status");
+                System.out.println("doGet: service=profile, travelAgentID=" + travelAgentID + ", page=" + page + ", status=" + status);
+                session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                session.setAttribute("currentStatus", status != null ? status : "all");
+                System.out.println("doGet: Stored currentPage=" + session.getAttribute("currentPage") + ", currentStatus=" + session.getAttribute("currentStatus"));
                 TravelAgent agent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
-                request.setAttribute("agent", agent);
-                request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
-            } else if ("confirm".equals(service)) {
-                if (session.getAttribute("actionStatus") == null || session.getAttribute("travelAgent") == null) {
-                    request.setAttribute("errorMessage", "Dữ liệu session không hợp lệ.");
-                    response.sendRedirect("view/common/error.jsp");
+                if (agent == null) {
+                    request.setAttribute("errorMessage", "Không tìm thấy đại lý với ID: " + travelAgentID);
+                    System.out.println("doGet: Agent not found for travelAgentID=" + travelAgentID);
+                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
                     return;
                 }
-                request.getRequestDispatcher("/view/staff/confirm.jsp").forward(request, response);
+                request.setAttribute("agent", agent);
+                request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
             } else if ("clearSession".equals(service)) {
                 session.removeAttribute("actionStatus");
                 session.removeAttribute("travelAgentName");
                 session.removeAttribute("reason");
                 session.removeAttribute("travelAgent");
-                response.setStatus(HttpServletResponse.SC_OK);
-                return;
+                System.out.println("doGet: Cleared session attributes");
+                response.sendRedirect(request.getContextPath() + "/ManageTravelAgentRegister?service=list");
+            } else {
+                request.setAttribute("errorMessage", "Dịch vụ không hợp lệ: " + service);
+                System.out.println("doGet: Invalid service=" + service);
+                request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "ID không hợp lệ: " + e.getMessage());
-            System.out.println("NumberFormatException: " + e.getMessage());
+            System.out.println("NumberFormatException in doGet: " + e.getMessage());
+            e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Lỗi xử lý: " + e.getMessage());
-            System.out.println("Exception occurred: " + e.getMessage());
+            System.out.println("Exception in doGet: " + e.getMessage());
+            e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         }
     }
@@ -82,120 +95,106 @@ public class ManageTravelAgentRegister extends HttpServlet {
         HttpSession session = request.getSession();
         String service = request.getParameter("service");
         try {
-            if ("approve".equals(service)) {
-                int travelAgentID = Integer.parseInt(request.getParameter("travelAgentID"));
-                TravelAgent agent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
-                int userID = agent.getUserID();
-                String travelAgentName = request.getParameter("travelAgentName");
-                travelAgentDAO.changeStatusTravelAgent(userID, 1); // Approve (status = 1)
-                if (agent != null) {
-                    session.setAttribute("actionStatus", "approve");
-                    session.setAttribute("travelAgent", agent);
-                    session.setAttribute("travelAgentName", travelAgentName);
-                    request.getRequestDispatcher("/view/staff/confirm.jsp").forward(request, response);
-                } else {
-                    request.setAttribute("errorMessage", "Không tìm thấy đại lý với ID: " + travelAgentID);
-                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
-                }
-            } else if ("reject".equals(service)) {
+            if ("approve".equals(service) || "reject".equals(service)) {
                 int travelAgentID = Integer.parseInt(request.getParameter("travelAgentID"));
                 int userID = Integer.parseInt(request.getParameter("userID"));
-                String reason = request.getParameter("reason");
                 String travelAgentName = request.getParameter("travelAgentName");
-
-                // Validate reason
-                if (reason == null || reason.trim().isEmpty()) {
-                    request.setAttribute("errorMessage", "Vui lòng nhập lý do từ chối.");
-                    request.setAttribute("agent", travelAgentDAO.searchTravelAgentByID(travelAgentID));
-                    request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
-                    return;
-                }
-                if (reason.trim().length() > 255) {
-                    request.setAttribute("errorMessage", "Lý do từ chối không được dài quá 255 ký tự.");
-                    request.setAttribute("agent", travelAgentDAO.searchTravelAgentByID(travelAgentID));
-                    request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
-                    return;
-                }
-
-                // Trim reason before saving
-                String trimmedReason = reason.trim();
-                travelAgentDAO.changeStatusTravelAgent(userID, 3); // Reject (status = 3)
-                travelAgentDAO.updateRejectionReason(travelAgentID, trimmedReason);
+                String page = request.getParameter("page");
+                String status = request.getParameter("status");
+                System.out.println("doPost: service=" + service + ", travelAgentID=" + travelAgentID + ", userID=" + userID + ", travelAgentName=" + travelAgentName + ", page=" + page + ", status=" + status);
                 TravelAgent agent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
-                if (agent != null) {
-                    session.setAttribute("actionStatus", "reject");
-                    session.setAttribute("travelAgent", agent);
-                    session.setAttribute("travelAgentName", travelAgentName);
-                    session.setAttribute("reason", trimmedReason);
-                    request.getRequestDispatcher("/view/staff/confirm.jsp").forward(request, response);
-                } else {
+
+                if (agent == null) {
                     request.setAttribute("errorMessage", "Không tìm thấy đại lý với ID: " + travelAgentID);
-                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                    System.out.println("doPost: Agent not found for travelAgentID=" + travelAgentID);
+                    request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
+                    return;
+                }
+
+                int newStatus = "approve".equals(service) ? 1 : 3;
+                String reason = null;
+                if ("reject".equals(service)) {
+                    reason = request.getParameter("reason");
+                    System.out.println("Reject: reason=" + (reason != null ? reason : "null"));
+                    if (reason == null || reason.trim().isEmpty()) {
+                        System.out.println("Reject: Reason is empty, forwarding back to profileTravelAgent.jsp");
+                        request.setAttribute("agent", agent);
+                        request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
+                        return;
+                    }
+                    if (reason.trim().length() > 255) {
+                        System.out.println("Reject: Reason exceeds 255 characters, forwarding back to profileTravelAgent.jsp");
+                        request.setAttribute("agent", agent);
+                        request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
+                        return;
+                    }
+                    reason = reason.trim();
+                    System.out.println("Reject: Updating agent with reason: " + reason);
+                    travelAgentDAO.updateRejectionReason(travelAgentID, reason);
+                }
+
+                System.out.println("Changing agent status to: " + newStatus);
+                travelAgentDAO.changeStatusTravelAgent(userID, newStatus);
+
+                String email = agent.getGmail();
+                if (email == null || email.trim().isEmpty()) {
+                    System.out.println("Invalid or missing email for travelAgentID=" + travelAgentID);
+                    request.setAttribute("errorMessage", "Email không hợp lệ hoặc không tìm thấy đại lý.");
+                    request.setAttribute("agent", agent);
+                    request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
+                    return;
+                }
+
+                StringBuilder body = new StringBuilder();
+                body.append("<h2>Xác nhận hành động đại lý du lịch</h2>");
+                body.append("<p>Ngày xử lý: ").append(java.time.LocalDate.now()).append("</p>");
+                body.append("<h3>Thông tin hành động:</h3>");
+                body.append("<p>Tên công ty: ").append(agent.getTravelAgentName()).append("</p>");
+                body.append("<p>Email: ").append(email).append("</p>");
+                body.append("<p>Trạng thái: ").append("approve".equals(service) ? "Đã duyệt thành công." : "Đã từ chối.").append("</p>");
+                if ("reject".equals(service)) {
+                    body.append("<p>Lý do: ").append(reason).append("</p>");
+                }
+                body.append("<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>");
+
+                try {
+                    System.out.println("Sending email to: " + email);
+                    EmailSender.send(email, "Xác nhận " + ("approve".equals(service) ? "duyệt" : "từ chối") + " đại lý - " + java.time.LocalDate.now(), body.toString());
+                    session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                    session.setAttribute("currentStatus", status != null ? status : "all");
+                    System.out.println("doPost: Stored currentPage=" + session.getAttribute("currentPage") + ", currentStatus=" + session.getAttribute("currentStatus"));
+                    request.setAttribute("successMessage", "approve".equals(service) ?
+                        "Đại lý " + travelAgentName + " đã được duyệt thành công. Email xác nhận đã được gửi." :
+                        "Đại lý " + travelAgentName + " đã bị từ chối. Email xác nhận đã được gửi.");
+                    session.removeAttribute("actionStatus");
+                    session.removeAttribute("travelAgentName");
+                    session.removeAttribute("reason");
+                    session.removeAttribute("travelAgent");
+                    System.out.println("Success: Forwarding to profileTravelAgent.jsp with successMessage");
+                    request.setAttribute("agent", agent);
+                    request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
+                } catch (MessagingException | IOException e) {
+                    System.out.println("Failed to send email for action " + service + ": " + e.getMessage());
+                    e.printStackTrace();
+                    request.setAttribute("errorMessage", "Lỗi khi gửi email: " + e.getMessage());
+                    request.setAttribute("agent", agent);
+                    request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
                 }
             } else {
-                doGet(request, response);
+                request.setAttribute("errorMessage", "Dịch vụ không hợp lệ: " + service);
+                System.out.println("Invalid service: " + service);
+                request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "ID không hợp lệ: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            System.out.println("NumberFormatException in doPost: " + e.getMessage());
+            e.printStackTrace();
+            request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Lỗi xử lý: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
-        }
-    }
-
-    private void processSendConfirmationEmail(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        try {
-            TravelAgent travelAgent = (TravelAgent) session.getAttribute("travelAgent");
-            String actionStatus = (String) session.getAttribute("actionStatus");
-            String travelAgentName = (String) session.getAttribute("travelAgentName");
-            String reason = (String) session.getAttribute("reason");
-
-            if (travelAgent == null || actionStatus == null || travelAgentName == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.println("{\"status\":\"error\",\"message\":\"Missing required session data.\"}");
-                return;
-            }
-            if ("reject".equals(actionStatus) && reason == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.println("{\"status\":\"error\",\"message\":\"Missing rejection reason.\"}");
-                return;
-            }
-
-            StringBuilder body = new StringBuilder();
-            body.append("<h2>Xác nhận hành động đại lý du lịch</h2>");
-            body.append("<p>Ngày xử lý: ").append(java.time.LocalDate.now()).append("</p>");
-            body.append("<h3>Thông tin hành động:</h3>");
-            body.append("<p>Tên công ty: ").append(travelAgent.getTravelAgentName()).append("</p>");
-            String email = travelAgent.getGmail();
-            System.out.println("Email recipient: " + email);
-            body.append("<p>Email: ").append(email).append("</p>");
-            if ("approve".equals(actionStatus)) {
-                body.append("<p>Trạng thái: Đã duyệt thành công.</p>");
-            } else if ("reject".equals(actionStatus)) {
-                body.append("<p>Trạng thái: Đã từ chối.</p>");
-                body.append("<p>Lý do: ").append(reason).append("</p>");
-            }
-            body.append("<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>");
-
-
-            try {
-                EmailSender.send(email, "Xác nhận " + " đại lý - " + java.time.LocalDate.now(), body.toString());
-                System.out.println("Email gửi thành công cho hành động " + actionStatus + " tới: " + email);
-                out.println("{\"status\":\"sent\"}");
-            } catch (MessagingException | IOException e) {
-                System.out.println("Gửi email thất bại cho hành động " + actionStatus + ": " + e.getMessage());
-                out.println("{\"status\":\"error\",\"message\":\"Lỗi khi gửi email: " + e.getMessage() + "\"}");
-            }
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.println("{\"status\":\"error\",\"message\":\"Lỗi khi gửi email: " + e.getMessage() + "\"}");
-        } finally {
-            out.flush();
+            System.out.println("Exception in doPost: " + e.getMessage());
+            e.printStackTrace();
+            request.getRequestDispatcher("/view/staff/profileTravelAgent.jsp").forward(request, response);
         }
     }
 }

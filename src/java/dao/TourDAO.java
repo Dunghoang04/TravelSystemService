@@ -137,6 +137,36 @@ public class TourDAO extends DBContext implements ITourDAO {
         return 0;
     }
 
+    @Override
+    public int getTotalToursByTravelAgent(int id) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "  SELECT COUNT(*) FROM Tour where travelAgentID = ?";
+        try {
+            conn = getConnection(); // Establish database connection
+            ps = conn.prepareStatement(sql); // Prepare SQL query
+            ps.setInt(1, id);
+            rs = ps.executeQuery(); // Execute query
+            if (rs.next()) { // Process result
+                return rs.getInt(1); // Return count
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve total tours: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+        return 0;
+    }
+
     /**
      * Retrieves all tours from the database.
      *
@@ -183,55 +213,6 @@ public class TourDAO extends DBContext implements ITourDAO {
     }
 
     /**
-     * Searches for tours by destination (end place).
-     *
-     * @param destination The destination to search for (partial match)
-     * @return A Vector of matching Tour objects
-     * @throws SQLException If a database error occurs
-     */
-    @Override
-    public Vector<Tour> searchToursByDestination(String destination, int page, int pageSize) throws SQLException {
-        Vector<Tour> tours = new Vector<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        LocalDate currentDate = LocalDate.now();
-        LocalDate startRange = currentDate.minusDays(10); // 10 days before
-        LocalDate endRange = currentDate.plusDays(10);   // 10 days after
-        String sql = "SELECT * FROM Tour WHERE endPlace LIKE ? AND status = 1 AND startDay > ? AND startDay BETWEEN ? AND ? "
-                + "ORDER BY ABS(DATEDIFF(day, startDay, ?)) OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        try {
-            conn = getConnection(); // Establish database connection
-            ps = conn.prepareStatement(sql); // Prepare SQL query
-            ps.setString(1, "%" + destination + "%"); // Set destination parameter
-            ps.setDate(2, Date.valueOf(currentDate)); // Current date for future check
-            ps.setDate(3, Date.valueOf(startRange));  // Start of 10-day range
-            ps.setDate(4, Date.valueOf(endRange));    // End of 10-day range
-            ps.setDate(5, Date.valueOf(currentDate));
-            ps.setInt(6, (page - 1) * pageSize);
-            ps.setInt(7, pageSize);
-            rs = ps.executeQuery(); // Execute query
-            while (rs.next()) { // Process result set
-                Tour tour = createTourFromResultSet(rs); // Create tour object
-                tours.add(tour); // Add tour to result list
-            }
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to search tours by destination: " + ex.getMessage(), ex);
-        } finally {
-            if (rs != null) {
-                rs.close(); // Close ResultSet
-            }
-            if (ps != null) {
-                ps.close(); // Close PreparedStatement
-            }
-            if (conn != null) {
-                conn.close(); // Close Connection
-            }
-        }
-        return tours;
-    }
-
-    /**
      * Retrieves tours based on multiple filter criteria.
      *
      * @param budget The budget range (e.g., "under5", "5-10")
@@ -262,7 +243,7 @@ public class TourDAO extends DBContext implements ITourDAO {
             sql.append(" AND startPlace = ?"); // Add departure filter
         }
         if (destination != null && !destination.isEmpty()) {
-            sql.append(" AND endPlace = ?"); // Add destination filter
+            sql.append(" AND endPlace LIKE ?"); // Add destination filter
         }
         if (tourCategory != null && !tourCategory.isEmpty()) {
             sql.append(" AND tourCategoryID = ?"); // Add category filter
@@ -281,7 +262,7 @@ public class TourDAO extends DBContext implements ITourDAO {
                 ps.setString(paramIndex++, departure); // Set departure parameter
             }
             if (destination != null && !destination.isEmpty()) {
-                ps.setString(paramIndex++, destination); // Set destination parameter
+                ps.setString(paramIndex++, "%" + destination + "%"); // Set destination parameter
             }
             if (tourCategory != null && !tourCategory.isEmpty()) {
                 ps.setString(paramIndex++, tourCategory); // Set category parameter
@@ -370,110 +351,25 @@ public class TourDAO extends DBContext implements ITourDAO {
      * @param quantity The quantity to subtract
      * @throws SQLException If a database error occurs
      */
-    @Override
-    public void updateQuantity(int tourID, int quantity) throws SQLException {
+     @Override
+    public boolean updateQuantityAfterBooking(int tourID, int totalPeople) {
+        String sql = "UPDATE Tour SET quantity = quantity - ? WHERE tourID = ? AND quantity >= ?";
         Connection conn = null;
-        PreparedStatement ps = null;
-        String sql = "UPDATE Tour SET quantity = quantity - ? WHERE tourID = ?";
-        try {
-            conn = getConnection(); // Establish database connection
-            ps = conn.prepareStatement(sql); // Prepare SQL query
-            ps.setInt(1, quantity); // Set quantity parameter
-            ps.setInt(2, tourID); // Set tour ID parameter
-            ps.executeUpdate(); // Execute update
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to update tour quantity: " + ex.getMessage(), ex);
-        } finally {
-            if (ps != null) {
-                ps.close(); // Close PreparedStatement
-            }
-            if (conn != null) {
-                conn.close(); // Close Connection
-            }
-        }
-    }
+        PreparedStatement stmt = null;
+        
+        try{
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, totalPeople);
+            stmt.setInt(2, tourID);
+            stmt.setInt(3, totalPeople); // đảm bảo còn đủ chỗ
 
-    /**
-     * Searches for tours by tour name.
-     *
-     * @param searchQuery The query to search for (partial match)
-     * @return A Vector of matching Tour objects
-     * @throws SQLException If a database error occurs
-     */
-    @Override
-    public Vector<Tour> searchToursByName(String searchQuery, int page, int pageSize) throws SQLException {
-        Vector<Tour> tours = new Vector<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM Tour WHERE tourName LIKE ? AND status = 1 ORDER BY tourID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        try {
-            conn = getConnection(); // Establish database connection
-            ps = conn.prepareStatement(sql); // Prepare SQL query
-            ps.setString(1, "%" + searchQuery + "%"); // Set search query parameter
-            ps.setInt(2, (page - 1) * pageSize);
-            ps.setInt(3, pageSize);
-            rs = ps.executeQuery(); // Execute query
-            while (rs.next()) { // Process result set
-                Tour tour = createTourFromResultSet(rs); // Create tour object
-                tours.add(tour); // Add tour to result list
-            }
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to search tours by name: " + ex.getMessage(), ex);
-        } finally {
-            if (rs != null) {
-                rs.close(); // Close ResultSet
-            }
-            if (ps != null) {
-                ps.close(); // Close PreparedStatement
-            }
-            if (conn != null) {
-                conn.close(); // Close Connection
-            }
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return tours;
-    }
-
-
-    /**
-     * Searches for tours by tour name.
-     *
-     * @param searchQuery The query to search for (partial match)
-     * @return A Vector of matching Tour objects
-     * @throws SQLException If a database error occurs
-     */
-    @Override
-    public Vector<Tour> searchToursByName(String searchQuery, int page, int pageSize) throws SQLException {
-        Vector<Tour> tours = new Vector<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM Tour WHERE tourName LIKE ? AND status = 1 ORDER BY tourID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        try {
-            conn = getConnection(); // Establish database connection
-            ps = conn.prepareStatement(sql); // Prepare SQL query
-            ps.setString(1, "%" + searchQuery + "%"); // Set search query parameter
-            ps.setInt(2, (page - 1) * pageSize);
-            ps.setInt(3, pageSize);
-            rs = ps.executeQuery(); // Execute query
-            while (rs.next()) { // Process result set
-                Tour tour = createTourFromResultSet(rs); // Create tour object
-                tours.add(tour); // Add tour to result list
-            }
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to search tours by name: " + ex.getMessage(), ex);
-        } finally {
-            if (rs != null) {
-                rs.close(); // Close ResultSet
-            }
-            if (ps != null) {
-                ps.close(); // Close PreparedStatement
-            }
-            if (conn != null) {
-                conn.close(); // Close Connection
-            }
-        }
-        return tours;
     }
 
     /**
@@ -521,58 +417,58 @@ public class TourDAO extends DBContext implements ITourDAO {
      * @throws SQLException If a database error occurs
      */
     @Override
-public int insertTour(Tour tour) throws SQLException {
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    String sql = "INSERT INTO [dbo].[Tour] ([tourCategoryID], [travelAgentID], [tourName], [numberOfDay], "
-            + "[startPlace], [endPlace], [quantity], [image], [tourIntroduce], [tourSchedule], "
-            + "[tourInclude], [tourNonInclude], [rate], [status], [startDay], [endDay], "
-            + "[adultPrice], [childrenPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    try {
-        conn = getConnection(); // Establish database connection
-        ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); // Prepare SQL query with generated keys
-        ps.setInt(1, tour.getTourCategoryID()); // Set category ID
-        ps.setInt(2, tour.getTravelAgentID()); // Set travel agent ID
-        ps.setString(3, tour.getTourName()); // Set tour name
-        ps.setInt(4, tour.getNumberOfDay()); // Set number of days
-        ps.setString(5, tour.getStartPlace()); // Set start place
-        ps.setString(6, tour.getEndPlace()); // Set end place
-        ps.setInt(7, tour.getQuantity()); // Set quantity
-        ps.setString(8, tour.getImage()); // Set image
-        ps.setString(9, tour.getTourIntroduce()); // Set tour introduction
-        ps.setString(10, tour.getTourSchedule()); // Set tour schedule
-        ps.setString(11, tour.getTourInclude()); // Set included items
-        ps.setString(12, tour.getTourNonInclude()); // Set non-included items
-        ps.setFloat(13, tour.getRate()); // Set rate
-        ps.setInt(14, tour.getStatus()); // Set status
-        ps.setDate(15, tour.getStartDay()); // Set start day
-        ps.setDate(16, tour.getEndDay()); // Set end day
-        ps.setDouble(17, tour.getAdultPrice()); // Set adult price
-        ps.setDouble(18, tour.getChildrenPrice()); // Set children price
-        ps.executeUpdate(); // Execute insert
+    public int insertTour(Tour tour) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "INSERT INTO [dbo].[Tour] ([tourCategoryID], [travelAgentID], [tourName], [numberOfDay], "
+                + "[startPlace], [endPlace], [quantity], [image], [tourIntroduce], [tourSchedule], "
+                + "[tourInclude], [tourNonInclude], [rate], [status], [startDay], [endDay], "
+                + "[adultPrice], [childrenPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            conn = getConnection(); // Establish database connection
+            ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); // Prepare SQL query with generated keys
+            ps.setInt(1, tour.getTourCategoryID()); // Set category ID
+            ps.setInt(2, tour.getTravelAgentID()); // Set travel agent ID
+            ps.setString(3, tour.getTourName()); // Set tour name
+            ps.setInt(4, tour.getNumberOfDay()); // Set number of days
+            ps.setString(5, tour.getStartPlace()); // Set start place
+            ps.setString(6, tour.getEndPlace()); // Set end place
+            ps.setInt(7, tour.getQuantity()); // Set quantity
+            ps.setString(8, tour.getImage()); // Set image
+            ps.setString(9, tour.getTourIntroduce()); // Set tour introduction
+            ps.setString(10, tour.getTourSchedule()); // Set tour schedule
+            ps.setString(11, tour.getTourInclude()); // Set included items
+            ps.setString(12, tour.getTourNonInclude()); // Set non-included items
+            ps.setFloat(13, tour.getRate()); // Set rate
+            ps.setInt(14, tour.getStatus()); // Set status
+            ps.setDate(15, tour.getStartDay()); // Set start day
+            ps.setDate(16, tour.getEndDay()); // Set end day
+            ps.setDouble(17, tour.getAdultPrice()); // Set adult price
+            ps.setDouble(18, tour.getChildrenPrice()); // Set children price
+            ps.executeUpdate(); // Execute insert
 
-        // Retrieve the generated tourID
-        rs = ps.getGeneratedKeys();
-        if (rs.next()) {
-            return rs.getInt(1); // Return the generated tourID
-        } else {
-            throw new SQLException("Failed to retrieve generated tour ID.");
-        }
-    } catch (SQLException ex) {
-        throw new SQLException("Failed to insert tour: " + ex.getMessage(), ex);
-    } finally {
-        if (rs != null) {
-            rs.close(); // Close ResultSet
-        }
-        if (ps != null) {
-            ps.close(); // Close PreparedStatement
-        }
-        if (conn != null) {
-            conn.close(); // Close Connection
+            // Retrieve the generated tourID
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1); // Return the generated tourID
+            } else {
+                throw new SQLException("Failed to retrieve generated tour ID.");
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to insert tour: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
         }
     }
-}
 
     /**
      * Searches for a tour by its ID.
@@ -610,37 +506,6 @@ public int insertTour(Tour tour) throws SQLException {
         }
         return null;
     }
-    
-    @Override
-    public Tour searchTour(int tourId) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM Tour WHERE tourID = ?";
-        try {
-            conn = getConnection(); // Establish database connection
-            ps = conn.prepareStatement(sql); // Prepare SQL query
-            ps.setInt(1, tourId); // Set tour ID
-            rs = ps.executeQuery(); // Execute query
-            if (rs.next()) { // Process result
-                return createTourFromResultSet(rs); // Create tour object
-            }
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to search tour by ID: " + ex.getMessage(), ex);
-        } finally {
-            if (rs != null) {
-                rs.close(); // Close ResultSet
-            }
-            if (ps != null) {
-                ps.close(); // Close PreparedStatement
-            }
-            if (conn != null) {
-                conn.close(); // Close Connection
-            }
-        }
-        return null;
-    }
-
 
     /**
      * Updates an existing tour in the database.
@@ -724,44 +589,6 @@ public int insertTour(Tour tour) throws SQLException {
         }
     }
 
-    
-
-    @Override
-    public int getTotalToursByDestination(String destination) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        LocalDate currentDate = LocalDate.now();
-        LocalDate startRange = currentDate.minusDays(10); // 10 days before
-        LocalDate endRange = currentDate.plusDays(10);   // 10 days after
-        String sql = "SELECT COUNT(*) FROM Tour WHERE endPlace LIKE ? AND status = 1 AND startDay > ? AND startDay BETWEEN ? AND ?";
-        try {
-            conn = getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, "%" + destination + "%");
-            ps.setDate(2, Date.valueOf(currentDate)); // Current date for future check
-            ps.setDate(3, Date.valueOf(startRange));  // Start of 10-day range
-            ps.setDate(4, Date.valueOf(endRange));    // End of 10-day range
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to retrieve total tours by destination: " + ex.getMessage(), ex);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return 0;
-    }
-
     @Override
     public int getTotalTourForSearch() throws SQLException {
         Connection conn = null;
@@ -796,78 +623,6 @@ public int insertTour(Tour tour) throws SQLException {
         }
         return 0;
     }
-
-    @Override
-    public int getTotalToursByDestination(String destination) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        LocalDate currentDate = LocalDate.now();
-        LocalDate startRange = currentDate.minusDays(10); // 10 days before
-        LocalDate endRange = currentDate.plusDays(10);   // 10 days after
-        String sql = "SELECT COUNT(*) FROM Tour WHERE endPlace LIKE ? AND status = 1 AND startDay > ? AND startDay BETWEEN ? AND ?";
-        try {
-            conn = getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, "%" + destination + "%");
-            ps.setDate(2, Date.valueOf(currentDate)); // Current date for future check
-            ps.setDate(3, Date.valueOf(startRange));  // Start of 10-day range
-            ps.setDate(4, Date.valueOf(endRange));    // End of 10-day range
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to retrieve total tours by destination: " + ex.getMessage(), ex);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return 0;
-    }
-
-    @Override
-    public int getTotalTourForSearch() throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        LocalDate currentDate = LocalDate.now();
-        LocalDate startRange = currentDate.minusDays(10); // 10 days before
-        LocalDate endRange = currentDate.plusDays(10);   // 10 days after
-        String sql = "SELECT COUNT(*) FROM Tour WHERE status = 1 AND startDay > ? AND startDay BETWEEN ? AND ?";
-        try {
-            conn = getConnection(); // Establish database connection
-            ps = conn.prepareStatement(sql); // Prepare SQL query
-            ps.setDate(1, Date.valueOf(currentDate)); // Current date for future check
-            ps.setDate(2, Date.valueOf(startRange));  // Start of 10-day range
-            ps.setDate(3, Date.valueOf(endRange));    // End of 10-day range
-            rs = ps.executeQuery(); // Execute query
-            if (rs.next()) { // Process result
-                return rs.getInt(1); // Return count
-            }
-        } catch (SQLException ex) {
-            throw new SQLException("Failed to retrieve total tours: " + ex.getMessage(), ex);
-        } finally {
-            if (rs != null) {
-                rs.close(); // Close ResultSet
-            }
-            if (ps != null) {
-                ps.close(); // Close PreparedStatement
-            }
-            if (conn != null) {
-                conn.close(); // Close Connection
-            }
-        }
-        return 0;
-    }
-
 
     @Override
     public int getTotalToursWithFilters(String budget, String departure, String destination,
@@ -888,7 +643,7 @@ public int insertTour(Tour tour) throws SQLException {
             sql.append(" AND startPlace = ?");
         }
         if (destination != null && !destination.isEmpty()) {
-            sql.append(" AND endPlace = ?");
+            sql.append(" AND endPlace LIKE ?");
         }
         if (tourCategory != null && !tourCategory.isEmpty()) {
             sql.append(" AND tourCategoryID = ?");
@@ -904,7 +659,7 @@ public int insertTour(Tour tour) throws SQLException {
                 ps.setString(paramIndex++, departure);
             }
             if (destination != null && !destination.isEmpty()) {
-                ps.setString(paramIndex++, destination);
+                ps.setString(paramIndex++, "%" + destination + "%");
             }
             if (tourCategory != null && !tourCategory.isEmpty()) {
                 ps.setString(paramIndex++, tourCategory);
@@ -1003,19 +758,127 @@ public int insertTour(Tour tour) throws SQLException {
         }
         return listTours;
     }
+
+    /**
+     * Retrieves all tours for a specific travel agent by status.
+     *
+     * @param travelAgentID The ID of the travel agent
+     * @param status The status of the tours to retrieve
+     * @return A Vector containing all Tour objects
+     * @throws SQLException If a database error occurs
+     */
+    @Override
+    public Vector<Tour> searchTourByStatusAndAgent(int travelAgentID, int status) throws SQLException {
+        Vector<Tour> listTours = new Vector<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "SELECT * FROM Tour WHERE travelAgentID = ? AND status = ?";
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, travelAgentID);
+            ps.setInt(2, status);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Tour tour = createTourFromResultSet(rs);
+                listTours.add(tour);
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve tours by status and agent: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return listTours;
+    }
+
+    /**
+     * Retrieves all tours for a specific travel agent.
+     *
+     * @param travelAgentID The ID of the travel agent
+     * @return A Vector containing all Tour objects
+     * @throws SQLException If a database error occurs
+     */
+    @Override
+    public Vector<Tour> getAllToursByAgent(int travelAgentID) throws SQLException {
+        Vector<Tour> listTours = new Vector<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "SELECT * FROM Tour WHERE travelAgentID = ?";
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, travelAgentID);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Tour tour = createTourFromResultSet(rs);
+                listTours.add(tour);
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve all tours by agent: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return listTours;
+    }
+    @Override
+    public boolean hasBookings(int tourId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "SELECT COUNT(*) FROM BookDetail WHERE tourID = ?";
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            rs = ps.executeQuery();
+            if (rs.next()){
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve all tours by agent: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return false;
+    }
     
     @Override
-    public boolean updateQuantityAfterBooking(int tourID, int totalPeople) {
-        String sql = "UPDATE Tour SET quantity = quantity - ? WHERE tourID = ? AND quantity >= ?";
+    public boolean updateQuantityAfterCancel(int tourID, int numberHuman) throws Exception {
+        String sql = "UPDATE Tour SET quantity = quantity + ? WHERE tourID = ?";
         Connection conn = null;
         PreparedStatement stmt = null;
         
         try{
             conn = getConnection();
             stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, totalPeople);
+            stmt.setInt(1, numberHuman);
             stmt.setInt(2, tourID);
-            stmt.setInt(3, totalPeople); // đảm bảo còn đủ chỗ
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -1034,15 +897,14 @@ public int insertTour(Tour tour) throws SQLException {
     public static void main(String[] args) {
         TourDAO dao = new TourDAO();
         try {
-            Vector<Tour> tours = dao.searchToursByDestination("", 1, 10);
             Vector<Tour> tours2 = dao.getToursWithFilters("", "", "", "2025-07-03", "", 2, 5);
-            Tour t = dao.searchTourByID(1);
-            t.setReason("a");
-            dao.updateTour(t);
+            Tour t = dao.searchTourByID(5);
+            boolean a = dao.hasBookings(4);
+            System.out.println(a);
+            System.out.println(t);
         } catch (SQLException ex) {
             ex.printStackTrace(); // Print stack trace for debugging
         }
     }
 
 }
-

@@ -257,7 +257,8 @@ public class AddTour extends HttpServlet {
                     session.removeAttribute("entertainmentIds");
                     session.removeAttribute("imagePath");
                     session.setAttribute("successMessage", "Thêm tour thành công!");
-                    response.sendRedirect(request.getContextPath() + "/ListTour?service=list");
+                    session.setAttribute("showSuccessPopup", "add"); // Trigger pop-up
+                    response.sendRedirect(request.getContextPath() + "/ListTour?service=list&status=2&lastPage=true");
                 }
             }
         } catch (SQLException e) {
@@ -334,6 +335,8 @@ public class AddTour extends HttpServlet {
                 int quantity = Integer.parseInt(quantityStr);
                 if (quantity <= 0) {
                     errors.put("quantity", "Số lượng phải lớn hơn 0!");
+                } else if (quantity > 1000) {
+                    errors.put("quantity", "Số lượng không được vượt quá 1000!");
                 }
             } catch (NumberFormatException e) {
                 errors.put("quantity", "Số lượng phải là số hợp lệ!");
@@ -343,9 +346,11 @@ public class AddTour extends HttpServlet {
             errors.put("adultPrice", "Giá người lớn không được để trống!");
         } else {
             try {
-                double adultPrice = Double.parseDouble(adultPriceStr);
+                double adultPrice = Double.parseDouble(adultPriceStr.replaceAll("[^0-9]", ""));
                 if (adultPrice < 0) {
                     errors.put("adultPrice", "Giá người lớn không được âm!");
+                } else if (adultPrice > 100000000) { // 100 triệu
+                    errors.put("adultPrice", "Giá người lớn không được vượt quá 100 triệu VNĐ!");
                 }
             } catch (NumberFormatException e) {
                 errors.put("adultPrice", "Giá người lớn phải là số hợp lệ!");
@@ -355,33 +360,43 @@ public class AddTour extends HttpServlet {
             errors.put("childrenPrice", "Giá trẻ em không được để trống!");
         } else {
             try {
-                double childrenPrice = Double.parseDouble(childrenPriceStr);
+                double childrenPrice = Double.parseDouble(childrenPriceStr.replaceAll("[^0-9]", ""));
                 if (childrenPrice < 0) {
                     errors.put("childrenPrice", "Giá trẻ em không được âm!");
+                } else if (childrenPrice > 100000000) { // 100 triệu
+                    errors.put("childrenPrice", "Giá trẻ em không được vượt quá 100 triệu VNĐ!");
                 }
             } catch (NumberFormatException e) {
                 errors.put("childrenPrice", "Giá trẻ em phải là số hợp lệ!");
             }
         }
+        if (!adultPriceStr.isEmpty() && !childrenPriceStr.isEmpty()) {
+            double adultPrice = Double.parseDouble(adultPriceStr.replaceAll("[^0-9]", ""));
+            double childrenPrice = Double.parseDouble(childrenPriceStr.replaceAll("[^0-9]", ""));
+            if (adultPrice <= childrenPrice) {
+                errors.put("adultPrice", "Giá người lớn phải lớn hơn giá trẻ em!");
+            }
+        }
+        
         if (tourIntroduce.isEmpty()) {
             errors.put("tourIntroduce", "Giới thiệu tour không được để trống!");
-        } else if (tourIntroduce.length() < 10 || tourIntroduce.length() > 500) {
-            errors.put("tourIntroduce", "Giới thiệu tour phải từ 10 đến 500 ký tự!");
+        } else if (tourIntroduce.length() < 10 || tourIntroduce.length() > 3000) {
+            errors.put("tourIntroduce", "Giới thiệu tour phải từ 10 đến 3000 ký tự!");
         }
         if (tourSchedule.isEmpty()) {
             errors.put("tourSchedule", "Lịch trình tour không được để trống!");
-        } else if (tourSchedule.length() < 10 || tourSchedule.length() > 1000) {
-            errors.put("tourSchedule", "Lịch trình tour phải từ 10 đến 1000 ký tự!");
+        } else if (tourSchedule.length() < 10 || tourSchedule.length() > 5000) {
+            errors.put("tourSchedule", "Lịch trình tour phải từ 10 đến 5000 ký tự!");
         }
         if (tourInclude.isEmpty()) {
             errors.put("tourInclude", "Bao gồm không được để trống!");
-        } else if (tourInclude.length() < 10 || tourInclude.length() > 500) {
-            errors.put("tourInclude", "Bao gồm phải từ 10 đến 500 ký tự!");
+        } else if (tourInclude.length() < 10 || tourInclude.length() > 2000) {
+            errors.put("tourInclude", "Bao gồm phải từ 10 đến 2000 ký tự!");
         }
         if (tourNonInclude.isEmpty()) {
             errors.put("tourNonInclude", "Không bao gồm không được để trống!");
-        } else if (tourNonInclude.length() < 10 || tourNonInclude.length() > 500) {
-            errors.put("tourNonInclude", "Không bao gồm phải từ 10 đến 500 ký tự!");
+        } else if (tourNonInclude.length() < 10 || tourNonInclude.length() > 2000) {
+            errors.put("tourNonInclude", "Không bao gồm phải từ 10 đến 2000 ký tự!");
         }
         if (imagePath == null || imagePath.isEmpty()) {
             errors.put("image", "Vui lòng chọn ảnh cho tour!");
