@@ -10,11 +10,13 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
         <title>Đăng ký - Trang 1</title>
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <!-- Favicon -->
         <link href="img/favicon.ico" rel="icon">
@@ -84,6 +86,7 @@
                 background: #f0f0f0;
             }
 
+
             .form-group {
                 margin-bottom: 15px;
                 text-align: left;
@@ -151,6 +154,7 @@
                 color: purple;
                 text-decoration: none;
             }
+
 
             .image-section img {
                 width: 100%;
@@ -257,3 +261,4 @@
         <script src="assets/js/main.js"></script>
     </body>
 </html>
+

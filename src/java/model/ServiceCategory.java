@@ -1,3 +1,4 @@
+
 /**
  * Represents a service category entity in the TravelAgentService application.<br>
  * This class models a service category with an ID and name, used for categorizing services in the system.<br>

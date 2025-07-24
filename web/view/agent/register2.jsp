@@ -1,4 +1,4 @@
-<%-- 
+
  * Copyright (C) 2025, Group 6.
  * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
@@ -52,6 +52,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+
                 padding-top: 200px;
                 padding-bottom: 50px;
             }
@@ -474,3 +475,4 @@
     <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
 </body>
 </html>
+
