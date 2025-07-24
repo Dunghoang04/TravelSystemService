@@ -1,24 +1,35 @@
+
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-21  1.0        Quynh Mai          First implementation
  */
 package model;
 
+/**
+ *
+ * @author Nhat Anh
+ */
 public class TourCategory {
     private int tourCategoryID;
     private String tourCategoryName;
 
-    // Constructor mặc định
     public TourCategory() {
     }
 
-    // Constructor đầy đủ
     public TourCategory(int tourCategoryID, String tourCategoryName) {
         this.tourCategoryID = tourCategoryID;
         this.tourCategoryName = tourCategoryName;
     }
+    
+    public TourCategory(String tourCategoryName) {
+        this.tourCategoryName = tourCategoryName;
+    }
 
-    // Getter và Setter
     public int getTourCategoryID() {
         return tourCategoryID;
     }
@@ -35,12 +46,12 @@ public class TourCategory {
         this.tourCategoryName = tourCategoryName;
     }
 
-    // toString
     @Override
     public String toString() {
-        return "TourCategory{" +
-                "tourCategoryID=" + tourCategoryID +
-                ", tourCategoryName='" + tourCategoryName + '\'' +
-                '}';
+        return "TourCategory{" + "tourCategoryID=" + tourCategoryID + ", tourCategoryName=" + tourCategoryName + '}';
     }
+    
+    
+    
 }
+

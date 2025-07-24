@@ -1,3 +1,13 @@
+
+/*
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-21  1.0        Quynh Mai          First implementation
+ */
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -5,51 +15,129 @@
 package model;
 
 import java.sql.Date;
-import java.sql.Time;
 
+/**
+ *
+ * @author Nhat Anh
+ */
 public class Tour {
     private int tourID;
     private int tourCategoryID;
     private int travelAgentID;
+    private String tourName;
+    private int numberOfDay;
     private String startPlace;
     private String endPlace;
-    private Date startDate;
-    private Date endDate;
-    private Time startTime;
-    private Time endTime;
-    private int numberOfDay;
-    private float pricePerNight;
-    private float adultPrice;
-    private float childrenPrice;
     private int quantity;
+    private String image;
+    private String tourIntroduce;
+    private String tourSchedule;
+    private String tourInclude;
+    private String tourNonInclude;
     private float rate;
-    private boolean status;
+    private int status;
+    private Date startDay;
+    private Date endDay;
+    private double adultPrice;
+    private double childrenPrice;
+    private String reason;
 
-    // Constructor mặc định
     public Tour() {
     }
+   
+    
 
-    // Constructor đầy đủ
-    public Tour(int tourID, int tourCategoryID, int travelAgentID, String startPlace, String endPlace, Date startDate, Date endDate, Time startTime, Time endTime, int numberOfDay, float pricePerNight, float adultPrice, float childrenPrice, int quantity, float rate, boolean status) {
+    public Tour(int tourCategoryID1, int travelAgentID1, String tourName1, int numberOfDays, String startPlace1, String endPlace1, int quantity1, String tourImagePath, String tourDescription, float par, int par1, Date startDate, Date endDate, double adultPrice1, double childrenPrice1) {
+    }
+
+    public Tour(int tourID, int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status, Date startDay, Date endDay, double adultPrice, double childrenPrice, String reason) {
         this.tourID = tourID;
         this.tourCategoryID = tourCategoryID;
         this.travelAgentID = travelAgentID;
+        this.tourName = tourName;
+        this.numberOfDay = numberOfDay;
         this.startPlace = startPlace;
         this.endPlace = endPlace;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.numberOfDay = numberOfDay;
-        this.pricePerNight = pricePerNight;
-        this.adultPrice = adultPrice;
-        this.childrenPrice = childrenPrice;
         this.quantity = quantity;
+        this.image = image;
+        this.tourIntroduce = tourIntroduce;
+        this.tourSchedule = tourSchedule;
+        this.tourInclude = tourInclude;
+        this.tourNonInclude = tourNonInclude;
         this.rate = rate;
         this.status = status;
+        this.startDay = startDay;
+        this.endDay = endDay;
+        this.adultPrice = adultPrice;
+        this.childrenPrice = childrenPrice;
+        this.reason = reason;
+    }
+    
+    public Tour(int tourCategoryID, int travelAgentID, String tourName, int numberOfDay, String startPlace, String endPlace, int quantity, String image, String tourIntroduce, String tourSchedule, String tourInclude, String tourNonInclude, float rate, int status, Date startDay, Date endDay, double adultPrice, double childrenPrice, String reason) {
+        this.tourCategoryID = tourCategoryID;
+        this.travelAgentID = travelAgentID;
+        this.tourName = tourName;
+        this.numberOfDay = numberOfDay;
+        this.startPlace = startPlace;
+        this.endPlace = endPlace;
+        this.quantity = quantity;
+        this.image = image;
+        this.tourIntroduce = tourIntroduce;
+        this.tourSchedule = tourSchedule;
+        this.tourInclude = tourInclude;
+        this.tourNonInclude = tourNonInclude;
+        this.rate = rate;
+        this.status = status;
+        this.startDay = startDay;
+        this.endDay = endDay;
+        this.adultPrice = adultPrice;
+        this.childrenPrice = childrenPrice;
+        this.reason = reason;
     }
 
-    // Getter và Setter
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+    
+
+    public Date getStartDay() {
+        return startDay;
+    }
+
+    public void setStartDay(Date startDay) {
+        this.startDay = startDay;
+    }
+
+    public Date getEndDay() {
+        return endDay;
+    }
+
+    public void setEndDay(Date endDay) {
+        this.endDay = endDay;
+    }
+
+    public double getAdultPrice() {
+        return adultPrice;
+    }
+
+    public void setAdultPrice(double adultPrice) {
+        this.adultPrice = adultPrice;
+    }
+
+    public double getChildrenPrice() {
+        return childrenPrice;
+    }
+
+    public void setChildrenPrice(double childrenPrice) {
+        this.childrenPrice = childrenPrice;
+    }
+
+    
+
     public int getTourID() {
         return tourID;
     }
@@ -74,6 +162,23 @@ public class Tour {
         this.travelAgentID = travelAgentID;
     }
 
+    public String getTourName() {
+        return tourName;
+    }
+
+    public void setTourName(String tourName) {
+        this.tourName = tourName;
+    }
+
+    public int getNumberOfDay() {
+        return numberOfDay;
+    }
+
+    public void setNumberOfDay(int numberOfDay) {
+        this.numberOfDay = numberOfDay;
+    }
+
+
     public String getStartPlace() {
         return startPlace;
     }
@@ -90,76 +195,52 @@ public class Tour {
         this.endPlace = endPlace;
     }
 
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public Time getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Time startTime) {
-        this.startTime = startTime;
-    }
-
-    public Time getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Time endTime) {
-        this.endTime = endTime;
-    }
-
-    public int getNumberOfDay() {
-        return numberOfDay;
-    }
-
-    public void setNumberOfDay(int numberOfDay) {
-        this.numberOfDay = numberOfDay;
-    }
-
-    public float getPricePerNight() {
-        return pricePerNight;
-    }
-
-    public void setPricePerNight(float pricePerNight) {
-        this.pricePerNight = pricePerNight;
-    }
-
-    public float getAdultPrice() {
-        return adultPrice;
-    }
-
-    public void setAdultPrice(float adultPrice) {
-        this.adultPrice = adultPrice;
-    }
-
-    public float getChildrenPrice() {
-        return childrenPrice;
-    }
-
-    public void setChildrenPrice(float childrenPrice) {
-        this.childrenPrice = childrenPrice;
-    }
-
     public int getQuantity() {
         return quantity;
     }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getTourIntroduce() {
+        return tourIntroduce;
+    }
+
+    public void setTourIntroduce(String tourIntroduce) {
+        this.tourIntroduce = tourIntroduce;
+    }
+
+    public String getTourSchedule() {
+        return tourSchedule;
+    }
+
+    public void setTourSchedule(String tourSchedule) {
+        this.tourSchedule = tourSchedule;
+    }
+
+    public String getTourInclude() {
+        return tourInclude;
+    }
+
+    public void setTourInclude(String tourInclude) {
+        this.tourInclude = tourInclude;
+    }
+
+    public String getTourNonInclude() {
+        return tourNonInclude;
+    }
+
+    public void setTourNonInclude(String tourNonInclude) {
+        this.tourNonInclude = tourNonInclude;
     }
 
     public float getRate() {
@@ -170,34 +251,21 @@ public class Tour {
         this.rate = rate;
     }
 
-    public boolean isStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
-    // toString
     @Override
     public String toString() {
-        return "Tour{" +
-                "tourID=" + tourID +
-                ", tourCategoryID=" + tourCategoryID +
-                ", travelAgentID=" + travelAgentID +
-                ", startPlace='" + startPlace + '\'' +
-                ", endPlace='" + endPlace + '\'' +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", numberOfDay=" + numberOfDay +
-                ", pricePerNight=" + pricePerNight +
-                ", adultPrice=" + adultPrice +
-                ", childrenPrice=" + childrenPrice +
-                ", quantity=" + quantity +
-                ", rate=" + rate +
-                ", status=" + status +
-                '}';
+        return "Tour{" + "tourID=" + tourID + ", tourCategoryID=" + tourCategoryID + ", travelAgentID=" + travelAgentID + ", tourName=" + tourName + ", numberOfDay=" + numberOfDay + ", startPlace=" + startPlace + ", endPlace=" + endPlace + ", quantity=" + quantity + ", image=" + image + ", tourIntroduce=" + tourIntroduce + ", tourSchedule=" + tourSchedule + ", tourInclude=" + tourInclude + ", tourNonInclude=" + tourNonInclude + ", rate=" + rate + ", status=" + status + ", startDay=" + startDay + ", endDay=" + endDay + ", adultPrice=" + adultPrice + ", childrenPrice=" + childrenPrice + ", reason=" + reason + '}';
     }
+
+    
+    
+
 }
+
