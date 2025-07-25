@@ -95,7 +95,6 @@ public class UpdateRestaurant extends HttpServlet {
             throws ServletException, IOException {
         IRestaurantDAO restaurantDao = new RestaurantDAO();
         IService serviceDao = new ServiceDao();
-
         String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1";
 
         try {
@@ -109,7 +108,6 @@ public class UpdateRestaurant extends HttpServlet {
                 throw new IllegalArgumentException("Mã nhà hàng phải là số nguyên dương.");
             }
             int serviceUsed = serviceDao.countServiceUsed(restaurantDao.getRestaurantByServiceId(id).getServiceId());
-
 
             // Retrieve restaurant details
             Restaurant updateRestaurant = restaurantDao.getRestaurantByServiceId(id);
@@ -142,13 +140,12 @@ public class UpdateRestaurant extends HttpServlet {
             request.setAttribute("rate", updateRestaurant.getRate());
             request.setAttribute("type", updateRestaurant.getType());
             request.setAttribute("status", updateRestaurant.getStatus());
-            request.setAttribute("timeOpen", updateRestaurant.getTimeOpen() != null ? updateRestaurant.getTimeOpen().toString().substring(0, 5) : "");
-            request.setAttribute("timeClose", updateRestaurant.getTimeClose() != null ? updateRestaurant.getTimeClose().toString().substring(0, 5) : "");
+            request.setAttribute("timeOpen", updateRestaurant.getTimeOpen() != null ? updateRestaurant.getTimeOpen().substring(0, 5) : "");
+            request.setAttribute("timeClose", updateRestaurant.getTimeClose() != null ? updateRestaurant.getTimeClose().substring(0, 5) : "");
             request.setAttribute("page", currentPage);
             if (serviceUsed > 0) {
                 request.setAttribute("serviceUsed", "Dịch vụ đã được sử dụng");
             }
-
             request.getRequestDispatcher("view/agent/restaurant/updateRestaurant.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             sendError(request, response, "errorSystem", "Mã nhà hàng không hợp lệ.");
@@ -173,7 +170,7 @@ public class UpdateRestaurant extends HttpServlet {
             throws ServletException, IOException {
         IRestaurantDAO restaurantDao = new RestaurantDAO();
         String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1";
-
+        
         try {
             // Retrieve and validate form parameters
             String serviceIdParam = request.getParameter("serviceId");
@@ -264,7 +261,6 @@ public class UpdateRestaurant extends HttpServlet {
                 sendError(request, response, "errorName", "Tên không được vượt quá 255 ký tự.");
                 return;
             }
-
 
             if (phone.length() > 20) {
                 sendError(request, response, "errorPhone", "Số điện thoại không được vượt quá 20 ký tự.");

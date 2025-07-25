@@ -124,6 +124,7 @@
                 color: #FFCA2C;
             }
             main{
+                height: 100%;
                 color: #fff;
                 z-index: 0;
                 position: relative;
@@ -221,7 +222,6 @@
 
         </style>
     </head>
-
 
     <body>
         <c:if test="${empty param.tourId}">

@@ -23,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Connection;
-import model.Restaurant;
 
 /**
  * Implementation of the EntertainmentDAO interface for managing entertainment
@@ -42,20 +41,20 @@ import model.Restaurant;
 public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
 
     private static final String INSERT_ENTERTAINMENT_SQL = "INSERT INTO [dbo].[Entertainment] ([serviceId], [name], [image], [address], [phone], [description], [rate], [type], [status], [timeOpen], [timeClose], [dayOfWeekOpen], [ticketPrice]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_ALL_ENTERTAINMENTS_SQL = "SELECT * FROM Entertainment ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String COUNT_ALL_SQL = "SELECT COUNT(*) FROM Entertainment";
+    private static final String SELECT_ALL_ENTERTAINMENTS_SQL = "SELECT e.* FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ? ORDER BY e.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String COUNT_ALL_SQL = "SELECT COUNT(*) FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ?";
     private static final String SELECT_BY_SERVICE_ID_SQL = "SELECT * FROM Entertainment WHERE serviceId = ?";
-    private static final String SEARCH_BY_TYPE_AND_NAME_SQL = "SELECT * FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) AND status = ? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String COUNT_BY_TYPE_AND_NAME_SQL = "SELECT COUNT(*) FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) AND status = ?";
+    private static final String SEARCH_BY_TYPE_AND_NAME_SQL = "SELECT e.* FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(e.name) LIKE LOWER(?) AND e.status = ? ORDER BY e.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String COUNT_BY_TYPE_AND_NAME_SQL = "SELECT COUNT(*) FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(e.name) LIKE LOWER(?) AND e.status = ?";
     private static final String UPDATE_ENTERTAINMENT_SQL = "UPDATE [dbo].[Entertainment] SET [name] = ?, [image] = ?, [address] = ?, [phone] = ?, [description] = ?, [rate] = ?, [type] = ?, [status] = ?, [timeOpen] = ?, [timeClose] = ?, [dayOfWeekOpen] = ?, [ticketPrice] = ? WHERE serviceId = ?";
     private static final String SELECT_STATUS_SQL = "SELECT status FROM [dbo].[Entertainment] WHERE serviceId = ?";
     private static final String CHANGE_STATUS_SQL = "UPDATE [dbo].[Entertainment] SET [status] = ? WHERE serviceId = ?";
     private static final String DELETE_ENTERTAINMENT_SQL = "DELETE FROM Entertainment WHERE serviceId = ?";
     private static final String DELETE_SERVICE_SQL = "DELETE FROM Service WHERE serviceId = ?";
-    private static final String SEARCH_BY_NAME_SQL = "SELECT * FROM Entertainment WHERE LOWER(name) LIKE LOWER(?) ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String COUNT_BY_NAME_SQL = "SELECT COUNT(*) FROM Entertainment WHERE LOWER(name) LIKE LOWER(?)";
-    private static final String SELECT_BY_STATUS_SQL = "SELECT * FROM Entertainment WHERE status = ? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String COUNT_BY_STATUS_SQL = "SELECT COUNT(*) FROM Entertainment WHERE status = ?";
+    private static final String SEARCH_BY_NAME_SQL = "SELECT e.* FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(e.name) LIKE LOWER(?) ORDER BY e.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String COUNT_BY_NAME_SQL = "SELECT COUNT(*) FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(e.name) LIKE LOWER(?)";
+    private static final String SELECT_BY_STATUS_SQL = "SELECT e.* FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ? AND e.status = ? ORDER BY e.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String COUNT_BY_STATUS_SQL = "SELECT COUNT(*) FROM Entertainment e JOIN Service s ON e.serviceId = s.serviceId WHERE s.travelAgentID = ? AND e.status = ?";
 
     private Entertainment createEntertainmentFromResultSet(ResultSet resultSet) throws SQLException {
         Time timeOpen = resultSet.getTime("timeOpen");
@@ -82,6 +81,7 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
      * Inserts a new entertainment record into the database with transaction
      * support.
      *
+     * @param agentID
      * @param name the name of the entertainment
      * @param image the image URL or path
      * @param address the address
@@ -146,21 +146,23 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
     /**
      * Retrieves a paginated list of all entertainment records.
      *
+     * @param travelAgentID
      * @param page the page number (1-based)
      * @param pageSize the number of records per page
      * @return a list of Entertainment objects
      * @throws SQLException if a database error occurs
      */
     @Override
-    public List<Entertainment> getListEntertainment(int page, int pageSize) throws SQLException {
+    public List<Entertainment> getListEntertainment(int travelAgentID,int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Entertainment> entertainmentList = new ArrayList<>();
         try {
             preparedStatement = conn.prepareStatement(SELECT_ALL_ENTERTAINMENTS_SQL);
-            preparedStatement.setInt(1, (page - 1) * pageSize);
-            preparedStatement.setInt(2, pageSize);
+            preparedStatement.setInt(1, travelAgentID);
+            preparedStatement.setInt(2, (page - 1) * pageSize);
+            preparedStatement.setInt(3, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 entertainmentList.add(createEntertainmentFromResultSet(resultSet));
@@ -196,13 +198,21 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
      * @return the total number of records
      * @throws SQLException if a database error occurs
      */
+    /**
+     * Counts all entertainment records for a specific travel agent.
+     *
+     * @param travelAgentID the ID of the travel agent
+     * @return the total number of records
+     * @throws SQLException if a database error occurs
+     */
     @Override
-    public int countAll() throws SQLException {
+    public int countAll(int travelAgentID) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
             preparedStatement = conn.prepareStatement(COUNT_ALL_SQL);
+            preparedStatement.setInt(1, travelAgentID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
@@ -210,24 +220,9 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return 0;
     }
@@ -254,31 +249,17 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return null;
     }
 
     /**
-     * Searches entertainment records by status and name with pagination.
+     * Searches entertainment records by status and name with pagination for a specific travel agent.
      *
+     * @param travelAgentID the ID of the travel agent
      * @param status the status
      * @param name the name to search (partial match)
      * @param page the page number (1-based)
@@ -287,17 +268,18 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
      * @throws SQLException if a database error occurs
      */
     @Override
-    public List<Entertainment> searchByTypeAndName(int status, String name, int page, int pageSize) throws SQLException {
+    public List<Entertainment> searchByTypeAndName(int travelAgentID, int status, String name, int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Entertainment> entertainmentList = new ArrayList<>();
         try {
             preparedStatement = conn.prepareStatement(SEARCH_BY_TYPE_AND_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
-            preparedStatement.setInt(2, status);
-            preparedStatement.setInt(3, (page - 1) * pageSize);
-            preparedStatement.setInt(4, pageSize);
+            preparedStatement.setInt(1, travelAgentID);
+            preparedStatement.setString(2, "%" + name + "%");
+            preparedStatement.setInt(3, status);
+            preparedStatement.setInt(4, (page - 1) * pageSize);
+            preparedStatement.setInt(5, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 entertainmentList.add(createEntertainmentFromResultSet(resultSet));
@@ -305,45 +287,32 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return entertainmentList;
     }
 
     /**
-     * Counts entertainment records by status and name.
+     * Counts entertainment records by status and name for a specific travel agent.
      *
+     * @param travelAgentID the ID of the travel agent
      * @param status the status
      * @param name the name to search
      * @return the number of matching records
      * @throws SQLException if a database error occurs
      */
     @Override
-    public int countByTypeAndName(int status, String name) throws SQLException {
+    public int countByTypeAndName(int travelAgentID, int status, String name) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
             preparedStatement = conn.prepareStatement(COUNT_BY_TYPE_AND_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
-            preparedStatement.setInt(2, status);
+            preparedStatement.setInt(1, travelAgentID);
+            preparedStatement.setString(2, "%" + name + "%");
+            preparedStatement.setInt(3, status);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
@@ -351,24 +320,9 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return 0;
     }
@@ -464,24 +418,9 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return -1;
     }
@@ -580,8 +519,9 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
     }
 
     /**
-     * Searches entertainment records by name with pagination.
+     * Searches entertainment records by name with pagination for a specific travel agent.
      *
+     * @param travelAgentID the ID of the travel agent
      * @param name the name to search (partial match)
      * @param page the page number (1-based)
      * @param pageSize the number of records per page
@@ -589,16 +529,17 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
      * @throws SQLException if a database error occurs
      */
     @Override
-    public List<Entertainment> searchEntertainmentByName(String name, int page, int pageSize) throws SQLException {
+    public List<Entertainment> searchEntertainmentByName(int travelAgentID, String name, int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Entertainment> entertainmentList = new ArrayList<>();
         try {
             preparedStatement = conn.prepareStatement(SEARCH_BY_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
-            preparedStatement.setInt(2, (page - 1) * pageSize);
-            preparedStatement.setInt(3, pageSize);
+            preparedStatement.setInt(1, travelAgentID);
+            preparedStatement.setString(2, "%" + name + "%");
+            preparedStatement.setInt(3, (page - 1) * pageSize);
+            preparedStatement.setInt(4, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 entertainmentList.add(createEntertainmentFromResultSet(resultSet));
@@ -606,43 +547,30 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return entertainmentList;
     }
 
     /**
-     * Counts entertainment records by name.
+     * Counts entertainment records by name for a specific travel agent.
      *
+     * @param travelAgentID the ID of the travel agent
      * @param name the name to search
      * @return the number of matching records
      * @throws SQLException if a database error occurs
      */
     @Override
-    public int countByName(String name) throws SQLException {
+    public int countByName(int travelAgentID, String name) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
             preparedStatement = conn.prepareStatement(COUNT_BY_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
+            preparedStatement.setInt(1, travelAgentID);
+            preparedStatement.setString(2, "%" + name + "%");
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
@@ -650,31 +578,17 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return 0;
     }
 
     /**
-     * Retrieves entertainment records by status with pagination.
+     * Retrieves entertainment records by status with pagination for a specific travel agent.
      *
+     * @param travelAgentID the ID of the travel agent
      * @param status the status
      * @param page the page number (1-based)
      * @param pageSize the number of records per page
@@ -682,16 +596,17 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
      * @throws SQLException if a database error occurs
      */
     @Override
-    public List<Entertainment> getEntertainmentByStatus(int status, int page, int pageSize) throws SQLException {
+    public List<Entertainment> getEntertainmentByStatus(int travelAgentID, int status, int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Entertainment> entertainmentList = new ArrayList<>();
         try {
             preparedStatement = conn.prepareStatement(SELECT_BY_STATUS_SQL);
-            preparedStatement.setInt(1, status);
-            preparedStatement.setInt(2, (page - 1) * pageSize);
-            preparedStatement.setInt(3, pageSize);
+            preparedStatement.setInt(1, travelAgentID);
+            preparedStatement.setInt(2, status);
+            preparedStatement.setInt(3, (page - 1) * pageSize);
+            preparedStatement.setInt(4, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 entertainmentList.add(createEntertainmentFromResultSet(resultSet));
@@ -699,43 +614,30 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return entertainmentList;
     }
 
     /**
-     * Counts entertainment records by status.
+     * Counts entertainment records by status for a specific travel agent.
      *
+     * @param travelAgentID the ID of the travel agent
      * @param status the status
      * @return the number of matching records
      * @throws SQLException if a database error occurs
      */
     @Override
-    public int countByStatus(int status) throws SQLException {
+    public int countByStatus(int travelAgentID, int status) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
             preparedStatement = conn.prepareStatement(COUNT_BY_STATUS_SQL);
-            preparedStatement.setInt(1, status);
+            preparedStatement.setInt(1, travelAgentID);
+            preparedStatement.setInt(2, status);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
@@ -743,26 +645,10 @@ public class EntertainmentDAO extends DBContext implements IEntertainmentDAO {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+            if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {}
+            if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) {}
+            if (conn != null) try { conn.close(); } catch (SQLException e) {}
         }
         return 0;
     }
-
 }

@@ -174,8 +174,6 @@
                                 type="text" 
                                 name="searchName"
                                 value="${requestScope.searchName}"
-
-
                                 maxlength="100"
                                 class="form-control me-2 shadow-sm" 
                                 placeholder="Tìm giải trí theo tên..." 
@@ -186,8 +184,6 @@
                                 Tìm kiếm
                             </button>
                         </form>
-
-
 
                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; justify-content: space-between;">
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -200,75 +196,81 @@
                                 </select>
                             </div>
                             <a href="${pageContext.request.contextPath}/addentertainment">
-
-
                                 <button style="padding: 5px 68px" class="btn btn-info"><i class="fa-solid fa-user-plus"></i>Thêm giải trí</button>
                             </a>
                         </div>
+                        <c:if test="${not empty entertainmentList}">
 
-                        <div class="col-xl-12 col-md-6">
-                            <div class="card-body">
-                                <table id="tableList" style="border: 1px solid">
-                                    <thead>
-                                        <tr>
-                                            <th>STT</th>
-                                            <th>Tên giải trí</th>
-                                            <th>Ảnh</th>
-                                            <th>Loại giải trí</th>
-                                            <th>Đánh giá (Thang 10)</th>
-                                            <th>Giá tiền</th>
-                                            <th>Trạng thái</th>
-                                            <th>Hoạt động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach items="${requestScope.entertainmentList}" var="ent" varStatus="status">
+                            <div class="col-xl-12 col-md-6">
+                                <div class="card-body">
+                                    <table id="tableList" style="border: 1px solid">
+                                        <thead>
                                             <tr>
-                                                <td>${requestScope.startIndex + status.index}</td>
-                                                <td>${ent.getName()}</td>
-                                                <td>
-                                                    <a href="${ent.getImage()}" target="_self">
-                                                        <img style="width: 140px; height: 80px" src="${ent.getImage()}">
-                                                    </a>
-                                                </td>
-                                                <td>${ent.getType()}</td>
-                                                <td>${ent.getRate()}</td>
-                                                <td><fmt:formatNumber value="${ent.getTicketPrice()}" type="number" groupingUsed="true"></fmt:formatNumber>VNĐ</td>
-                                                    <td>
-                                                        <div class="btn-status">
-                                                        <c:if test="${ent.getStatus() == 1}">
-                                                            <button type="button" class="btnStatus active">Đang hoạt động</button>
-                                                        </c:if>
-                                                        <c:if test="${ent.getStatus() == 0}">
-                                                            <button type="button" class="btnStatus deactive">Dừng hoạt động</button>
-                                                        </c:if>
-                                                    </div>
-                                                </td>
-                                                <td class="box-button">
-                                                    <div class="box-action">
-                                                        <button type="button" class="btn btn-warning updatebtn" 
-                                                                data-href="updateentertainment?id=${ent.getServiceId()}&page=${requestScope.currentPage}" data-name="${ent.getName()}">
-
-
-                                                            Cập nhập
-                                                        </button>
-                                                        <button type="button" class="btn btn-primary detailbtn" 
-                                                                data-href="detailentertainment?id=${ent.getServiceId()}" data-name="${ent.getName()}">
-                                                            Chi tiết
-                                                        </button>
-                                                        <button type="button" class="btn btn-dark changeStatusBtn" 
-                                                                data-href="ChangeStatus?id=${ent.getServiceId()}&page=${requestScope.currentPage}" 
-                                                                data-name="${ent.getName()}">
-                                                            Đổi trạng thái
-                                                        </button>
-                                                    </div>
-                                                </td>
+                                                <th>STT</th>
+                                                <th>Tên giải trí</th>
+                                                <th>Ảnh</th>
+                                                <th>Loại giải trí</th>
+                                                <th>Đánh giá (Thang 10)</th>
+                                                <th>Giá tiền</th>
+                                                <th>Trạng thái</th>
+                                                <th>Hoạt động</th>
                                             </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach items="${requestScope.entertainmentList}" var="ent" varStatus="status">
+                                                <tr>
+                                                    <td>${requestScope.startIndex + status.index}</td>
+                                                    <td>${ent.getName()}</td>
+                                                    <td>
+                                                        <a href="${ent.getImage()}" target="_self">
+                                                            <img style="width: 140px; height: 80px" src="${ent.getImage()}">
+                                                        </a>
+                                                    </td>
+                                                    <td>${ent.getType()}</td>
+                                                    <td>${ent.getRate()}</td>
+                                                    <td><fmt:formatNumber value="${ent.getTicketPrice()}" type="number" groupingUsed="true"></fmt:formatNumber>VNĐ</td>
+                                                        <td>
+                                                            <div class="btn-status">
+                                                            <c:if test="${ent.getStatus() == 1}">
+                                                                <button type="button" class="btnStatus active">Đang hoạt động</button>
+                                                            </c:if>
+                                                            <c:if test="${ent.getStatus() == 0}">
+                                                                <button type="button" class="btnStatus deactive">Dừng hoạt động</button>
+                                                            </c:if>
+                                                        </div>
+                                                    </td>
+                                                    <td class="box-button">
+                                                        <div class="box-action">
+                                                            <button type="button" class="btn btn-warning updatebtn" 
+                                                                    data-href="updateentertainment?id=${ent.getServiceId()}&page=${requestScope.currentPage}" data-name="${ent.getName()}">
+                                                                Cập nhập
+                                                            </button>
+                                                            <button type="button" class="btn btn-primary detailbtn" 
+                                                                    data-href="detailentertainment?id=${ent.getServiceId()}" data-name="${ent.getName()}">
+                                                                Chi tiết
+                                                            </button>
+                                                            <button type="button" class="btn btn-dark changeStatusBtn" 
+                                                                    data-href="ChangeStatus?id=${ent.getServiceId()}&page=${requestScope.currentPage}" 
+                                                                    data-name="${ent.getName()}">
+                                                                Đổi trạng thái
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
+                        </c:if>
+                        <c:if test="${ empty entertainmentList}">
+                            <div class="alert" style="color: white;
+                                 text-align: center;
+                                 background-color: #2b2323;
+                                 border-radius: 0px;
+                                 margin: 0px;
+                                 padding: 5px;">${error}</div>
+                        </c:if>
                     </div>
                 </main>
                 <c:set var="nameParam" value="${param.searchName}" />
@@ -280,34 +282,36 @@
                 <c:if test="${not empty param.statusType}">
                     <c:set var="queryParams" value="${queryParams}&statusType=${fn:escapeXml(param.statusType)}" />
                 </c:if>
-                <div class="pagination d-flex justify-content-center mt-3">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            <!-- Previous page -->
-                            <li class="page-item ${requestScope.currentPage == 1 ? 'disabled' : ''}">
-                                <a class="page-link btn-danger" aria-label="Previous"
-                                   href="?page=${requestScope.currentPage - 1}${queryParams}">
-                                    <span aria-hidden="true">« Trang trước</span>
-                                </a>
-                            </li>
-
-                            <!-- Page numbers -->
-                            <c:forEach begin="1" end="${requestScope.numberPage}" var="pageNum">
-                                <li class="page-item ${requestScope.currentPage == pageNum ? 'active' : ''}" >
-                                    <a class="page-link btn-danger" href="?page=${pageNum}${queryParams}">${pageNum}</a>
+                <c:if test="${not empty entertainmentList}">
+                    <div class="pagination d-flex justify-content-center mt-3">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <!-- Previous page -->
+                                <li class="page-item ${requestScope.currentPage == 1 ? 'disabled' : ''}">
+                                    <a class="page-link btn-danger" aria-label="Previous"
+                                       href="?page=${requestScope.currentPage - 1}${queryParams}">
+                                        <span aria-hidden="true">« Trang trước</span>
+                                    </a>
                                 </li>
-                            </c:forEach>
 
-                            <!-- Next page -->
-                            <li class="page-item ${requestScope.currentPage == requestScope.numberPage ? 'disabled' : ''}">
-                                <a class="page-link btn-danger" aria-label="Next"
-                                   href="?page=${requestScope.currentPage + 1}${queryParams}">
-                                    <span aria-hidden="true">Trang sau »</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                                <!-- Page numbers -->
+                                <c:forEach begin="1" end="${requestScope.numberPage}" var="pageNum">
+                                    <li class="page-item ${requestScope.currentPage == pageNum ? 'active' : ''}" >
+                                        <a class="page-link btn-danger" href="?page=${pageNum}${queryParams}">${pageNum}</a>
+                                    </li>
+                                </c:forEach>
+
+                                <!-- Next page -->
+                                <li class="page-item ${requestScope.currentPage == requestScope.numberPage ? 'disabled' : ''}">
+                                    <a class="page-link btn-danger" aria-label="Next"
+                                       href="?page=${requestScope.currentPage + 1}${queryParams}">
+                                        <span aria-hidden="true">Trang sau »</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </c:if>
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
@@ -320,8 +324,6 @@
                         </div>
                     </div>
                 </footer>
-
-
             </div>
         </div>
         <script>
@@ -362,8 +364,6 @@
             });
 
             // Handle detail button clicks
-
-
             const detailButtons = document.querySelectorAll(".detailbtn");
             detailButtons.forEach(button => {
                 button.addEventListener("click", function (e) {
@@ -391,6 +391,7 @@
                 e.preventDefault();
                 const filterKeyword = statusFilterDropdown.value;
                 if (filterKeyword) {
+                    currentUrl.searchParams.delete("page");
                     currentUrl.searchParams.set("statusType", filterKeyword);
                 } else {
                     currentUrl.searchParams.delete("statusType");
@@ -412,8 +413,6 @@
             } else {
                 statusFilterDropdown.value = "";
             }
-
-
 
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

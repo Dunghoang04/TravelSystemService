@@ -1,13 +1,20 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-07-18  1.0        Hung              First implementation
  */
 package controller.user;
 
 import dao.BookTourDAO;
 import dao.TourDAO;
-import dao.VatDAO;
+import dao.TransactionHistoryDAO;
+import dao.VATDAO;
 import dao.VoucherDAO;
+import dao.WalletDAO;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -33,15 +40,12 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import model.BookDetail;
 import model.Tour;
 import model.User;
 import model.VAT;
@@ -52,32 +56,6 @@ import model.Voucher;
  * @author Hung
  */
 public class BookTourServlet extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet BookTourServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet BookTourServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -98,7 +76,7 @@ public class BookTourServlet extends HttpServlet {
         }
         TourDAO tourDao = new TourDAO();
         VoucherDAO voucherDao = new VoucherDAO();
-        VatDAO vatDao = new VatDAO();
+        VATDAO vatDao = new VATDAO();
         String id_raw = request.getParameter("tourID");
         try {
             VAT vat = vatDao.getVATActive();
@@ -108,7 +86,7 @@ public class BookTourServlet extends HttpServlet {
             request.setAttribute("voucherlist", voucherlist);
 
             int id = Integer.parseInt(id_raw);
-            Tour tour = tourDao.searchTour(id);
+            Tour tour = tourDao.searchTourByID(id);
             request.setAttribute("tour", tour);
             request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
         } catch (NumberFormatException e) {
@@ -147,6 +125,7 @@ public class BookTourServlet extends HttpServlet {
         }
 
         VoucherDAO voucherDao = new VoucherDAO();
+        VATDAO vatDao = new VATDAO();
         User user = (User) session.getAttribute("loginUser");
         TourDAO tourDao = new TourDAO();
         String numberAdult_raw = request.getParameter("adult");
@@ -157,13 +136,29 @@ public class BookTourServlet extends HttpServlet {
         try {
             ArrayList<Voucher> voucherlist = voucherDao.getAllVoucherActive();
             int tourId = Integer.parseInt(tourId_raw);
-            Tour tour = tourDao.searchTour(tourId);
+            Tour tour = tourDao.searchTourByID(tourId);
             // Lấy thông tin Voucher
             String voucherIdRaw = request.getParameter("voucherId");
             Integer voucherId = (voucherIdRaw != null && !voucherIdRaw.trim().isEmpty())
                     ? Integer.parseInt(voucherIdRaw)
                     : null;
 
+            String firstName = request.getParameter("firstName").trim();
+            if (firstName.length() > 25 || firstName.length()<4) {
+                request.setAttribute("firstNameError", "Họ của bạn không hợp lệ, vui lòng nhập 4 đến 25 kí tự");
+                request.setAttribute("voucherlist", voucherlist);
+                request.setAttribute("tour", tour);
+                request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
+                return;
+            }
+            String lastName = request.getParameter("lastName").trim();
+            if (lastName.length() > 25 || lastName.length()<4) {
+                request.setAttribute("lastNameError", "Tên của bạn không hợp lệ, vui lòng nhập 4 đến 25 kí tự");
+                request.setAttribute("voucherlist", voucherlist);
+                request.setAttribute("tour", tour);
+                request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
+                return;
+            }
             // Lấy thông tin người dùng nhập
             int numberAdult = Integer.parseInt(numberAdult_raw);
             if (numberAdult > 1000) {
@@ -183,22 +178,6 @@ public class BookTourServlet extends HttpServlet {
                 return;
             }
 
-            String firstName = request.getParameter("firstName").trim();
-            if (firstName.length() > 25) {
-                request.setAttribute("firstNameError", "Họ của bạn quá dài, vui lòng nhập dưới 25 kí tự");
-                request.setAttribute("voucherlist", voucherlist);
-                request.setAttribute("tour", tour);
-                request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
-                return;
-            }
-            String lastName = request.getParameter("lastName").trim();
-            if (lastName.length() > 25) {
-                request.setAttribute("lastNameError", "Tên của bạn quá dài, vui lòng nhập dưới 25 kí tự");
-                request.setAttribute("voucherlist", voucherlist);
-                request.setAttribute("tour", tour);
-                request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
-                return;
-            }
             String phone = request.getParameter("phone").trim();
             if (phone == null || phone.trim().isEmpty()) {
                 request.setAttribute("phoneError", "Số điện thoại không được để trống!");
@@ -239,6 +218,7 @@ public class BookTourServlet extends HttpServlet {
 
             // Thực hiện insert
             BookTourDAO bookTourDao = new BookTourDAO();
+            TransactionHistoryDAO transactionHistoryDao = new TransactionHistoryDAO();
             boolean success = false;
             int paymentMethodId = Integer.parseInt(paymentMethodId_raw);
             if (paymentMethodId == 1) {
@@ -249,30 +229,29 @@ public class BookTourServlet extends HttpServlet {
                 );
                 if (success) {
                     sendBookingConfirmationEmail(firstName, lastName, gmail, tour, numberAdult, numberChildren, formattedPrice);
-
-                // Sau khi gửi mail xong redirect hoặc forward
-                response.sendRedirect("walletpaymentsuccess?bookCode=" + bookCode);
-                return;
-            } else {
-                request.setAttribute("error", "Đặt chuyến đi thất bại. Vui lòng xem lại số dư và chắc chắc bạn đủ số dư để thanh toán");
-                request.setAttribute("tour", tour);
-                request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
-            }
-
+                    response.sendRedirect("walletpaymentsuccess?bookCode=" + bookCode);
+                    return;
+                }else{
+                    VAT vat = vatDao.getVATActive();
+                    request.setAttribute("vat", vat);
+                    request.setAttribute("voucherlist", voucherlist);
+                    request.setAttribute("error", "Đặt chuyến đi thất bại. Vui lòng xem lại số dư và chắc chắc bạn đủ số dư để thanh toán");
+                    request.setAttribute("tour", tour);
+                    request.getRequestDispatcher("view/user/bookTour.jsp").forward(request, response);
+                }
             } else if (paymentMethodId == 2) {
                 int waitPaymentStatus = 7;
-                String cancelUrl = "";
-                String returnUrl = "";
-                boolean check = bookTourDao.insertBookDetail(
+                String cancelUrl = "http://localhost:9999/TravelSystemService/cancelpayment";
+                String returnUrl = "http://localhost:9999/TravelSystemService/returnpayment?bookCode=" + bookCode;
+                boolean check = bookTourDao.inserBookDetailPayOs(
                         user.getUserID(), tourId, voucherId,
                         numberAdult, numberChildren, firstName, lastName,
-                        phone, gmail, note, isBookedForOther, totalPrice, 1, waitPaymentStatus, bookCode
+                        phone, gmail, note, isBookedForOther, totalPrice, waitPaymentStatus, 2, bookCode
                 );
-                if(!check){
+                if (check) {
                     String checkoutUrl = payOS(bookCode, (int) totalPrice, descriptionPayment, firstName + " " + lastName, gmail, phone, tour.getTourName(), numberAdult + numberChildren, cancelUrl, returnUrl);
-
                     if (checkoutUrl != null) {
-                        response.sendRedirect(checkoutUrl+"?bookCode="+bookCode);
+                        response.sendRedirect(checkoutUrl + "?bookCode=" + bookCode);
                         return;
                     }
                 }
@@ -383,59 +362,59 @@ public class BookTourServlet extends HttpServlet {
         }
         return null;
     }
-    
+
     private void sendBookingConfirmationEmail(String firstName, String lastName, String gmail, Tour tour, int numberAdult, int numberChildren, String formattedPrice) {
         String subject = "Xác nhận đặt tour thành công - " + tour.getTourName();
-                String content = "<h3>Chào " + firstName + " " + lastName + ",</h3>"
-                        + "<p>Bạn đã đặt thành công tour: <strong>" + tour.getTourName() + "</strong></p>"
-                        + "<ul>"
-                        + "<li><b>Thông tin đại lí:</b> " + tour.getStartDay() + "</li>"
-                        + "<li><b>Ngày khởi hành:</b> " + tour.getStartDay() + "</li>"
-                        + "<li><b>Kết thúc ngày:</b> " + tour.getEndDay() + "</li>"
-                        + "<li><b>Số người lớn:</b> " + numberAdult + "</li>"
-                        + "<li><b>Số trẻ em:</b> " + numberChildren + "</li>"
-                        + "<li><b>Tổng tiền thanh toán:</b> " + formattedPrice + " VND</li>"
-                        + "</ul>"
-                        + "<p>Quý khách vui lòng chú ý thời gian để có thể trải nghiệm dịch vụ tốt nhất</p>"
-                        + "<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>";
+        String content = "<h3>Chào " + firstName + " " + lastName + ",</h3>"
+                + "<p>Bạn đã đặt thành công tour: <strong>" + tour.getTourName() + "</strong></p>"
+                + "<ul>"
+                + "<li><b>Thông tin đại lí:</b> " + tour.getStartDay() + "</li>"
+                + "<li><b>Ngày khởi hành:</b> " + tour.getStartDay() + "</li>"
+                + "<li><b>Kết thúc ngày:</b> " + tour.getEndDay() + "</li>"
+                + "<li><b>Số người lớn:</b> " + numberAdult + "</li>"
+                + "<li><b>Số trẻ em:</b> " + numberChildren + "</li>"
+                + "<li><b>Tổng tiền thanh toán:</b> " + formattedPrice + " VND</li>"
+                + "</ul>"
+                + "<p>Quý khách vui lòng chú ý thời gian để có thể trải nghiệm dịch vụ tốt nhất</p>"
+                + "<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>";
 
-                // Cấu hình thông tin email
-                final String fromEmail = "goviet1901@gmail.com";       // Email của bạn
-                final String password = "jmcjkgtcqiwrlfsm";           // Mật khẩu ứng dụng
+        // Cấu hình thông tin email
+        final String fromEmail = "goviet1901@gmail.com";       // Email của bạn
+        final String password = "jmcjkgtcqiwrlfsm";           // Mật khẩu ứng dụng
 
-                Properties props = new Properties();
-                props.put("mail.smtp.host", "smtp.gmail.com");
-                props.put("mail.smtp.port", "587");
-                props.put("mail.smtp.auth", "true");
-                props.put("mail.smtp.starttls.enable", "true");
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
 
-                Session sessionMail = Session.getInstance(props, new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(fromEmail, password);
-                    }
-                });
+        Session sessionMail = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
 
-                try {
-                    Message message = new MimeMessage(sessionMail);
-                    message.setFrom(new InternetAddress(fromEmail));
-                    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(gmail));
-                    String encodedSubject;
-                    try {
-                        encodedSubject = MimeUtility.encodeText(subject, "UTF-8", "B");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();  // Quan trọng để xem lỗi
-                        encodedSubject = subject; // fallback nếu encode lỗi
-                    }
-                    message.setSubject(encodedSubject);
-                    message.setContent(content, "text/html; charset=utf-8");
+        try {
+            Message message = new MimeMessage(sessionMail);
+            message.setFrom(new InternetAddress(fromEmail));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(gmail));
+            String encodedSubject;
+            try {
+                encodedSubject = MimeUtility.encodeText(subject, "UTF-8", "B");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();  // Quan trọng để xem lỗi
+                encodedSubject = subject; // fallback nếu encode lỗi
+            }
+            message.setSubject(encodedSubject);
+            message.setContent(content, "text/html; charset=utf-8");
 
-                    Transport.send(message);
+            Transport.send(message);
 
-                } catch (MessagingException e) {
-                    e.printStackTrace();
-                }
-    
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

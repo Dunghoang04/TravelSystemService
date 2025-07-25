@@ -37,73 +37,10 @@ import model.Room;
  */
 public class AccommodationDAO extends DBContext implements IAccommodationDAO {
 
-    /**
-     * Inserts a new service into the database and returns the generated service
-     * ID.<br>
-     *
-     * @param serviceName The name of the service to insert
-     * @return The generated service ID as an integer
-     * @throws SQLException If a database error occurs
-     */
-    /*
-     * Inserts a new service record with a fixed serviceCategoryID and provided serviceName.
-     * Returns the auto-generated serviceID using Statement.RETURN_GENERATED_KEYS.
-     */
-//    @Override
-//    public int insertService(String serviceName) throws SQLException {
-//        String sql = "INSERT INTO [dbo].[Service] ([serviceCategoryID], [serviceName]) VALUES (?, ?)";
-//        Connection conn = null;
-//        PreparedStatement ps = null;
-//        ResultSet rs = null;
-//        try {
-//            conn = getConnection();
-//            ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//            ps.setInt(1, 3); // Assumes serviceCategoryID = 3 for "Hotel"
-//            ps.setString(2, serviceName);
-//            ps.executeUpdate();
-//
-//            rs = ps.getGeneratedKeys();
-//            if (rs.next()) {
-//                return rs.getInt(1);
-//            } else {
-//                throw new SQLException("Không thể lấy serviceID sau khi insert Service.");
-//            }
-//        } finally {
-//            if (rs != null) {
-//                try {
-//                    rs.close();
-//                } catch (SQLException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            if (ps != null) {
-//                try {
-//                    ps.close();
-//                } catch (SQLException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            if (conn != null) {
-//                try {
-//                    conn.close();
-//                } catch (SQLException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-    /**
-     * Retrieves a list of all accommodations from the database.<br>
-     *
-     * @return A List of Accommodation objects
-     */
-    /*
-     * Queries the Accommodation table to retrieve all records.
-     * Formats check-in and check-out times using SimpleDateFormat and constructs Accommodation objects.
-     */
-    @Override
-    public List<Accommodation> getListAccommodation() {
-        String sql = "SELECT * FROM Accommodation";
+   
+   @Override
+    public List<Accommodation> getListAccommodation(int agentID) {
+        String sql = "SELECT a.* FROM Accommodation a JOIN Service s ON a.serviceID = s.serviceId WHERE s.travelAgentID = ?";
         List<Accommodation> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -111,6 +48,7 @@ public class AccommodationDAO extends DBContext implements IAccommodationDAO {
         try {
             conn = getConnection();
             ps = conn.prepareStatement(sql);
+            ps.setInt(1, agentID);
             rs = ps.executeQuery();
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             while (rs.next()) {

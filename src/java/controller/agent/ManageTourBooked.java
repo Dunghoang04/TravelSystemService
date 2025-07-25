@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2025, Group 6.
+ * Project: TravelSystemService
+ * Description: Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-07-24   1.1      Hoang Tuan Dung       First implementation
+ * [Not specified in original code]
+ */
 package controller.agent;
 import dao.BookTourDAO;
 import dao.IBookTour;
@@ -76,26 +86,26 @@ public class ManageTourBooked extends HttpServlet {
             List<BookDetail> listBookDetail;
             if (!searchName.isEmpty() && !statusType.isEmpty()) {
                 int status = Integer.parseInt(statusType);
-                listBookDetail = bookTour.searchByNameAndStatus(travelAgent.getUserID(), searchName, status, currentPage, amountPerPage);
+                listBookDetail = bookTour.searchByNameAndStatus(travelAgent.getTravelAgentID(), searchName, status, currentPage, amountPerPage);
                 int numberPage = (int) Math.ceil(bookTour.countByNameAndStatus(travelAgent.getUserID(), searchName, status) / (double) amountPerPage);
                 int startIndex = (currentPage - 1) * amountPerPage + 1;
                 request.setAttribute("numberPage", numberPage);
                 request.setAttribute("startIndex", startIndex);
             } else if (!statusType.isEmpty()) {
                 int status = Integer.parseInt(statusType);
-                listBookDetail = bookTour.getBookDetailsByAgentAndStatus(travelAgent.getUserID(), status, currentPage, amountPerPage);
+                listBookDetail = bookTour.getBookDetailsByAgentAndStatus(travelAgent.getTravelAgentID(), status, currentPage, amountPerPage);
                 int numberPage = (int) Math.ceil(bookTour.countByStatus(status) / (double) amountPerPage); // Updated to use countByStatus
                 int startIndex = (currentPage - 1) * amountPerPage + 1;
                 request.setAttribute("numberPage", numberPage);
                 request.setAttribute("startIndex", startIndex);
             } else if (!searchName.isEmpty()) {
-                listBookDetail = bookTour.searchByName(travelAgent.getUserID(), searchName, currentPage, amountPerPage); // Replaced getBookDetailsByAgentAndName
+                listBookDetail = bookTour.searchByName(travelAgent.getTravelAgentID(), searchName, currentPage, amountPerPage); // Replaced getBookDetailsByAgentAndName
                 int numberPage = (int) Math.ceil(bookTour.countByName(travelAgent.getUserID(), searchName) / (double) amountPerPage);
                 int startIndex = (currentPage - 1) * amountPerPage + 1;
                 request.setAttribute("numberPage", numberPage);
                 request.setAttribute("startIndex", startIndex);
             } else {
-                listBookDetail = bookTour.getBookDetailsByAgent(travelAgent.getUserID(), currentPage, amountPerPage); // Updated to include pagination
+                listBookDetail = bookTour.getBookDetailsByAgent(travelAgent.getTravelAgentID(), currentPage, amountPerPage); // Updated to include pagination
                 int numberPage = (int) Math.ceil(bookTour.countByAgent(travelAgent.getUserID()) / (double) amountPerPage);
                 int startIndex = (currentPage - 1) * amountPerPage + 1;
                 request.setAttribute("numberPage", numberPage);
@@ -122,7 +132,7 @@ public class ManageTourBooked extends HttpServlet {
                 item.put("status", book.getStatus());
 
                 // Lấy tên tour từ tourID
-                Tour tour = tourDAO.searchTour(book.getTourID());
+                Tour tour = tourDAO.searchTourByID(book.getTourID());
                 item.put("tourName", tour != null ? tour.getTourName() : "Không xác định");
 
                 // Lấy mã voucher từ voucherID
@@ -131,9 +141,9 @@ public class ManageTourBooked extends HttpServlet {
 
                 enhancedList.add(item);
             }
-
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("listBookDetail", enhancedList);
+            request.setAttribute("cancel", request.getParameter("cancel"));
             request.getRequestDispatcher("view/agent/tourBooked.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Giá trị trạng thái không hợp lệ");

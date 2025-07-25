@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Connection;
+import java.util.Vector;
+import model.Service;
 
 /**
  * Data Access Object for managing service-related database operations. This
@@ -89,6 +91,49 @@ public class ServiceDao extends DBContext implements IService {
             }
         }
     }
+    
+     @Override
+    public Vector<String> getDistinctAddresses(int agentId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Vector<String> addresses = new Vector<>();
+        try {
+            conn = getConnection();
+            if (conn == null) {
+                throw new SQLException("Database connection is null");
+            }
+
+            String query = "SELECT address FROM Restaurant r join Service s on r.serviceId = s.serviceID WHERE travelAgentID = ? AND s.status = 1 "
+                    + "UNION "
+                    + "SELECT address FROM Entertainment e join Service s on e.serviceId = s.serviceID WHERE travelAgentID = ? AND s.status = 1 "
+                    + "UNION "
+                    + "SELECT address FROM Accommodation a join Service s on a.serviceId = s.serviceID WHERE travelAgentID = ? AND s.status = 1";
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, agentId);
+            ps.setInt(2, agentId);
+            ps.setInt(3, agentId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                addresses.add(rs.getString("address"));
+            }
+
+            return addresses;
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage(), e);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+    }
 
     /**
      * Updates the name of an existing service in the Service table based on its
@@ -136,6 +181,155 @@ public class ServiceDao extends DBContext implements IService {
             }
         }
     }
+    
+     @Override
+    public Vector<Service> getAccommodationsByProvince(String province, int agentId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Vector<Service> services = new Vector<>();
+        try {
+            conn = getConnection();
+            if (conn == null) {
+                throw new SQLException("Database connection is null");
+            }
+
+            String query = "SELECT s.serviceId, serviceName FROM Accommodation a join Service s on a.serviceId = s.serviceID WHERE address = ? AND travelAgentID = ? AND s.status = 1";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, province);
+            ps.setInt(2, agentId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Service service = new Service(rs.getInt("serviceId"), 1, rs.getString("serviceName"), agentId, 1);
+                services.add(service);
+            }
+
+            return services;
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage(), e);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+    }
+
+    @Override
+    public Vector<Service> getEntertainmentsByProvince(String province, int agentId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Vector<Service> services = new Vector<>();
+        try {
+            conn = getConnection();
+            if (conn == null) {
+                throw new SQLException("Database connection is null");
+            }
+
+            String query = "SELECT s.serviceId, serviceName FROM Entertainment a join Service s on a.serviceId = s.serviceID WHERE address = ? AND travelAgentID = ? AND s.status = 1";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, province);
+            ps.setInt(2, agentId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Service service = new Service(rs.getInt("serviceId"), 2, rs.getString("serviceName"), agentId, 1);
+                services.add(service);
+            }
+
+            return services;
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage(), e);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+    }
+
+    @Override
+    public Vector<Service> getRestaurantsByProvince(String province, int agentId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Vector<Service> services = new Vector<>();
+        try {
+            conn = getConnection();
+            if (conn == null) {
+                throw new SQLException("Database connection is null");
+            }
+
+            String query = "SELECT s.serviceId, serviceName FROM Restaurant a join Service s on a.serviceId = s.serviceID WHERE address = ? AND travelAgentID = ? AND s.status = 1";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, province);
+            ps.setInt(2, agentId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Service service = new Service(rs.getInt("serviceId"), 1, rs.getString("serviceName"), agentId, 1);
+                services.add(service);
+            }
+
+            return services;
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage(), e);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+    }
+     @Override
+    public String getServiceName(int serviceId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnection();
+            String query = "SELECT serviceName FROM Service WHERE serviceId = ?";
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, serviceId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("serviceName");
+            } else {
+                return null;
+            }
+        } catch (SQLException ex) {
+            throw new SQLException(ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+    }
+
 
     @Override
     public void updateServiceStatus(int serviceId, int newStatus) throws SQLException {
@@ -190,7 +384,95 @@ public class ServiceDao extends DBContext implements IService {
             }
         }
     }
+ @Override
+    public int getTotalRestaurantByTravelAgent(int id) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "    SELECT COUNT(*) FROM Restaurant r join Service s on s.serviceId = r.serviceId where travelAgentID = ?";
+        try {
+            conn = getConnection(); // Establish database connection
+            ps = conn.prepareStatement(sql); // Prepare SQL query
+            ps.setInt(1, id);
+            rs = ps.executeQuery(); // Execute query
+            if (rs.next()) { // Process result
+                return rs.getInt(1); // Return count
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve total tours: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+        return 0;
+    }
 
+    @Override
+    public int getTotalAccommodationByTravelAgent(int id) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "  SELECT COUNT(*) FROM Accommodation a join Service s on s.serviceId = a.serviceId where travelAgentID = ?";
+        try {
+            conn = getConnection(); // Establish database connection
+            ps = conn.prepareStatement(sql); // Prepare SQL query
+            ps.setInt(1, id);
+            rs = ps.executeQuery(); // Execute query
+            if (rs.next()) { // Process result
+                return rs.getInt(1); // Return count
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve total tours: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTotalEntertaimentByTravelAgent(int id) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "    SELECT COUNT(*) FROM Entertainment r join Service s on s.serviceId = r.serviceId where travelAgentID = ?";
+        try {
+            conn = getConnection(); // Establish database connection
+            ps = conn.prepareStatement(sql); // Prepare SQL query
+            ps.setInt(1, id);
+            rs = ps.executeQuery(); // Execute query
+            if (rs.next()) { // Process result
+                return rs.getInt(1); // Return count
+            }
+        } catch (SQLException ex) {
+            throw new SQLException("Failed to retrieve total tours: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close(); // Close ResultSet
+            }
+            if (ps != null) {
+                ps.close(); // Close PreparedStatement
+            }
+            if (conn != null) {
+                conn.close(); // Close Connection
+            }
+        }
+        return 0;
+    }
     @Override
     public int countServiceUsed(int serviceId) throws SQLException {
         Connection conn = null;
@@ -204,8 +486,8 @@ public class ServiceDao extends DBContext implements IService {
                 throw new SQLException("Database connection is null");
             }
             String sql = "SELECT COUNT(*) as UsedCount "
-                    + "FROM [TravelAgency2021].[dbo].[BookDetail] bd "
-                    + "JOIN [TravelAgency2021].[dbo].[Tour_Service_Detail] tsd ON bd.tourID = tsd.tourID "
+                    + "FROM [BookDetail] bd "
+                    + "JOIN [Tour_Service_Detail] tsd ON bd.tourID = tsd.tourID "
                     + "WHERE tsd.serviceID = ?;";
             ps = conn.prepareStatement(sql);
             ps.setInt(1, serviceId);
@@ -241,11 +523,11 @@ public class ServiceDao extends DBContext implements IService {
         return rowsAffected;
     }
 
-    public static void main(String[] args) {
-        ServiceDao sDao = new ServiceDao();
-        try {
-            System.out.println(sDao.countServiceUsed(10));
-        } catch (Exception e) {
+    public static void main(String[] args) throws SQLException {
+        ServiceDao dao = new ServiceDao();
+        Vector<Service> list = dao.getRestaurantsByProvince("Thành phố Cần Thơ", 1);
+        for (Service service : list) {
+            System.out.println(service);
         }
     }
 }

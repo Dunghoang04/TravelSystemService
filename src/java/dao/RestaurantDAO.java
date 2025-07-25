@@ -1,24 +1,23 @@
 /**
  * Manages data access for restaurant records in the agent module.
- * Provides methods to insert, update, delete, and retrieve restaurant data.
+ * Provides methods to insert, update, delete, and retrieve restaurant data, including agent-specific filtering.
  *
  * Project: TravelAgentService
- * Version: 1.0
- * Date: 2025-06-13
+ * Version: 1.1
+ * Date: 2025-07-14
  * Bugs: No known issues.
  *
  * Record of Change:
  * DATE            Version             AUTHOR                      DESCRIPTION
  * 2025-06-13      1.0                 Hoang Tuan Dung             First implementation
+ * 2025-07-14      1.1                 Grok                        Added agent ID filtering methods
  *
- * @author Hoang Tuan Dung
+ * @author Hoang Tuan Dung, Grok
  */
 package dao;
 
 import dal.DBContext;
-import jakarta.servlet.http.HttpSession;
 import java.sql.Connection;
-import model.Restaurant;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,37 +25,29 @@ import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import model.Restaurant;
 
 /**
- * Implementation of the IRestaurantDAO interface for managing restaurant
- * records. Provides CRUD operations and search functionality for the Restaurant
- * table.
- *
- * Project: TravelAgentService Version: 1.0 Date: 2025-06-13 Bugs: No known
- * issues.
- *
- * Record of Change: DATE Version AUTHOR DESCRIPTION 2025-06-13 1.0 Hoang Tuan
- * Dung First implementation
- *
- * @author Hoang Tuan Dung
+ * Implementation of the IRestaurantDAO interface for managing restaurant records.
+ * Provides CRUD operations and search functionality for the Restaurant table, including agent-specific filtering.
  */
 public class RestaurantDAO extends DBContext implements IRestaurantDAO {
 
-    private static final String INSERT_RESTAURANT_SQL = "INSERT INTO Restaurant(serviceId, name,image,address,phone, description,rate,type,status, timeOpen, timeClose) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
-    private static final String SELECT_ALL_RESTAURANTS_SQL = "SELECT * FROM Restaurant order by serviceId desc OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String COUNT_ALL_RESTAURANTS_SQL = "SELECT COUNT(*) AS Total FROM Restaurant";
-    private static final String SEARCH_BY_TYPE_AND_NAME_SQL = "SELECT * FROM Restaurant WHERE LOWER(name) LIKE LOWER(?) AND status =? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String COUNT_BY_TYPE_AND_NAME_SQL = "SELECT COUNT(*) AS Total FROM Restaurant WHERE LOWER(name) LIKE LOWER(?) AND status =?";
+    private static final String INSERT_RESTAURANT_SQL = "INSERT INTO Restaurant(serviceId, name, image, address, phone, description, rate, type, status, timeOpen, timeClose) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_ALL_RESTAURANTS_BY_AGENT_SQL = "SELECT r.* FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ? ORDER BY r.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String COUNT_ALL_RESTAURANTS_BY_AGENT_SQL = "SELECT COUNT(*) AS Total FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ?";
+    private static final String SEARCH_BY_AGENT_TYPE_AND_NAME_SQL = "SELECT r.* FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(r.name) LIKE LOWER(?) AND r.status = ? ORDER BY r.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String COUNT_BY_AGENT_TYPE_AND_NAME_SQL = "SELECT COUNT(*) AS Total FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(r.name) LIKE LOWER(?) AND r.status = ?";
     private static final String UPDATE_RESTAURANT_SQL = "UPDATE [dbo].[Restaurant] SET [name] = ?, [image] = ?, [address] = ?, [phone] = ?, [description] = ?, [rate] = ?, [type] = ?, [status] = ?, [timeOpen] = ?, [timeClose] = ? WHERE serviceId = ?";
     private static final String SELECT_STATUS_BY_SERVICEID_SQL = "SELECT status FROM [dbo].[Restaurant] WHERE serviceId = ?";
     private static final String CHANGE_STATUS_SQL = "UPDATE [dbo].[Restaurant] SET [status] = ? WHERE serviceId = ?";
     private static final String DELETE_RESTAURANT_SQL = "DELETE FROM Restaurant WHERE serviceId = ?";
     private static final String DELETE_SERVICE_SQL = "DELETE FROM Service WHERE serviceId = ?";
-    private static final String SEARCH_BY_NAME_SQL = "SELECT * FROM Restaurant WHERE LOWER(name) LIKE LOWER(?) ORDER BY serviceId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String COUNT_BY_NAME_SQL = "SELECT COUNT(*) AS Total FROM Restaurant WHERE LOWER(name) LIKE LOWER(?)";
-    private static final String SELECT_RESTAURANT_BY_SERVICEID_SQL = "SELECT * FROM Restaurant where serviceId=?";
-    private static final String COUNT_BY_STATUS_SQL = "SELECT COUNT(*) AS Total FROM Restaurant WHERE status = ?";
-    private static final String SEARCH_STATUS_SQL = "SELECT * FROM Restaurant WHERE status = ? ORDER BY serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String SEARCH_BY_AGENT_AND_NAME_SQL = "SELECT r.* FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(r.name) LIKE LOWER(?) ORDER BY r.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String COUNT_BY_AGENT_AND_NAME_SQL = "SELECT COUNT(*) AS Total FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ? AND LOWER(r.name) LIKE LOWER(?)";
+    private static final String SELECT_RESTAURANT_BY_SERVICEID_SQL = "SELECT * FROM Restaurant WHERE serviceId = ?";
+    private static final String COUNT_BY_AGENT_AND_STATUS_SQL = "SELECT COUNT(*) AS Total FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ? AND r.status = ?";
+    private static final String SEARCH_BY_AGENT_AND_STATUS_SQL = "SELECT r.* FROM Restaurant r JOIN Service s ON r.serviceId = s.serviceId WHERE s.travelAgentID = ? AND r.status = ? ORDER BY r.serviceId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
     private Restaurant createRestaurantFromResultSet(ResultSet resultSet) throws SQLException {
         Time timeOpen = resultSet.getTime("timeOpen");
@@ -109,7 +100,7 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         } catch (SQLException e) {
             if (conn != null) {
                 try {
-                    conn.rollback(); // Rollback on error
+                    conn.rollback();
                 } catch (SQLException ex) {
                     throw new SQLException("Rollback failed", ex);
                 }
@@ -120,29 +111,28 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-                    // Log lỗi nếu cần
                 }
             }
             if (conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    // Log lỗi nếu cần
                 }
             }
         }
     }
 
     @Override
-    public List<Restaurant> getListRestaurant(int page, int pageSize) throws SQLException {
+    public List<Restaurant> getListRestaurantByAgent(int agentID, int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Restaurant> restaurantList = new ArrayList<>();
         try {
-            preparedStatement = conn.prepareStatement(SELECT_ALL_RESTAURANTS_SQL);
-            preparedStatement.setInt(1, (page - 1) * pageSize);
-            preparedStatement.setInt(2, pageSize);
+            preparedStatement = conn.prepareStatement(SELECT_ALL_RESTAURANTS_BY_AGENT_SQL);
+            preparedStatement.setInt(1, agentID);
+            preparedStatement.setInt(2, (page - 1) * pageSize);
+            preparedStatement.setInt(3, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 restaurantList.add(createRestaurantFromResultSet(resultSet));
@@ -172,18 +162,18 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         return restaurantList;
     }
 
-
     @Override
-    public List<Restaurant> searchRestaurantByName(String name, int page, int pageSize) throws SQLException {
+    public List<Restaurant> searchRestaurantByAgentAndName(int agentID, String name, int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Restaurant> restaurantList = new ArrayList<>();
         try {
-            preparedStatement = conn.prepareStatement(SEARCH_BY_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
-            preparedStatement.setInt(2, (page - 1) * pageSize);
-            preparedStatement.setInt(3, pageSize);
+            preparedStatement = conn.prepareStatement(SEARCH_BY_AGENT_AND_NAME_SQL);
+            preparedStatement.setInt(1, agentID);
+            preparedStatement.setString(2, "%" + name + "%");
+            preparedStatement.setInt(3, (page - 1) * pageSize);
+            preparedStatement.setInt(4, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 restaurantList.add(createRestaurantFromResultSet(resultSet));
@@ -255,19 +245,19 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         try {
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
             ServiceDao serviceDao = new ServiceDao();
-            serviceDao.updateServiceStatus(serviceId, status); // Update Service table first
+            serviceDao.updateServiceStatus(serviceId, status);
 
             preparedStatement = conn.prepareStatement(CHANGE_STATUS_SQL);
             preparedStatement.setInt(1, status);
             preparedStatement.setInt(2, serviceId);
             int rowsAffected = preparedStatement.executeUpdate();
-            conn.commit(); // Commit transaction
+            conn.commit();
             return rowsAffected > 0;
         } catch (SQLException e) {
             if (conn != null) {
-                conn.rollback(); // Rollback on error
+                conn.rollback();
             }
             throw e;
         } finally {
@@ -287,17 +277,18 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
     }
 
     @Override
-    public List<Restaurant> searchByTypeAndName(int status, String name, int page, int pageSize) throws SQLException {
+    public List<Restaurant> searchByAgentTypeAndName(int agentID, int status, String name, int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Restaurant> restaurantList = new ArrayList<>();
         try {
-            preparedStatement = conn.prepareStatement(SEARCH_BY_TYPE_AND_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
-            preparedStatement.setInt(2, status);
-            preparedStatement.setInt(3, (page - 1) * pageSize);
-            preparedStatement.setInt(4, pageSize);
+            preparedStatement = conn.prepareStatement(SEARCH_BY_AGENT_TYPE_AND_NAME_SQL);
+            preparedStatement.setInt(1, agentID);
+            preparedStatement.setString(2, "%" + name + "%");
+            preparedStatement.setInt(3, status);
+            preparedStatement.setInt(4, (page - 1) * pageSize);
+            preparedStatement.setInt(5, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 restaurantList.add(createRestaurantFromResultSet(resultSet));
@@ -363,18 +354,24 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         }
         return null;
     }
+    
+    public static void main(String[] args) throws SQLException {
+        RestaurantDAO dao = new RestaurantDAO();
+        System.out.println(dao.getRestaurantByServiceId(1));
+    }
 
     @Override
-    public List<Restaurant> getRestaurantByStatus(int status, int page, int pageSize) throws SQLException {
+    public List<Restaurant> getRestaurantByAgentAndStatus(int agentID, int status, int page, int pageSize) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Restaurant> restaurantList = new ArrayList<>();
         try {
-            preparedStatement = conn.prepareStatement(SEARCH_STATUS_SQL);
-            preparedStatement.setInt(1, status);
-            preparedStatement.setInt(2, (page - 1) * pageSize);
-            preparedStatement.setInt(3, pageSize);
+            preparedStatement = conn.prepareStatement(SEARCH_BY_AGENT_AND_STATUS_SQL);
+            preparedStatement.setInt(1, agentID);
+            preparedStatement.setInt(2, status);
+            preparedStatement.setInt(3, (page - 1) * pageSize);
+            preparedStatement.setInt(4, pageSize);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 restaurantList.add(createRestaurantFromResultSet(resultSet));
@@ -409,7 +406,7 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         try {
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
             preparedStatement = conn.prepareStatement(UPDATE_RESTAURANT_SQL);
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, image);
@@ -424,18 +421,17 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
             preparedStatement.setInt(11, serviceId);
             preparedStatement.executeUpdate();
 
-            
             ServiceDao serviceDAO = new ServiceDao();
             serviceDAO.updateServiceName(serviceId, name);
 
             TourServiceDetailDAO tourServiceDetailDAO = new TourServiceDetailDAO();
-            if(tourServiceDetailDAO.getTourServiceDetailsByServiceId(serviceId).size()>0){
+            if (tourServiceDetailDAO.getTourServiceDetailsByServiceId(serviceId).size() > 0) {
                 tourServiceDetailDAO.updateServiceNameByServiceId(serviceId, name);
             }
-            conn.commit(); // Commit transaction
+            conn.commit();
         } catch (SQLException e) {
             if (conn != null) {
-                conn.rollback(); // Rollback on error
+                conn.rollback();
             }
             throw e;
         } finally {
@@ -460,7 +456,7 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         PreparedStatement preparedStatementRest = null;
         PreparedStatement preparedStatementServ = null;
         try {
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
             preparedStatementRest = conn.prepareStatement(DELETE_RESTAURANT_SQL);
             preparedStatementRest.setInt(1, serviceId);
             preparedStatementRest.executeUpdate();
@@ -468,10 +464,10 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
             preparedStatementServ = conn.prepareStatement(DELETE_SERVICE_SQL);
             preparedStatementServ.setInt(1, serviceId);
             preparedStatementServ.executeUpdate();
-            conn.commit(); // Commit transaction
+            conn.commit();
         } catch (SQLException e) {
             if (conn != null) {
-                conn.rollback(); // Rollback on error
+                conn.rollback();
             }
             throw e;
         } finally {
@@ -497,13 +493,14 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
     }
 
     @Override
-    public int countByName(String name) throws SQLException {
+    public int countByAgentAndName(int agentID, String name) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            preparedStatement = conn.prepareStatement(COUNT_BY_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
+            preparedStatement = conn.prepareStatement(COUNT_BY_AGENT_AND_NAME_SQL);
+            preparedStatement.setInt(1, agentID);
+            preparedStatement.setString(2, "%" + name + "%");
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
@@ -534,13 +531,52 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
     }
 
     @Override
-    public int countByTypeAndName(int status, String name) throws SQLException {
+    public int countByAgentTypeAndName(int agentID, int status, String name) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            preparedStatement = conn.prepareStatement(COUNT_BY_TYPE_AND_NAME_SQL);
-            preparedStatement.setString(1, "%" + name + "%");
+            preparedStatement = conn.prepareStatement(COUNT_BY_AGENT_TYPE_AND_NAME_SQL);
+            preparedStatement.setInt(1, agentID);
+            preparedStatement.setString(2, "%" + name + "%");
+            preparedStatement.setInt(3, status);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int countByAgentAndStatus(int agentID, int status) throws SQLException {
+        Connection conn = getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = conn.prepareStatement(COUNT_BY_AGENT_AND_STATUS_SQL);
+            preparedStatement.setInt(1, agentID);
             preparedStatement.setInt(2, status);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -572,13 +608,13 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
     }
 
     @Override
-    public int countByStatus(int status) throws SQLException {
+    public int countByAgent(int agentID) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            preparedStatement = conn.prepareStatement(COUNT_BY_STATUS_SQL);
-            preparedStatement.setInt(1, status);
+            preparedStatement = conn.prepareStatement(COUNT_ALL_RESTAURANTS_BY_AGENT_SQL);
+            preparedStatement.setInt(1, agentID);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
@@ -608,45 +644,5 @@ public class RestaurantDAO extends DBContext implements IRestaurantDAO {
         return 0;
     }
 
-    @Override
-    public int countAllRestaurant() throws SQLException {
-        Connection conn = getConnection();
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            preparedStatement = conn.prepareStatement(COUNT_ALL_RESTAURANTS_SQL);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
-        return 0;
-    }
-
-    public static void main(String[] args) throws SQLException {
-        IRestaurantDAO res = new RestaurantDAO();
-        System.out.println(res.getRestaurantByServiceId(139));
-    }
-
+    
 }

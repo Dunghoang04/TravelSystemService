@@ -1,6 +1,11 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-28  1.0        Hung              First implementation
  */
 package model;
 
@@ -13,22 +18,20 @@ import java.sql.Date;
 public class RequestCancel {
     private int requestCancelID;
     private int bookID;
-    private int cancelReasonID;
+    private int userID;
     private Date requestDate;
     private String reason;
-    private String not;
     private int status;
 
     public RequestCancel() {
     }
 
-    public RequestCancel(int requestCancelID, int bookID, int cancelReasonID, Date requestDate, String reason, String not, int status) {
+    public RequestCancel(int requestCancelID, int bookID, int userID, Date requestDate, String reason, int status) {
         this.requestCancelID = requestCancelID;
         this.bookID = bookID;
-        this.cancelReasonID = cancelReasonID;
+        this.userID = userID;
         this.requestDate = requestDate;
         this.reason = reason;
-        this.not = not;
         this.status = status;
     }
 
@@ -48,12 +51,12 @@ public class RequestCancel {
         this.bookID = bookID;
     }
 
-    public int getCancelReasonID() {
-        return cancelReasonID;
+    public int getUserID() {
+        return userID;
     }
 
-    public void setCancelReasonID(int cancelReasonID) {
-        this.cancelReasonID = cancelReasonID;
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
     public Date getRequestDate() {
@@ -72,14 +75,6 @@ public class RequestCancel {
         this.reason = reason;
     }
 
-    public String getNot() {
-        return not;
-    }
-
-    public void setNot(String not) {
-        this.not = not;
-    }
-
     public int getStatus() {
         return status;
     }
@@ -90,8 +85,12 @@ public class RequestCancel {
 
     @Override
     public String toString() {
-        return "RequestCancel{" + "requestCancelID=" + requestCancelID + ", bookID=" + bookID + ", cancelReasonID=" + cancelReasonID + ", requestDate=" + requestDate + ", reason=" + reason + ", not=" + not + ", status=" + status + '}';
+        return "RequestCancel{" + "requestCancelID=" + requestCancelID + ", bookID=" + bookID + ", userID=" + userID + ", requestDate=" + requestDate + ", reason=" + reason + ", status=" + status + '}';
     }
+
+    
+
+    
 
     
 }

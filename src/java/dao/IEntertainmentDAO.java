@@ -52,7 +52,7 @@ public interface IEntertainmentDAO {
      * @return a list of Entertainment objects
      * @throws SQLException if a database error occurs
      */
-    List<Entertainment> getListEntertainment(int page, int pageSize) throws SQLException;
+    List<Entertainment> getListEntertainment(int travelAgentId,int page, int pageSize) throws SQLException;
     
     /**
      * Counts all entertainment records.
@@ -60,7 +60,7 @@ public interface IEntertainmentDAO {
      * @return the total number of records
      * @throws SQLException if a database error occurs
      */
-    int countAll() throws SQLException;
+    int countAll(int travelAgentID) throws SQLException;
 
     /**
      * Retrieves an entertainment record by service ID.
@@ -81,7 +81,7 @@ public interface IEntertainmentDAO {
      * @return a list of matching Entertainment objects
      * @throws SQLException if a database error occurs
      */
-    List<Entertainment> searchByTypeAndName(int status, String name, int page, int pageSize) throws SQLException;
+    List<Entertainment> searchByTypeAndName(int travelAgentID,int status, String name, int page, int pageSize) throws SQLException;
 
     /**
      * Counts entertainment records by status and name.
@@ -91,7 +91,7 @@ public interface IEntertainmentDAO {
      * @return the number of matching records
      * @throws SQLException if a database error occurs
      */
-    int countByTypeAndName(int status, String name) throws SQLException;
+    int countByTypeAndName(int travelAgentID,int status, String name) throws SQLException;
 
     /**
      * Updates an entertainment record.
@@ -151,7 +151,7 @@ public interface IEntertainmentDAO {
      * @return a list of matching Entertainment objects
      * @throws SQLException if a database error occurs
      */
-    List<Entertainment> searchEntertainmentByName(String name, int page, int pageSize) throws SQLException;
+    List<Entertainment> searchEntertainmentByName(int travelAgentID,String name, int page, int pageSize) throws SQLException;
 
     /**
      * Counts entertainment records by name.
@@ -160,7 +160,7 @@ public interface IEntertainmentDAO {
      * @return the number of matching records
      * @throws SQLException if a database error occurs
      */
-    int countByName(String name) throws SQLException;
+    int countByName(int travelAgentID,String name) throws SQLException;
 
     /**
      * Retrieves entertainment records by status with pagination.
@@ -171,7 +171,7 @@ public interface IEntertainmentDAO {
      * @return a list of matching Entertainment objects
      * @throws SQLException if a database error occurs
      */
-    List<Entertainment> getEntertainmentByStatus(int status, int page, int pageSize) throws SQLException;
+    List<Entertainment> getEntertainmentByStatus(int travelAgentID,int status, int page, int pageSize) throws SQLException;
 
     /**
      * Counts entertainment records by status.
@@ -180,5 +180,5 @@ public interface IEntertainmentDAO {
      * @return the number of matching records
      * @throws SQLException if a database error occurs
      */
-    int countByStatus(int status) throws SQLException;
+    int countByStatus(int travelAgentID,int status) throws SQLException;
 }

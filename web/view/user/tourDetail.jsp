@@ -171,7 +171,9 @@
                                 <div class="col-md-4">
                                     <h4>Khách sạn</h4>
                                     <ul>
-                                        <!-- Thêm logic cho khách sạn nếu có -->
+                                       <c:forEach var="accomodation" items="${requestScope.accomodationList}">
+                                            <li><a href="DetailAccommodation?id=${accomodation.serviceID}&tourId=${requestScope.tourId}">${accomodation.name}</a></li>
+                                            </c:forEach>
                                     </ul>
                                 </div>
                             </div>

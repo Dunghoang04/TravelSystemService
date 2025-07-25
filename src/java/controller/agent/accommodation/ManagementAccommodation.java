@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.Accommodation;
 import dao.AccommodationDAO;
+import model.TravelAgent;
 
 /**
  * Servlet to handle the management and display of accommodations.
@@ -63,33 +64,45 @@ public class ManagementAccommodation extends HttpServlet {
      * @throws ServletException If a servlet-specific error occurs
      * @throws IOException If an I/O error occurs
      */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        // Get the current HTTP session
-        HttpSession session = request.getSession();
-        List<Accommodation> list;
-        // Initialize AccommodationDAO to interact with the database
-        AccommodationDAO accDao = new AccommodationDAO();
+   @Override
+protected void doGet(HttpServletRequest request, HttpServletResponse response)
+throws ServletException, IOException {
+    // Get the current HTTP session
+    HttpSession session = request.getSession(false);
+    if (session == null || session.getAttribute("gmail") == null) {
+        response.sendRedirect("LoginLogout?service=loginUser");
+        return;
+    }
+    TravelAgent travelAgent = (TravelAgent) session.getAttribute("agent");
+    if (travelAgent == null) {
+        request.setAttribute("error", "No travel agent session found");
+        request.getRequestDispatcher("view/common/error.jsp").forward(request, response);
+        return;
+    }
+    int travelAgentId = travelAgent.getTravelAgentID();
 
-        // Retrieve search parameter for accommodation name
-        String name = request.getParameter("name");
-        // Trim the name parameter, default to empty string if null
-        name = (name != null) ? name.trim() : "";
-        if (!name.isEmpty()) {
-            // Search accommodations by name if provided
-            list = accDao.searchAccommodationByName(name);
-            // Set the search name for display in the search field
-            request.setAttribute("name", name);
-        } else {
-            // Fetch all accommodations if no search name is provided
-            list = accDao.getListAccommodation();
-        }
-        // Store the accommodation list in the session
-        session.setAttribute("listAcc", list);
-        // Forward to the JSP page to display the accommodation list
-        request.getRequestDispatcher("view/agent/accommodation/agentAccommodation.jsp").forward(request, response);
-    } 
+    // Initialize AccommodationDAO to interact with the database
+    AccommodationDAO accDao = new AccommodationDAO();
+
+    // Retrieve search parameter for accommodation name
+    String name = request.getParameter("name");
+    // Trim the name parameter, default to empty string if null
+    name = (name != null) ? name.trim() : "";
+    List<Accommodation> list;
+    if (!name.isEmpty()) {
+        // Search accommodations by name if provided
+        list = accDao.searchAccommodationByName(name);
+        // Set the search name for display in the search field
+        request.setAttribute("name", name);
+    } else {
+        // Fetch accommodations by agent ID if no search name is provided
+        list = accDao.getListAccommodation(travelAgentId);
+    }
+    // Store the accommodation list in the session
+    session.setAttribute("listAcc", list);
+    // Forward to the JSP page to display the accommodation list
+    request.getRequestDispatcher("view/agent/accommodation/agentAccommodation.jsp").forward(request, response);
+}
 
     /** 
      * Handles HTTP POST request by delegating to processRequest.

@@ -32,7 +32,8 @@ public class TourServiceDetail {
     }
 
     public TourServiceDetail(int tourID, int serviceID, String serviceName, int status) {
-        this.detailID = detailID;
+        this.status = status;
+
         this.tourID = tourID;
         this.serviceID = serviceID;
         this.serviceName = serviceName;

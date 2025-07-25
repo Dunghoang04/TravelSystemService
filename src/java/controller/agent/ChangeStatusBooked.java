@@ -1,127 +1,84 @@
+/*
+ * Copyright (C) 2025, Group 6.
+ * Project: TravelSystemService
+ * Description: Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-07-24   1.1      Hoang Tuan Dung       First implementation
+ * [Not specified in original code]
+ */
 
 package controller.agent;
 
 import dao.BookTourDAO;
-import dao.EntertainmentDAO;
 import dao.IBookTour;
-import dao.IEntertainmentDAO;
-import java.io.IOException;
-import java.io.PrintWriter;
+import dao.IRequestCancel;
+import dao.RequestCancelDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
 import java.sql.SQLException;
+import model.User;
 
-/**
- *
- * @author ad
- */
-@WebServlet(name="ChangeStatusBooked", urlPatterns={"/ChangeStatusBooked"})
+@WebServlet(name = "ChangeStatusBooked", urlPatterns = {"/ChangeStatusBooked"})
 public class ChangeStatusBooked extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ChangeStatusBooked</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ChangeStatusBooked at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        IBookTour bookTour = new BookTourDAO();
-        String bookIdParam = request.getParameter("id") != null ? request.getParameter("id").trim() : "";
-        String currentPageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1"; // Default to page 1
-
-        // Validate service ID
-        if (bookIdParam.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Mã dịch vụ không thể để trống");
-            return;
-        }
-
-        int bookId;
-        try {
-            bookId = Integer.parseInt(bookIdParam);
-            if (bookId <= 0) {
-                throw new NumberFormatException("Mã dịch vụ phải là số nguyên dương");
-            }
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng mã dịch vụ không hợp lệt: " + e.getMessage());
-            return;
-        }
-
-        int currentPage;
-        try {
-            currentPage = Integer.parseInt(currentPageParam);
-            if (currentPage <= 0) {
-                currentPage = 1;
-            }
-        } catch (NumberFormatException e) {
-            currentPage = 1; 
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng số trang không hợp lệ: " + e.getMessage());
-            return;
-        }
-
-        try {
-            int currentStatus = bookTour.getStatusByBookId(bookId);
-            int newStatus = (currentStatus == 1) ? 0 : 1;
-            boolean isSuccess = bookTour.changeStatus(bookId, newStatus);
-            if (!isSuccess) {
-                throw new SQLException("Không cập nhật được trạng thái cho mã dịch vụ: " + bookId);
-            }
-            response.sendRedirect("ManageTourBooked?page=" + currentPage);
-        } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi cơ sở dữ liệu: " + e.getMessage());
-        }
-    } 
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
+            throws ServletException, IOException {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "GET không được hỗ trợ");
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        IBookTour bookTour = new BookTourDAO();
+        IRequestCancel cancel = new RequestCancelDAO();
+        HttpSession session = request.getSession();
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            response.sendRedirect("LoginLogout");
+            return;
+        }
+        String bookIdParam = request.getParameter("bookID");
+        String reason = request.getParameter("reason");
+        String pageParam = request.getParameter("page") != null ? request.getParameter("page").trim() : "1";
+
+        try {
+            // Kiểm tra dữ liệu
+            if (bookIdParam == null ||  reason == null
+                    || bookIdParam.trim().isEmpty() ||reason.trim().isEmpty()) {
+                response.sendRedirect("ManageTourBooked?page=" + pageParam + "&cancel=false");
+                return;
+            }
+
+            int bookId = Integer.parseInt(bookIdParam.trim());
+            int page = Integer.parseInt(pageParam.trim());
+
+            if (bookId <= 0 ||  page <= 0 || reason.trim().length() < 10) {
+                response.sendRedirect("ManageTourBooked?page=" + page + "&cancel=false");
+                return;
+            }
+
+            // Cập nhật trạng thái đặt tour sang đã huỷ (status = 3)
+            bookTour.updateStatus(bookId, 2);
+            cancel.saveCancelRequest(bookId, loginUser.getUserID(), reason);
+            response.sendRedirect("ManageTourBooked?page=" + page + "&cancel=true");
+        } catch (NumberFormatException e) {
+            response.sendRedirect("ManageTourBooked?page=" + pageParam + "&cancel=false");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendRedirect("ManageTourBooked?page=" + pageParam + "&cancel=false");
+        }
+    }
+
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Servlet xử lý hủy chuyến đi từ agent và lưu lý do hủy";
+    }
 }
