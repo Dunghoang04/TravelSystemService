@@ -189,4 +189,3 @@ public interface ITourDAO {
     public boolean hasBookings(int tourId) throws SQLException;
     boolean updateQuantityAfterCancel(int tourID, int numberHuman) throws Exception;
 }
-

@@ -5,7 +5,7 @@
  *
  * Record of change:
  * DATE        Version    AUTHOR            DESCRIPTION
- * 2025-06-21  1.0        Quynh Mai          First implementation
+ * 2025-06-14  1.0        Quynh Mai          First implementation
  */
 package controller.staff;
 
@@ -27,7 +27,6 @@ import model.TravelAgent;
 import model.TourCategory;
 import service.EmailSender;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @WebServlet(name = "ManageTourCreate", urlPatterns = {"/ManageTourCreate"})
 public class ManageTourCreate extends HttpServlet {
@@ -42,69 +41,55 @@ public class ManageTourCreate extends HttpServlet {
         HttpSession session = request.getSession();
         String service = request.getParameter("service");
         try {
-            if ("sendConfirmationEmail".equals(service)) {
-                processSendConfirmationEmail(request, response);
-            } else if ("list".equals(service) || service == null) {
+            if ("list".equals(service) || service == null) {
                 String statusParam = request.getParameter("status");
+                String page = request.getParameter("page");
                 if (statusParam != null && !statusParam.equals("all")) {
                     int status = Integer.parseInt(statusParam);
                     request.setAttribute("tours", tourDAO.searchTourByStatus(status));
                 } else {
                     request.setAttribute("tours", tourDAO.getAllTours());
                 }
+                session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                session.setAttribute("currentStatus", statusParam != null ? statusParam : "all");
                 request.getRequestDispatcher("/view/staff/manageTourCreate.jsp").forward(request, response);
             } else if ("profile".equals(service)) {
                 int tourID = Integer.parseInt(request.getParameter("tourID"));
+                String page = request.getParameter("page");
+                String status = request.getParameter("status");
+                session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                session.setAttribute("currentStatus", status != null ? status : "all");
+
                 Tour tour = tourDAO.searchTourByID(tourID);
                 if (tour == null) {
                     request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourID);
                     request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
                     return;
                 }
-                // Lấy TravelAgent
-                int travelAgentID = tour.getTravelAgentID(); 
+                int travelAgentID = tour.getTravelAgentID();
                 TravelAgent travelAgent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
-                if (travelAgent == null) {
-                    request.setAttribute("errorMessage", "Không tìm thấy TravelAgent với ID: " + travelAgentID);
-                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
-                    return;
-                }
-                // Lấy TourCategory
-                int categoryID = tour.getTourCategoryID(); 
+                int categoryID = tour.getTourCategoryID();
                 TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
-                if (tourCategory == null) {
-                    request.setAttribute("errorMessage", "Không tìm thấy TourCategory với ID: " + categoryID);
-                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
-                    return;
-                }
-                // Đặt các thuộc tính vào request
                 request.setAttribute("tour", tour);
-                request.setAttribute("travelAgentName", travelAgent.getTravelAgentName());
-                request.setAttribute("categoryName", tourCategory.getTourCategoryName());
+                request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "Không xác định");
+                request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "Không xác định");
+
                 request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
-            } else if ("confirm".equals(service)) {
-                if (session.getAttribute("actionStatus") == null || session.getAttribute("tour") == null) {
-                    request.setAttribute("errorMessage", "Dữ liệu session không hợp lệ.");
-                    response.sendRedirect("/view/common/error.jsp");
-                    return;
-                }
-                request.getRequestDispatcher("/view/staff/confirm.jsp").forward(request, response);
             } else if ("clearSession".equals(service)) {
                 session.removeAttribute("actionStatus");
                 session.removeAttribute("tourName");
                 session.removeAttribute("reason");
                 session.removeAttribute("tour");
-                response.setStatus(HttpServletResponse.SC_OK);
-                return;
+                response.sendRedirect(request.getContextPath() + "/ManageTourCreate?service=list");
             }
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "ID không hợp lệ: " + e.getMessage());
-            System.out.println("NumberFormatException: " + e.getMessage());
+            System.out.println("NumberFormatException in doGet: " + e.getMessage());
             e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Lỗi xử lý: " + e.getMessage());
-            System.out.println("Exception occurred: " + e.getMessage());
+            System.out.println("Exception in doGet: " + e.getMessage());
             e.printStackTrace();
             request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
         }
@@ -116,159 +101,135 @@ public class ManageTourCreate extends HttpServlet {
         HttpSession session = request.getSession();
         String service = request.getParameter("service");
         try {
-            if ("approve".equals(service)) {
+            if ("approve".equals(service) || "reject".equals(service)) {
                 int tourID = Integer.parseInt(request.getParameter("tourID"));
-                Tour tour = tourDAO.searchTourByID(tourID);
                 String tourName = request.getParameter("tourName");
-                tourDAO.changeStatusTour(tourID, 1); // Approve (status = 1)
-                if (tour != null) {
-                    session.setAttribute("actionStatus", "approve");
-                    session.setAttribute("tour", tour);
-                    session.setAttribute("tourName", tourName);
-                    System.out.println("Forwarding to confirm.jsp with tour: " + tour);
-                    request.getRequestDispatcher("/view/staff/confirm.jsp").forward(request, response);
-                } else {
+                String page = request.getParameter("page");
+                String status = request.getParameter("status");
+                Tour tour = tourDAO.searchTourByID(tourID);
+                
+                System.out.println("doPost: service=" + service + ", tourID=" + tourID + ", tourName=" + tourName + ", page=" + page + ", status=" + status);
+                
+                if (tour == null) {
                     request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourID);
-                    System.out.println("Failed to find Tour with ID: " + tourID);
-                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                    request.setAttribute("tour", null);
+                    request.setAttribute("travelAgentName", "Không xác định");
+                    request.setAttribute("categoryName", "Không xác định");
+                    request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
+                    return;
                 }
-            } else if ("reject".equals(service)) {
-                int tourID = Integer.parseInt(request.getParameter("tourID"));
-                String reason = request.getParameter("reason");
-                String tourName = request.getParameter("tourName");
 
-                // Validate reason
-                if (reason == null || reason.trim().isEmpty()) {
-                    request.setAttribute("errorMessage", "Vui lòng nhập lý do từ chối.");
-                    Tour tour = tourDAO.searchTourByID(tourID);
-                    if (tour != null) {
+                int newStatus = "approve".equals(service) ? 1 : 3;
+                String reason = null;
+                if ("reject".equals(service)) {
+                    reason = request.getParameter("reason");
+                    System.out.println("Reject: reason=" + (reason != null ? reason : "null"));
+                    if (reason == null || reason.trim().isEmpty()) {
+                        System.out.println("Reject: Reason is empty, forwarding back to tourDetail.jsp");
                         int travelAgentID = tour.getTravelAgentID();
                         TravelAgent travelAgent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
                         int categoryID = tour.getTourCategoryID();
                         TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
                         request.setAttribute("tour", tour);
-                        request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "");
-                        request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "");
+                        request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "Không xác định");
+                        request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "Không xác định");
                         request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
-                    } else {
-                        request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourID);
-                        request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                        return;
                     }
-                    return;
-                }
-                if (reason.trim().length() > 255) {
-                    request.setAttribute("errorMessage", "Lý do từ chối không được dài quá 255 ký tự.");
-                    Tour tour = tourDAO.searchTourByID(tourID);
-                    if (tour != null) {
+                    if (reason.trim().length() > 255) {
+                        System.out.println("Reject: Reason exceeds 255 characters, forwarding back to tourDetail.jsp");
                         int travelAgentID = tour.getTravelAgentID();
                         TravelAgent travelAgent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
                         int categoryID = tour.getTourCategoryID();
                         TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
                         request.setAttribute("tour", tour);
-                        request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "");
-                        request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "");
+                        request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "Không xác định");
+                        request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "Không xác định");
                         request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
-                    } else {
-                        request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourID);
-                        request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                        return;
                     }
-                    return;
-                }
-
-                // Trim reason before saving
-                String trimmedReason = reason.trim();
-                tourDAO.changeStatusTour(tourID, 3); // Reject (status = 3)
-                Tour tour = tourDAO.searchTourByID(tourID);
-                if (tour != null) {
-                    tour.setReason(trimmedReason);
+                    reason = reason.trim();
+                    tour.setReason(reason);
+                    System.out.println("Reject: Updating tour with reason: " + reason);
                     tourDAO.updateTour(tour);
-                    session.setAttribute("actionStatus", "reject");
-                    session.setAttribute("tour", tour);
-                    session.setAttribute("tourName", tourName);
-                    session.setAttribute("reason", trimmedReason);
-                    request.getRequestDispatcher("/view/staff/confirm.jsp").forward(request, response);
-                } else {
-                    request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourID);
-                    System.out.println("Failed to find Tour with ID: " + tourID);
-                    request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                }
+
+                System.out.println("Changing tour status to: " + newStatus);
+                tourDAO.changeStatusTour(tourID, newStatus);
+
+                int travelAgentID = tour.getTravelAgentID();
+                TravelAgent travelAgent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
+                String email = (travelAgent != null) ? travelAgent.getGmail() : null;
+
+                if (email == null || email.trim().isEmpty()) {
+                    System.out.println("Reject: Invalid or missing email for travelAgentID=" + travelAgentID);
+                    request.setAttribute("errorMessage", "Email không hợp lệ hoặc không tìm thấy TravelAgent.");
+                    int categoryID = tour.getTourCategoryID();
+                    TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
+                    request.setAttribute("tour", tour);
+                    request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "Không xác định");
+                    request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "Không xác định");
+                    request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
+                    return;
+                }
+
+                StringBuilder body = new StringBuilder();
+                body.append("<h2>Xác nhận hành động tour</h2>");
+                body.append("<p>Ngày xử lý: ").append(java.time.LocalDate.now()).append("</p>");
+                body.append("<h3>Thông tin hành động:</h3>");
+                body.append("<p>Tên tour: ").append(tour.getTourName()).append("</p>");
+                body.append("<p>Email: ").append(email).append("</p>");
+                body.append("<p>Trạng thái: ").append("approve".equals(service) ? "Đã duyệt thành công." : "Đã từ chối.").append("</p>");
+                if ("reject".equals(service)) {
+                    body.append("<p>Lý do: ").append(reason).append("</p>");
+                }
+                body.append("<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>");
+
+                try {
+                    System.out.println("Sending email to: " + email);
+                    EmailSender.send(email, "Xác nhận " + ("approve".equals(service) ? "duyệt" : "từ chối") + " tour - " + java.time.LocalDate.now(), body.toString());
+                    session.setAttribute("currentPage", page != null && page.matches("\\d+") ? page : "1");
+                    session.setAttribute("currentStatus", status != null ? status : "all");
+                    request.setAttribute("successMessage", "approve".equals(service) ? 
+                        "Tour " + tourName + " đã được duyệt thành công. Email xác nhận đã được gửi." : 
+                        "Tour " + tourName + " đã bị từ chối. Email xác nhận đã được gửi.");
+                    session.removeAttribute("actionStatus");
+                    session.removeAttribute("tourName");
+                    session.removeAttribute("reason");
+                    session.removeAttribute("tour");
+                    int categoryID = tour.getTourCategoryID();
+                    TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
+                    request.setAttribute("tour", tour);
+                    request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "Không xác định");
+                    request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "Không xác định");
+                    System.out.println("Reject: Success, forwarding to tourDetail.jsp with successMessage");
+                    request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
+                } catch (MessagingException | IOException e) {
+                    System.out.println("Failed to send email for action " + service + ": " + e.getMessage());
+                    e.printStackTrace();
+                    request.setAttribute("errorMessage", "Lỗi khi gửi email: " + e.getMessage());
+                    int categoryID = tour.getTourCategoryID();
+                    TourCategory tourCategory = tourCategoryDAO.searchTourCategory(categoryID);
+                    request.setAttribute("tour", tour);
+                    request.setAttribute("travelAgentName", travelAgent != null ? travelAgent.getTravelAgentName() : "Không xác định");
+                    request.setAttribute("categoryName", tourCategory != null ? tourCategory.getTourCategoryName() : "Không xác định");
+                    request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
                 }
             } else {
-                doGet(request, response);
+                request.setAttribute("errorMessage", "Dịch vụ không hợp lệ.");
+                System.out.println("Invalid service: " + service);
+                request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "ID không hợp lệ: " + e.getMessage());
-            System.out.println("NumberFormatException: " + e.getMessage());
+            System.out.println("NumberFormatException in doPost: " + e.getMessage());
             e.printStackTrace();
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Lỗi xử lý: " + e.getMessage());
-            System.out.println("Exception occurred: " + e.getMessage());
+            System.out.println("Exception in doPost: " + e.getMessage());
             e.printStackTrace();
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
-        }
-    }
-
-    private void processSendConfirmationEmail(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        try {
-            Tour tour = (Tour) session.getAttribute("tour");
-            String actionStatus = (String) session.getAttribute("actionStatus");
-            String tourName = (String) session.getAttribute("tourName");
-            String reason = (String) session.getAttribute("reason");
-
-            if (tour == null || actionStatus == null || tourName == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.println("{\"status\":\"error\",\"message\":\"Missing required session data.\"}");
-                return;
-            }
-
-            if ("reject".equals(actionStatus) && reason == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.println("{\"status\":\"error\",\"message\":\"Missing rejection reason.\"}");
-                return;
-            }
-
-            // Lấy travelAgentID từ Tour
-            int travelAgentID = tour.getTravelAgentID();
-            TravelAgent travelAgent = travelAgentDAO.searchTravelAgentByID(travelAgentID);
-            String email = (travelAgent != null) ? travelAgent.getGmail() : null;
-
-            if (email == null || email.trim().isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.println("{\"status\":\"error\",\"message\":\"Email không hợp lệ hoặc không tìm thấy TravelAgent.\"}");
-                return;
-            }
-
-            StringBuilder body = new StringBuilder();
-            body.append("<h2>Xác nhận hành động tour</h2>");
-            body.append("<p>Ngày xử lý: ").append(java.time.LocalDate.now()).append("</p>");
-            body.append("<h3>Thông tin hành động:</h3>");
-            body.append("<p>Tên tour: ").append(tour.getTourName()).append("</p>");
-            body.append("<p>Email: ").append(email).append("</p>");
-            if ("approve".equals(actionStatus)) {
-                body.append("<p>Trạng thái: Đã duyệt thành công.</p>");
-            } else if ("reject".equals(actionStatus)) {
-                body.append("<p>Trạng thái: Đã từ chối.</p>");
-                body.append("<p>Lý do: ").append(reason).append("</p>");
-            }
-            body.append("<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>");
-
-            try {
-                EmailSender.send(email, "Xác nhận "  + " tour - " + java.time.LocalDate.now(), body.toString());
-                out.println("{\"status\":\"sent\"}");
-            } catch (MessagingException | IOException e) {
-                System.out.println("Gửi email thất bại cho hành động " + actionStatus + ": " + e.getMessage());
-                out.println("{\"status\":\"error\",\"message\":\"Lỗi khi gửi email: " + e.getMessage() + "\"}");
-            }
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.println("{\"status\":\"error\",\"message\":\"Lỗi khi gửi email: " + e.getMessage() + "\"}");
-        } finally {
-            out.flush();
+            request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
         }
     }
 }
-

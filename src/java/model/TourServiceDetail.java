@@ -33,6 +33,7 @@ public class TourServiceDetail {
 
     public TourServiceDetail(int tourID, int serviceID, String serviceName, int status) {
         this.status = status;
+
         this.tourID = tourID;
         this.serviceID = serviceID;
         this.serviceName = serviceName;

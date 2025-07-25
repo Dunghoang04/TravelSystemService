@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -547,3 +548,4 @@ public class User {
         return "User{" + "userID=" + userID + ", gmail=" + gmail + ", roleID=" + roleID + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", dob=" + dob + ", gender=" + gender + ", address=" + address + ", phone=" + phone + ", createDate=" + createDate + ", updateDate=" + updateDate + ", status=" + status + '}';
     }
 }
+
