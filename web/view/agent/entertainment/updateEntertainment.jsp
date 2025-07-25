@@ -11,7 +11,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -160,7 +159,6 @@
         </style>
     </head>
 
-
     <body>
         <%@include file="../../layout/headerAdmin.jsp" %>
         <div id="layoutSidenav">
@@ -187,7 +185,6 @@
                                     <c:if test="${not empty requestScope.errorImage}">
                                         <div class="col-12 errorNoti" style="background-color: #F6E4E1; border: solid 1px red; text-align: center; color: red; padding: 5px 10px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 5px">
                                             <p style="margin-bottom: 0px">${requestScope.errorImage}</p>
-
                                         </div>
                                     </c:if>
                                 </div>
@@ -201,18 +198,7 @@
                                         <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click();"
                                                 style="justify-content: center; align-content: center; width: 100%; color: white; border: 1px solid #007bff; padding: 5px; border-radius: 5px; cursor: pointer;">
                                             Thay đổi hình ảnh dịch vụ giải trí<span style="color: red">*</span>
-
                                         </button>
-
-                                        <div class="col-12 form-group">
-                                            <label for="serviceId"><b>Mã dịch vụ giải trí</b></label>
-                                            <input type="text" class="form-control" id="serviceId" name="serviceId" value="${requestScope.serviceId}" readonly>
-                                        </div>
-                                        <c:if test="${not empty requestScope.errorServiceId}">
-                                            <div class="col-12 errorNoti" style="background-color: #F6E4E1; border: solid 1px red; text-align: center; color: red; padding: 5px 10px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 5px">
-                                                <p style="margin-bottom: 0px">${requestScope.errorServiceId}</p>
-                                            </div>
-                                        </c:if>
 
                                         <div class="col-12 form-group">
                                             <label for="name"><b>Tên dịch vụ giải trí <span style="color: red">*</span></b></label>
@@ -241,7 +227,6 @@
 
                                         <div class="col-12 form-group">
                                             <label for="province"><b>Tỉnh/Thành phố <span style="color: red">*</span></b></label>
-
                                             <select id="province" name="address" class="form-control" required 
                                                     oninvalid="this.setCustomValidity('Vui lòng chọn tỉnh/thành phố')" oninput="setCustomValidity('')">
                                                 <option value="">Chọn Tỉnh/Thành phố</option>
@@ -344,7 +329,6 @@
                                         <div class="d-flex justify-content-end">
                                             <button type="submit" class="btn btn-info me-2" name="action" value="update">Cập nhập</button>
                                             <a href="managementertainment"><button type="button" class="btn btn-danger caceladd" data-bs-dismiss="modal" aria-label="Close">Huỷ bỏ</button></a>
-
                                         </div>
                                     </form>
                                 </div>
@@ -379,7 +363,6 @@
                         };
                     </script>
                 </c:if>
-
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
@@ -387,7 +370,6 @@
                             <div>
                                 <a href="#">Điều khoản</a>
                                 &middot;
-
                                 <a href="#">Terms & Conditions</a>
                             </div>
                         </div>
@@ -396,7 +378,6 @@
             </div>
         </div>
         <script>
-
             // Handle cancel button click
             const cancelButton = document.querySelector(".caceladd");
             cancelButton.addEventListener("click", (e) => {
@@ -405,7 +386,6 @@
 
             // Fetch province data
             const selectedProvinceName = "${requestScope.address}";
-
             fetch('https://provinces.open-api.vn/api/?depth=1')
                     .then(response => response.json())
                     .then(provincesData => {
@@ -449,6 +429,5 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     </body>
 </html>

@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2025, Group 6.
+ * Project: TravelSystemService
+ * Description: Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-07-14   1.1      Hoang Tuan Dung       First implementation
+ * [Not specified in original code]
+ */
+
 package controller.agent.entertainment;
 
 import dao.EntertainmentDAO;
@@ -12,6 +23,7 @@ import jakarta.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.List;
 import model.Entertainment;
+import model.TravelAgent;
 
 /**
  * Manages entertainment records in the agent module. Handles GET requests to
@@ -80,6 +92,13 @@ public class ManagementEntertainment extends HttpServlet {
         }
         List<Entertainment> entertainmentList;
         IEntertainmentDAO entertainmentDataAccess = new EntertainmentDAO();
+        TravelAgent travelAgent = (TravelAgent) session.getAttribute("agent");
+        if (travelAgent == null) {
+            request.setAttribute("error", "No travel agent session found");
+            request.getRequestDispatcher("view/common/error.jsp").forward(request, response);
+            return;
+        }
+        int travelAgentId=travelAgent.getTravelAgentID();
         String searchName = request.getParameter("searchName") != null ? request.getParameter("searchName").trim() : "";
         String statusType = request.getParameter("statusType") != null ? request.getParameter("statusType").trim() : "";
         request.setAttribute("searchName", searchName);
@@ -89,30 +108,35 @@ public class ManagementEntertainment extends HttpServlet {
         try {
             if (!searchName.isEmpty() && !statusType.isEmpty()) {
                 int status = Integer.parseInt(statusType); // Convert statusType to status (int)
-                entertainmentList = entertainmentDataAccess.searchByTypeAndName(status, searchName, currentPage, amountPerPage);
-                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByTypeAndName(status, searchName) / (double) amountPerPage); // Calculate total pages
+                entertainmentList = entertainmentDataAccess.searchByTypeAndName(travelAgentId,status, searchName, currentPage, amountPerPage);
+                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByTypeAndName(travelAgentId,status, searchName) / (double) amountPerPage); // Calculate total pages
                 int startIndex = (currentPage - 1) * amountPerPage + 1; // Calculate starting index
                 request.setAttribute("numberPage", numberPage);
                 request.setAttribute("startIndex", startIndex);
             } else if (!statusType.isEmpty()) {
                 int status = Integer.parseInt(statusType);
-                entertainmentList = entertainmentDataAccess.getEntertainmentByStatus(status, currentPage, amountPerPage);
-                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByStatus(status) / (double) amountPerPage); // Calculate total pages
+                entertainmentList = entertainmentDataAccess.getEntertainmentByStatus(travelAgentId,status, currentPage, amountPerPage);
+                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByStatus(travelAgentId,status) / (double) amountPerPage); // Calculate total pages
                 int startIndex = (currentPage - 1) * amountPerPage + 1; // Calculate starting index
                 request.setAttribute("numberPage", numberPage);
                 request.setAttribute("startIndex", startIndex);
             } else if (!searchName.isEmpty()) {
-                entertainmentList = entertainmentDataAccess.searchEntertainmentByName(searchName, currentPage, amountPerPage);
-                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByName(searchName) / (double) amountPerPage); // Calculate total pages
+                entertainmentList = entertainmentDataAccess.searchEntertainmentByName(travelAgentId,searchName, currentPage, amountPerPage);
+                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByName(travelAgentId,searchName) / (double) amountPerPage); // Calculate total pages
                 int startIndex = (currentPage - 1) * amountPerPage + 1; // Calculate starting index
                 request.setAttribute("numberPage", numberPage);
                 request.setAttribute("startIndex", startIndex);
             } else {
-                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByName(searchName) / (double) amountPerPage); // Calculate total pages
+                int numberPage = (int) Math.ceil(entertainmentDataAccess.countByName(travelAgentId,searchName) / (double) amountPerPage); // Calculate total pages
                 int startIndex = (currentPage - 1) * amountPerPage + 1; // Calculate starting index
                 request.setAttribute("startIndex", startIndex);
                 request.setAttribute("numberPage", numberPage);
-                entertainmentList = entertainmentDataAccess.getListEntertainment(currentPage, amountPerPage);
+                entertainmentList = entertainmentDataAccess.getListEntertainment(travelAgentId,currentPage, amountPerPage);
+            }
+            if (entertainmentList == null || entertainmentList.isEmpty()) {
+                request.setAttribute("error", "Không có dịch vụ giải trí tồn tại");
+                request.getRequestDispatcher("view/agent/entertainment/agentEntertainment.jsp").forward(request, response);
+                return;
             }
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("entertainmentList", entertainmentList);

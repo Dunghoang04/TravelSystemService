@@ -205,7 +205,7 @@ public class AddRestaurant extends HttpServlet {
             }
 
             // Insert into database
-            restaurantDAO.insertRestaurantFull(travelAgent.getUserID(), name, relativeImagePath, address, phone,
+            restaurantDAO.insertRestaurantFull(travelAgent.getTravelAgentID(), name, relativeImagePath, address, phone,
                     description, rate, type, 1, timeOpenStr, timeCloseStr);
             session.removeAttribute("imageFileNameRestaurant"); // Clear session after success
             request.setAttribute("success", "Thêm nhà hàng thành công.");
@@ -245,4 +245,3 @@ public class AddRestaurant extends HttpServlet {
         return "Handles addition of new restaurants with form validation and image upload.";
     }
 }
-

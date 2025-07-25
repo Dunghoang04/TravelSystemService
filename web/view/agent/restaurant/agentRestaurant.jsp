@@ -27,130 +27,130 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,300..900;1,300..900&family=Ephesis&display=swap" rel="stylesheet">
-    <style>
+        <style>
 
 
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
+            form {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+            }
 
-        form input, form select, form button {
-            height: 35px;
-            font-size: 13px;
-        }
+            form input, form select, form button {
+                height: 35px;
+                font-size: 13px;
+            }
 
-        button {
-            white-space: nowrap; /* Tránh chữ trong button bị cắt */
-        }
+            button {
+                white-space: nowrap; /* Tránh chữ trong button bị cắt */
+            }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
 
-            overflow-x: hidden; /* Ngăn chặn tràn ngang */
-        }
+                overflow-x: hidden; /* Ngăn chặn tràn ngang */
+            }
 
-        .container-xxl {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+            .container-xxl {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
 
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 250px;
-            background: #f8f9fa;
-            overflow-y: auto;
-        }
+            .sidebar {
+                height: 100vh;
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 250px;
+                background: #f8f9fa;
+                overflow-y: auto;
+            }
 
-        .content {
-            margin-left: 250px;
-            padding: 20px;
-            width: calc(100% - 250px);
-            flex: 1;
-            overflow-x: auto;
-        }
+            .content {
+                margin-left: 250px;
+                padding: 20px;
+                width: calc(100% - 250px);
+                flex: 1;
+                overflow-x: auto;
+            }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            word-break: break-word; /* Để chữ tự xuống dòng nếu quá dài */
-        }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                word-break: break-word; /* Để chữ tự xuống dòng nếu quá dài */
+            }
 
-        table th, table td {
-            padding: 8px;
-            border: 1px solid #ddd;
-            text-align: left;
-            font-size: 13px; /* Giảm chữ trong bảng */
-        }
+            table th, table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+                font-size: 13px; /* Giảm chữ trong bảng */
+            }
 
-        table th {
-            background-color: #f1f1f1;
-            text-align: center;
-        }
-        table tbody td{
-            text-align: center;
-        }
-        .btn{
-            text-decoration: none;
-            padding: 5px 10px;
-        }
-        a, a:hover{
-            color: #fff;
-        }
-        form{
-            margin: 32px 0px;
-        }
+            table th {
+                background-color: #f1f1f1;
+                text-align: center;
+            }
+            table tbody td{
+                text-align: center;
+            }
+            .btn{
+                text-decoration: none;
+                padding: 5px 10px;
+            }
+            a, a:hover{
+                color: #fff;
+            }
+            form{
+                margin: 32px 0px;
+            }
 
-        .btnStatus {
-            width: 111px;
-            padding: 3px;
-            /* height: 25px; */
-            border-radius: 14px;
-            background-color: green;
-            border: none;
-            color: #fff;
-            display: flex
-                ;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
+            .btnStatus {
+                width: 111px;
+                padding: 3px;
+                /* height: 25px; */
+                border-radius: 14px;
+                background-color: green;
+                border: none;
+                color: #fff;
+                display: flex
+                    ;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
 
-        .btnStatus.deactive{
-            background-color: red;
-        }
-        .box-button button{
-            margin-left: 10px;
-        }
-        .box-action{
-            display: flex
-                ;
-            justify-content: space-evenly;
-        }
-        .box-action button{
-            width: 100%;
-        }
-        table tr td .btn-status{
-            display: flex
-                ;
-            align-items: center;
-            justify-content: center;
-        }
+            .btnStatus.deactive{
+                background-color: red;
+            }
+            .box-button button{
+                margin-left: 10px;
+            }
+            .box-action{
+                display: flex
+                    ;
+                justify-content: space-evenly;
+            }
+            .box-action button{
+                width: 100%;
+            }
+            table tr td .btn-status{
+                display: flex
+                    ;
+                align-items: center;
+                justify-content: center;
+            }
 
-        .star i{
-            color: #FFCA2C;
-        }
-    </style>
+            .star i{
+                color: #FFCA2C;
+            }
+        </style>
     </head>
-    
+
     <body>
         <%@include file="../../layout/headerAdmin.jsp" %>
         <div id="layoutSidenav">
@@ -190,63 +190,74 @@
                                 <button  class="btn btn-info"><i class="fa-solid fa-user-plus"></i>Thêm nhà hàng</button>
                             </a>
                         </div>
-                        <div class="col-xl-12 col-md-6">
+                        <c:if test="${not empty restaurantList}">
 
-                            <div class="card-body">
-                                <table id="tableList" style="border: 1px solid">
-                                    <thead>
-                                        <tr>
-                                            <th>STT</th>
-                                            <th>Tên nhà hàng</th>
-                                            <th>Ảnh</th>
-                                            <th>Loại nhà hàng</th>
-                                            <th>Đánh giá(Thang 10)</th>
-                                            <th>Trạng thái</th>
-                                            <th>Hoạt động</th>
-                                        </tr>
-                                    </thead>
-                                    <c:forEach items="${requestScope.restaurantList}" var="res" varStatus="status">
-                                        <tr>
-                                            <td>${requestScope.startIndex+status.index}</td>
-                                            <td>${res.name}</td>
-                                            <td ><a href="${res.image}" target="_blank" ><img style="width: 140px; height: 80px" src="${res.getImage()}"></a></td>
-                                            <td>${res.type}</td>
-                                            <td>${res.rate}</td>
-                                            <td>
-                                                <div class="btn-status">
-                                                    <c:if test="${res.status==1}">
-                                                        <button type="button" class="btnStatus active">Đang hoạt động</button>
-                                                    </c:if>
-                                                    <c:if test="${res.status==0}">
-                                                        <button type="button" class="btnStatus deactive">Dừng hoạt động</button>
-                                                    </c:if>
-                                                </div>
+                            <div class="col-xl-12 col-md-6">
 
-                                            </td>
-                                            <td class="box-button">
-                                                <div class="box-action" style="display: flex">
-                                                    <button type="button" class="btn btn-warning updatebtn" 
-                                                            data-href="updaterestaurant?id=${res.serviceId}&page=${requestScope.currentPage}">
-                                                        Cập nhập
-                                                    </button>
-                                                    <button type="button" class="btn btn-primary detailbtn" 
-                                                            data-href="detailrestaurant?id=${res.serviceId}" data-name="${res.name}">
-                                                        Chi tiết
-                                                    </button>
-                                                    <button type="button" class="btn btn-dark changeStatusbtn" 
-                                                            data-href="ChangeRestaurantStatus?id=${res.serviceId}&page=${requestScope.currentPage}" data-name="${res.name}">
-                                                        Đổi trạng thái
-                                                    </button>
-                                                </div>
-                                            </td>
+                                <div class="card-body">
+                                    <table id="tableList" style="border: 1px solid">
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Tên nhà hàng</th>
+                                                <th>Ảnh</th>
+                                                <th>Loại nhà hàng</th>
+                                                <th>Đánh giá(Thang 10)</th>
+                                                <th>Trạng thái</th>
+                                                <th>Hoạt động</th>
+                                            </tr>
+                                        </thead>
+                                        <c:forEach items="${requestScope.restaurantList}" var="res" varStatus="status">
+                                            <tr>
+                                                <td>${requestScope.startIndex+status.index}</td>
+                                                <td>${res.name}</td>
+                                                <td ><a href="${res.image}" target="_blank" ><img style="width: 140px; height: 80px" src="${res.getImage()}"></a></td>
+                                                <td>${res.type}</td>
+                                                <td>${res.rate}</td>
+                                                <td>
+                                                    <div class="btn-status">
+                                                        <c:if test="${res.status==1}">
+                                                            <button type="button" class="btnStatus active">Đang hoạt động</button>
+                                                        </c:if>
+                                                        <c:if test="${res.status==0}">
+                                                            <button type="button" class="btnStatus deactive">Dừng hoạt động</button>
+                                                        </c:if>
+                                                    </div>
 
-                                        </tr>
+                                                </td>
+                                                <td class="box-button">
+                                                    <div class="box-action" style="display: flex">
+                                                        <button type="button" class="btn btn-warning updatebtn" 
+                                                                data-href="updaterestaurant?id=${res.serviceId}&page=${requestScope.currentPage}">
+                                                            Cập nhập
+                                                        </button>
+                                                        <button type="button" class="btn btn-primary detailbtn" 
+                                                                data-href="detailrestaurant?id=${res.serviceId}" data-name="${res.name}">
+                                                            Chi tiết
+                                                        </button>
+                                                        <button type="button" class="btn btn-dark changeStatusbtn" 
+                                                                data-href="ChangeRestaurantStatus?id=${res.serviceId}&page=${requestScope.currentPage}" data-name="${res.name}">
+                                                            Đổi trạng thái
+                                                        </button>
+                                                    </div>
+                                                </td>
 
-                                    </c:forEach>
-                                </table>
+                                            </tr>
 
+                                        </c:forEach>
+                                    </table>
+
+                                </div>
                             </div>
-                        </div>
+                        </c:if>
+                        <c:if test="${ empty restaurantList}">
+                            <div class="alert" style="color: white;
+                                 text-align: center;
+                                 background-color: #2b2323;
+                                 border-radius: 0px;
+                                 margin: 0px;
+                                 padding: 5px;">${error}</div>
+                        </c:if>
                     </div>
                 </main>
                 <c:set var="nameParam" value="${param.searchName}"/>
@@ -258,31 +269,33 @@
                 <c:if test="${not empty param.statusType}">
                     <c:set var="queryParams" value="${queryParams}&statusType=${fn:escapeXml(param.statusType)}" />
                 </c:if>
-                <div class="pagination d-flex justify-content-center mt-3">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            <li class="page-item ${requestScope.currentPage==1?'disabled':''}">
-                                <a class="page-link btn-danger" aria-label="Previous"
-                                   href="?page=${requestScope.currentPage-1}${queryParams}">
-                                    <span aria-hidden="true">« Trang trước</span>
-                                </a>
-                            </li>
-                            <c:forEach begin="1" end="${requestScope.numberPage}" var="pageNum">
-                                <li class="page-item ${requestScope.currentPage==pageNum ? 'active':''}">
-                                    <a class="page-link btn-danger" href="?page=${pageNum}${queryParams}">
-                                        <span aria-hidden="true">${pageNum}</span>
+                <c:if test="${not empty restaurantList}">
+                    <div class="pagination d-flex justify-content-center mt-3">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <li class="page-item ${requestScope.currentPage==1?'disabled':''}">
+                                    <a class="page-link btn-danger" aria-label="Previous"
+                                       href="?page=${requestScope.currentPage-1}${queryParams}">
+                                        <span aria-hidden="true">« Trang trước</span>
                                     </a>
                                 </li>
-                            </c:forEach>
-                            <li class="page-item ${requestScope.currentPage==requestScope.numberPage?'disabled':''}">
-                                <a class="page-link btn-danger" aria-label="Next"
-                                   href="?page=${requestScope.currentPage+1}${queryParams}">
-                                    <span aria-hidden="true">Trang sau »</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                                <c:forEach begin="1" end="${requestScope.numberPage}" var="pageNum">
+                                    <li class="page-item ${requestScope.currentPage==pageNum ? 'active':''}">
+                                        <a class="page-link btn-danger" href="?page=${pageNum}${queryParams}">
+                                            <span aria-hidden="true">${pageNum}</span>
+                                        </a>
+                                    </li>
+                                </c:forEach>
+                                <li class="page-item ${requestScope.currentPage==requestScope.numberPage?'disabled':''}">
+                                    <a class="page-link btn-danger" aria-label="Next"
+                                       href="?page=${requestScope.currentPage+1}${queryParams}">
+                                        <span aria-hidden="true">Trang sau »</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </c:if>
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
@@ -306,6 +319,7 @@
                 const keyword = statusFilter.value;
                 // nếu có đảy lên url , còn k -> xóa
                 if (keyword) {
+                    currentUrl.searchParams.delete("page");
                     url.searchParams.set("statusType", keyword);
                 } else {
                     url.searchParams.delete("statusType");

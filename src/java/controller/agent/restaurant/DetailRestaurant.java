@@ -141,4 +141,3 @@ public class DetailRestaurant extends HttpServlet {
     }// </editor-fold>
 
 }
-

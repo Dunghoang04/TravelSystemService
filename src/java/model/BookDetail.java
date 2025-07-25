@@ -1,7 +1,11 @@
-
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelAgentService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-05-28  1.0        Hung              First implementation
  */
 package model;
 
@@ -33,7 +37,6 @@ public class BookDetail {
     public BookDetail() {
     }
 
-
     public BookDetail(int userID, int tourID, int voucherID, int numberAdult, int paymentMethodId, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status, long bookCode) {
         this.userID = userID;
         this.tourID = tourID;
@@ -55,7 +58,6 @@ public class BookDetail {
         
     
     public BookDetail(int bookID, int userID, int tourID, int voucherID, Date bookDate, int numberAdult, int paymentMethodId, int numberChildren, String firstName, String lastName, String phone, String gmail, String note, int isBookedForOther, float totalPrice, int status, long bookCode) {
-
         this.bookID = bookID;
         this.userID = userID;
         this.tourID = tourID;
@@ -104,7 +106,6 @@ public class BookDetail {
 
     public int getUserID() {
         return userID;
-
     }
 
     public void setUserID(int userID) {
@@ -219,11 +220,7 @@ public class BookDetail {
 
     @Override
     public String toString() {
-        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", numberChildren=" + numberChildren +  ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", isBookedForOther=" + isBookedForOther + ", totalPrice=" + totalPrice + ", status=" + status + '}';
-
+        return "BookDetail{" + "bookID=" + bookID + ", userID=" + userID + ", tourID=" + tourID + ", voucherID=" + voucherID + ", bookDate=" + bookDate + ", numberAdult=" + numberAdult + ", paymentMethodId=" + paymentMethodId + ", numberChildren=" + numberChildren + ", firstName=" + firstName + ", lastName=" + lastName + ", phone=" + phone + ", gmail=" + gmail + ", note=" + note + ", isBookedForOther=" + isBookedForOther + ", totalPrice=" + totalPrice + ", status=" + status + ", bookCode=" + bookCode + '}';
     }
-
-
-    
 
 }

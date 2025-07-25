@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-/*
+ /*
  * Copyright (C) 2025, Group 6.
  * ProjectCode/Short Name of Application: TravelSystemService 
  * Support Management and Provide Travel Service System 
@@ -18,9 +18,9 @@ import java.util.Vector;
 import model.Tour;
 
 /**
- * Interface for data access operations on Tour entities.
- * Defines methods for CRUD operations, filtering, and status management of tours.
- * All methods throw SQLException to handle database errors.
+ * Interface for data access operations on Tour entities. Defines methods for
+ * CRUD operations, filtering, and status management of tours. All methods throw
+ * SQLException to handle database errors.
  *
  * @author Quynh Mai
  */
@@ -59,24 +59,6 @@ public interface ITourDAO {
     Vector<Tour> getAllTours(int page, int pageSize) throws SQLException;
 
     /**
-     * Searches for tours by destination (end place).
-     *
-     * @param destination The destination to search for (partial match)
-     * @return A Vector of matching Tour objects
-     * @throws SQLException If a database error occurs
-     */
-    Vector<Tour> searchToursByDestination(String destination, int page, int pageSize) throws SQLException;
-
-    /**
-     * Retrieves the total number of tours matching the destination.
-     *
-     * @param destination The destination to search for (partial match)
-     * @return The total count of matching tours
-     * @throws SQLException If a database error occurs
-     */
-    int getTotalToursByDestination(String destination) throws SQLException;
-    
-    /**
      * Retrieves tours based on multiple filter criteria.
      *
      * @param budget The budget range (e.g., "under5", "5-10")
@@ -87,8 +69,8 @@ public interface ITourDAO {
      * @return A Vector of filtered Tour objects
      * @throws SQLException If a database error occurs
      */
-    Vector<Tour> getToursWithFilters(String budget, String departure, String destination, 
-                                     String departureDate, String tourCategory, int page, int pageSize) throws SQLException;
+    Vector<Tour> getToursWithFilters(String budget, String departure, String destination,
+            String departureDate, String tourCategory, int page, int pageSize) throws SQLException;
 
     /**
      * Retrieves the total number of tours matching the filter criteria.
@@ -101,8 +83,9 @@ public interface ITourDAO {
      * @return The total count of matching tours
      * @throws SQLException If a database error occurs
      */
-    int getTotalToursWithFilters(String budget, String departure, String destination, 
-                                 String departureDate, String tourCategory) throws SQLException; 
+    int getTotalToursWithFilters(String budget, String departure, String destination,
+            String departureDate, String tourCategory) throws SQLException;
+
     /**
      * Updates the quantity of a tour.
      *
@@ -110,16 +93,7 @@ public interface ITourDAO {
      * @param quantity The quantity to subtract
      * @throws SQLException If a database error occurs
      */
-    void updateQuantity(int tourID, int quantity) throws SQLException;
-
-    /**
-     * Searches for tours by tour name.
-     *
-     * @param searchQuery The query to search for (partial match)
-     * @return A Vector of matching Tour objects
-     * @throws SQLException If a database error occurs
-     */
-    Vector<Tour> searchToursByName(String searchQuery, int page, int pageSize) throws SQLException;
+    boolean updateQuantityAfterBooking(int tourID, int totalPeople);
 
     /**
      * Retrieves the top 3 newest tours.
@@ -135,11 +109,9 @@ public interface ITourDAO {
      * @param tour The Tour object to insert
      * @throws SQLException If a database error occurs
      */
-    
-    
     public int getTotalTourForSearch() throws SQLException;
-    void insertTour(Tour tour) throws SQLException;
 
+    int insertTour(Tour tour) throws SQLException;
 
     /**
      * Searches for a tour by its ID.
@@ -162,7 +134,8 @@ public interface ITourDAO {
      * Changes the status of a tour in the database.
      *
      * @param tourId The ID of the tour to update
-     * @param newStatus The new status value (e.g., 0 for inactive, 1 for active)
+     * @param newStatus The new status value (e.g., 0 for inactive, 1 for
+     * active)
      * @throws SQLException If a database error occurs
      * @author Quynh Mai
      */
@@ -171,26 +144,49 @@ public interface ITourDAO {
     /**
      * Retrieves tours from the database based on their status.
      *
-     * @param status The status of the tours to retrieve (e.g., 0 for inactive, 1 for active)
+     * @param status The status of the tours to retrieve (e.g., 0 for inactive,
+     * 1 for active)
      * @return A Vector containing matching Tour objects
      * @throws SQLException If a database error occurs
      * @author Quynh Mai
      */
-    int deleteTour(int tourId) throws SQLException;
-    
-    /**
-     * Searches for a tour by its ID.
-     *
-     * @param tourId The ID of the tour to search for
-     * @return The Tour object if found, null otherwise
-     * @throws SQLException If a database error occurs
-     */
-    Tour searchTour(int tourId) throws SQLException;
-    
     Vector<Tour> searchTourByStatus(int status) throws SQLException;
-    Vector<Tour> getAllTours() throws SQLException ;
-    
-    boolean updateQuantityAfterBooking(int tourID, int numberHuman);
 
+    /**
+     * Retrieves all tours from the database.
+     *
+     * @return A Vector containing all Tour objects
+     * @throws SQLException If a database error occurs
+     * @author Quynh Mai
+     */
+    Vector<Tour> getAllTours() throws SQLException;
+
+    /**
+     * Retrieves tours for a specific travel agent by status.
+     *
+     * @param travelAgentID The ID of the travel agent
+     * @param status The status of the tours to retrieve (e.g., 0 for inactive,
+     * 1 for active)
+     * @return A Vector containing matching Tour objects
+     * @throws SQLException If a database error occurs
+     * @author Quynh Mai
+     */
+    public Vector<Tour> searchTourByStatusAndAgent(int travelAgentID, int status) throws SQLException;
+
+    public int getTotalToursByTravelAgent(int id) throws SQLException;
+
+    /**
+     * Retrieves all tours for a specific travel agent.
+     *
+     * @param travelAgentID The ID of the travel agent
+     * @return A Vector containing all Tour objects associated with the travel
+     * agent
+     * @throws SQLException If a database error occurs
+     * @author Quynh Mai
+     */
+    public Vector<Tour> getAllToursByAgent(int travelAgentID) throws SQLException;
+
+    public boolean hasBookings(int tourId) throws SQLException;
+    boolean updateQuantityAfterCancel(int tourID, int numberHuman) throws Exception;
 }
 

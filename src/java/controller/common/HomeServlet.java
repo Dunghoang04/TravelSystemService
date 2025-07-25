@@ -7,17 +7,9 @@
  * DATE        Version    AUTHOR            DESCRIPTION
  * 2025-06-07  1.0        Group 6          First implementation
  */
-/**
- * Defines the interface for Role data access operations.<br>
- * Provides methods to retrieve role data from the database.<br>
- * <p>
- * Bugs: None known at this time.</p>
- *
- * @author 
- */
 package controller.common;
 
-
+import dao.FeedbackDAO;
 import dao.TourDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,9 +19,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Vector;
+import model.Feedback;
 import model.Tour;
-
 
 /**
  *
@@ -50,7 +43,6 @@ public class HomeServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
@@ -63,7 +55,6 @@ public class HomeServlet extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -77,14 +68,19 @@ public class HomeServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(); // Get or create HTTP session
         TourDAO tdao = new TourDAO(); // Initialize TourDAO instance
+
         Vector<Tour> topTour = null; // Initialize vector for top tours
+         FeedbackDAO fdao = new FeedbackDAO(); // Initialize FeedbackDAO instance
+         List<Feedback> recentFeedbacks = null; // Initialize list for recent feedbacks
 
         try {
             topTour = tdao.getTopNewTour(); // Retrieve top new tours from DAO
             request.setAttribute("topTour", topTour); // Store tours in request scope
+            recentFeedbacks = fdao.getRecentFeedbacks(); // Retrieve 5 most recent feedbacks
+            request.setAttribute("recentFeedbacks", recentFeedbacks); // Store feedbacks in request scope
             request.getRequestDispatcher("view/common/home.jsp").forward(request, response); // Forward to home page
-        } catch (SQLException e) { // Handle database-related exceptions
-            request.setAttribute("error", "Database error while loading home page: " + e.getMessage()); // Set error message
+        } catch (Exception e) { // Handle other exceptions
+            request.setAttribute("error", "Lỗi khi tải trang chủ: " + e.getMessage()); // Set error message
             request.getRequestDispatcher("view/common/error.jsp").forward(request, response); // Forward to error page
         }
     }
@@ -110,7 +106,6 @@ public class HomeServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Xử lý yêu cầu cho trang chủ, hiển thị các tour nổi bật và phản hồi gần đây";
+    }
 }

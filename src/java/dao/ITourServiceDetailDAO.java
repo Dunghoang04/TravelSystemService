@@ -12,7 +12,6 @@
  *
  * @author Hoang Tuan Dung
  */
-
 package dao;
 
 import java.sql.SQLException;
@@ -58,8 +57,6 @@ public interface ITourServiceDetailDAO {
      * @return The TourServiceDetail object if found, or null if not found
      * @throws SQLException If a database access error occurs
      */
-    
-    public void deleteTourServiceDetails(int tourId) throws SQLException;
     TourServiceDetail searchTourServiceDetail(int detailId) throws SQLException;
 
     /**
@@ -71,14 +68,14 @@ public interface ITourServiceDetailDAO {
     void updateTourServiceDetail(TourServiceDetail detail) throws SQLException;
 
     /**
-     * Update status a TourServiceDetail record  by detail ID.
+     * Update status a TourServiceDetail record by detail ID.
      *
      * @param detailId The ID of the detail to delete
      * @return The number of records affected (0 if not found)
      * @throws SQLException If a database access error occurs
      */
     int updateStatusTourServiceDetail(int detailId, int status) throws SQLException;
-    
+
     /**
      * Updates the service name in Tour_Service_Detail based on service ID.
      *
@@ -96,7 +93,7 @@ public interface ITourServiceDetailDAO {
      * @throws SQLException If a database error occurs.
      */
     List<TourServiceDetail> getTourServiceDetailsByServiceId(int serviceId) throws SQLException;
-    
+
     /**
      * Retrieves the service ID associated with a given tour ID.
      *
@@ -105,4 +102,6 @@ public interface ITourServiceDetailDAO {
      * @throws SQLException If a database error occurs
      */
     int getServiceIdByTourId(int tour) throws SQLException;
+
+    public void deleteTourServiceDetails(int tourId) throws SQLException;
 }

@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2025, Group 6.
+ * Project: TravelSystemService
+ * Description: Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-07-14   1.1      Hoang Tuan Dung       First implementation
+ * [Not specified in original code]
+ */
+
 package controller.agent.entertainment;
 
 import dao.EntertainmentDAO;
@@ -101,7 +112,6 @@ public class UpdateEntertainment extends HttpServlet {
             if (serviceUsed > 0) {
                 request.setAttribute("serviceUsed", "Dịch vụ đã được sử dụng");
             }
-
 
             request.getRequestDispatcher("view/agent/entertainment/updateEntertainment.jsp").forward(request, response);
         } catch (NumberFormatException e) {

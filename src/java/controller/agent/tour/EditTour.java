@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025, Group 6.
+ * ProjectCode/Short Name of Application: TravelSystemService 
+ * Support Management and Provide Travel Service System 
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-06-14  1.0        Quynh Mai         Refactored with ITourDAO, improved resource management and comments
+ */
 package controller.agent.tour;
 
 import dao.ServiceDao;
@@ -19,7 +28,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import model.Service;
@@ -42,20 +50,65 @@ public class EditTour extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        String action = request.getParameter("action");
         try {
             String tourIdStr = request.getParameter("tourId");
             if (tourIdStr == null || tourIdStr.trim().isEmpty()) {
-                request.setAttribute("errorMessage", "Không tìm thấy tourId trong yêu cầu!");
-                request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                session.setAttribute("errorMessage", "Không tìm thấy tourId trong yêu cầu!");
+                session.setAttribute("showErrorPopup", "edit");
+                String page = request.getParameter("page");
+                String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
+                session.setAttribute("currentStatus", status);
+                String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+                if (page != null && !page.isEmpty()) {
+                    try {
+                        Integer.parseInt(page); // Validate page parameter
+                        redirectUrl += "&page=" + page;
+                    } catch (NumberFormatException e) {
+                        // If page is invalid, do not append it
+                    }
+                }
+                response.sendRedirect(redirectUrl);
                 return;
             }
 
             int tourId = Integer.parseInt(tourIdStr);
             Tour tour = tourDAO.searchTourByID(tourId);
             if (tour == null) {
-                request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourId);
-                request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                session.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourId);
+                session.setAttribute("showErrorPopup", "edit");
+                String page = request.getParameter("page");
+                String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
+                session.setAttribute("currentStatus", status);
+                String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+                if (page != null && !page.isEmpty()) {
+                    try {
+                        Integer.parseInt(page); // Validate page parameter
+                        redirectUrl += "&page=" + page;
+                    } catch (NumberFormatException e) {
+                        // If page is invalid, do not append it
+                    }
+                }
+                response.sendRedirect(redirectUrl);
+                return;
+            }
+
+            // Check if the tour has bookings
+            if (tourDAO.hasBookings(tourId)) {
+                session.setAttribute("errorMessage", "Tour này đã được đặt và không thể chỉnh sửa!");
+                session.setAttribute("showErrorPopup", "edit");
+                String page = request.getParameter("page");
+                String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
+                session.setAttribute("currentStatus", status);
+                String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+                if (page != null && !page.isEmpty()) {
+                    try {
+                        Integer.parseInt(page); // Validate page parameter
+                        redirectUrl += "&page=" + page;
+                    } catch (NumberFormatException e) {
+                        // If page is invalid, do not append it
+                    }
+                }
+                response.sendRedirect(redirectUrl);
                 return;
             }
 
@@ -68,9 +121,9 @@ public class EditTour extends HttpServlet {
             TravelAgent agent = (TravelAgent) session.getAttribute("agent");
 
             // Load data
-            Vector<Service> restaurants = serviceDao.getRestaurantsByProvince(tour.getEndPlace(), ((TravelAgent) session.getAttribute("agent")).getTravelAgentID());
-            Vector<Service> accommodations = serviceDao.getAccommodationsByProvince(tour.getEndPlace(), ((TravelAgent) session.getAttribute("agent")).getTravelAgentID());
-            Vector<Service> entertainments = serviceDao.getEntertainmentsByProvince(tour.getEndPlace(), ((TravelAgent) session.getAttribute("agent")).getTravelAgentID());
+            Vector<Service> restaurants = serviceDao.getRestaurantsByProvince(tour.getEndPlace(), agent.getTravelAgentID());
+            Vector<Service> accommodations = serviceDao.getAccommodationsByProvince(tour.getEndPlace(), agent.getTravelAgentID());
+            Vector<Service> entertainments = serviceDao.getEntertainmentsByProvince(tour.getEndPlace(), agent.getTravelAgentID());
 
             Vector<TourServiceDetail> tourServiceDetails = tourServiceDetailDAO.getTourServiceDetails(tourId);
 
@@ -80,17 +133,67 @@ public class EditTour extends HttpServlet {
             request.setAttribute("entertainments", entertainments);
             request.setAttribute("tourServiceDetails", tourServiceDetails);
             request.setAttribute("tour", tour);
-
+            // Store current page number and status for redirect after edit
+            String page = request.getParameter("page");
+            String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    session.setAttribute("currentPage", page);
+                } catch (NumberFormatException e) {
+                    session.removeAttribute("currentPage");
+                }
+            }
+            session.setAttribute("currentStatus", status);
             request.getRequestDispatcher("/view/agent/tour/updateTour.jsp").forward(request, response);
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "tourId không hợp lệ: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "tourId không hợp lệ: " + e.getMessage());
+            session.setAttribute("showErrorPopup", "edit");
+            String page = request.getParameter("page");
+            String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
+            session.setAttribute("currentStatus", status);
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException ex) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         } catch (SQLException e) {
-            request.setAttribute("errorMessage", "Lỗi cơ sở dữ liệu khi tải tour: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "Lỗi cơ sở dữ liệu khi tải tour: " + e.getMessage());
+            session.setAttribute("showErrorPopup", "edit");
+            String page = request.getParameter("page");
+            String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
+            session.setAttribute("currentStatus", status);
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException ex) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "Lỗi không xác định khi tải tour: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/home.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "Lỗi không xác định khi tải tour: " + e.getMessage());
+            session.setAttribute("showErrorPopup", "edit");
+            String page = request.getParameter("page");
+            String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
+            session.setAttribute("currentStatus", status);
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException ex) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         }
     }
 
@@ -98,6 +201,31 @@ public class EditTour extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+        String action = request.getParameter("action");
+        if ("clearSession".equals(action)) {
+            session.removeAttribute("errorMessage");
+            session.removeAttribute("showErrorPopup");
+            session.removeAttribute("tourName");
+            session.removeAttribute("tourCategoryID");
+            session.removeAttribute("quantity");
+            session.removeAttribute("adultPrice");
+            session.removeAttribute("childrenPrice");
+            session.removeAttribute("tourIntroduce");
+            session.removeAttribute("tourSchedule");
+            session.removeAttribute("tourInclude");
+            session.removeAttribute("tourNonInclude");
+            session.removeAttribute("startPlace");
+            session.removeAttribute("startDay");
+            session.removeAttribute("endDay");
+            session.removeAttribute("imagePath");
+            session.removeAttribute("restaurantIds");
+            session.removeAttribute("accommodationIds");
+            session.removeAttribute("entertainmentIds");
+            session.removeAttribute("validationErrors");
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
         try {
             String gmail = (String) session.getAttribute("gmail");
             if (gmail == null) {
@@ -108,15 +236,40 @@ public class EditTour extends HttpServlet {
             int tourId = Integer.parseInt(request.getParameter("tourId"));
             Tour existingTour = tourDAO.searchTourByID(tourId);
             if (existingTour == null) {
-                request.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourId);
-                request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                session.setAttribute("errorMessage", "Không tìm thấy tour với ID: " + tourId);
+                session.setAttribute("showErrorPopup", "edit");
+                String page = (String) session.getAttribute("currentPage");
+                String status = (String) session.getAttribute("currentStatus") != null ? (String) session.getAttribute("currentStatus") : "all";
+                String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+                if (page != null && !page.isEmpty()) {
+                    try {
+                        Integer.parseInt(page); // Validate page parameter
+                        redirectUrl += "&page=" + page;
+                    } catch (NumberFormatException e) {
+                        // If page is invalid, do not append it
+                    }
+                }
+                response.sendRedirect(redirectUrl);
                 return;
             }
 
+            
             TravelAgent agent = (TravelAgent) session.getAttribute("agent");
             if (agent == null || existingTour.getTravelAgentID() != agent.getTravelAgentID()) {
-                request.setAttribute("errorMessage", "Bạn không có quyền chỉnh sửa tour ID: " + tourId);
-                request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+                session.setAttribute("errorMessage", "Bạn không có quyền chỉnh sửa tour ID: " + tourId);
+                session.setAttribute("showErrorPopup", "edit");
+                String page = (String) session.getAttribute("currentPage");
+                String status = (String) session.getAttribute("currentStatus") != null ? (String) session.getAttribute("currentStatus") : "all";
+                String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+                if (page != null && !page.isEmpty()) {
+                    try {
+                        Integer.parseInt(page); // Validate page parameter
+                        redirectUrl += "&page=" + page;
+                    } catch (NumberFormatException e) {
+                        // If page is invalid, do not append it
+                    }
+                }
+                response.sendRedirect(redirectUrl);
                 return;
             }
 
@@ -192,9 +345,9 @@ public class EditTour extends HttpServlet {
                 session.setAttribute("startPlace", startPlace);
                 session.setAttribute("startDay", startDay);
                 session.setAttribute("endDay", endDay);
-                session.setAttribute("restaurantIds", restaurantIds);
-                session.setAttribute("accommodationIds", accommodationIds);
-                session.setAttribute("entertainmentIds", entertainmentIds);
+                session.setAttribute("restaurantIds", restaurantIds != null ? restaurantIds : new String[]{});
+                session.setAttribute("accommodationIds", accommodationIds != null ? accommodationIds : new String[]{});
+                session.setAttribute("entertainmentIds", entertainmentIds != null ? entertainmentIds : new String[]{});
 
                 request.getRequestDispatcher("/view/agent/tour/updateTour.jsp").forward(request, response);
                 return;
@@ -256,20 +409,80 @@ public class EditTour extends HttpServlet {
             session.removeAttribute("entertainmentIds");
             session.removeAttribute("validationErrors");
 
-            request.setAttribute("successMessage", "Cập nhật tour thành công!");
-            request.getRequestDispatcher("/view/staff/tourDetail.jsp").forward(request, response);
+            session.setAttribute("successMessage", "Sửa tour thành công!");
+            session.setAttribute("showSuccessPopup", "edit");
+            String page = (String) session.getAttribute("currentPage");
+            String status = (String) session.getAttribute("currentStatus") != null ? (String) session.getAttribute("currentStatus") : "all";
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException e) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Dữ liệu không hợp lệ: " + e.getMessage() + " (tourId: " + request.getParameter("tourId") + ")");
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "Dữ liệu không hợp lệ: " + e.getMessage() + " (tourId: " + request.getParameter("tourId") + ")");
+            session.setAttribute("showErrorPopup", "edit");
+            String page = (String) session.getAttribute("currentPage");
+            String status = (String) session.getAttribute("currentStatus") != null ? (String) session.getAttribute("currentStatus") : "all";
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException ex) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         } catch (SQLException e) {
-            request.setAttribute("errorMessage", "Lỗi cơ sở dữ liệu khi cập nhật tour: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "Lỗi cơ sở dữ liệu khi cập nhật tour: " + e.getMessage());
+            session.setAttribute("showErrorPopup", "edit");
+            String page = (String) session.getAttribute("currentPage");
+            String status = (String) session.getAttribute("currentStatus") != null ? (String) session.getAttribute("currentStatus") : "all";
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException ex) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Ngày không hợp lệ: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "Ngày không hợp lệ: " + e.getMessage());
+            session.setAttribute("showErrorPopup", "edit");
+            String page = (String) session.getAttribute("currentPage");
+            String status = (String) session.getAttribute("currentStatus") != null ? (String) session.getAttribute("currentStatus") : "all";
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException ex) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "Lỗi không xác định khi cập nhật tour: " + e.getMessage());
-            request.getRequestDispatcher("/view/common/error.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "Lỗi không xác định khi cập nhật tour: " + e.getMessage());
+            session.setAttribute("showErrorPopup", "edit");
+            String page = (String) session.getAttribute("currentPage");
+            String status = (String) session.getAttribute("currentStatus") != null ? (String) session.getAttribute("currentStatus") : "all";
+            String redirectUrl = request.getContextPath() + "/ListTour?service=list&status=" + status;
+            if (page != null && !page.isEmpty()) {
+                try {
+                    Integer.parseInt(page); // Validate page parameter
+                    redirectUrl += "&page=" + page;
+                } catch (NumberFormatException ex) {
+                    // If page is invalid, do not append it
+                }
+            }
+            response.sendRedirect(redirectUrl);
         }
     }
 
@@ -318,7 +531,7 @@ public class EditTour extends HttpServlet {
                 double adultPrice = Double.parseDouble(adultPriceStr.replaceAll("[^0-9]", ""));
                 if (adultPrice < 0) {
                     errors.put("adultPrice", "Giá người lớn không được âm!");
-                } else if (adultPrice > 100000000) { // 100 triệu
+                } else if (adultPrice > 100000000) {
                     errors.put("adultPrice", "Giá người lớn không được vượt quá 100 triệu VNĐ!");
                 }
             } catch (NumberFormatException e) {
@@ -332,7 +545,7 @@ public class EditTour extends HttpServlet {
                 double childrenPrice = Double.parseDouble(childrenPriceStr.replaceAll("[^0-9]", ""));
                 if (childrenPrice < 0) {
                     errors.put("childrenPrice", "Giá trẻ em không được âm!");
-                } else if (childrenPrice > 100000000) { // 100 triệu
+                } else if (childrenPrice > 100000000) {
                     errors.put("childrenPrice", "Giá trẻ em không được vượt quá 100 triệu VNĐ!");
                 }
             } catch (NumberFormatException e) {
@@ -340,10 +553,14 @@ public class EditTour extends HttpServlet {
             }
         }
         if (!adultPriceStr.isEmpty() && !childrenPriceStr.isEmpty()) {
-            double adultPrice = Double.parseDouble(adultPriceStr.replaceAll("[^0-9]", ""));
-            double childrenPrice = Double.parseDouble(childrenPriceStr.replaceAll("[^0-9]", ""));
-            if (adultPrice <= childrenPrice) {
-                errors.put("adultPrice", "Giá người lớn phải lớn hơn giá trẻ em!");
+            try {
+                double adultPrice = Double.parseDouble(adultPriceStr.replaceAll("[^0-9]", ""));
+                double childrenPrice = Double.parseDouble(childrenPriceStr.replaceAll("[^0-9]", ""));
+                if (adultPrice <= childrenPrice) {
+                    errors.put("adultPrice", "Giá người lớn phải lớn hơn giá trẻ em!");
+                }
+            } catch (NumberFormatException e) {
+                // Already handled above
             }
         }
         if (tourIntroduce.isEmpty()) {

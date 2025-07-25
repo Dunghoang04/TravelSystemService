@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2025, Group 6.
+ * Project: TravelSystemService
+ * Description: Support Management and Provide Travel Service System
+ *
+ * Record of change:
+ * DATE        Version    AUTHOR            DESCRIPTION
+ * 2025-07-24   1.1      Hoang Tuan Dung       First implementation
+ * [Not specified in original code]
+ */
 package controller.agent;
 
 import dao.BookTourDAO;

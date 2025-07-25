@@ -340,6 +340,24 @@
                                     provinceSelect.appendChild(opt);
                                 });
                             });
+                            
+//                     fetch('https://vn-public-apis.fpo.vn/provinces/getAll?limit=-1')
+//                    .then(res => res.json())
+//                    .then(response => {
+//                        const provinces = response.data.data; // <-- sửa chỗ này
+//                        const sel = document.getElementById('province');
+//                        const selectedProvince = '${requestScope.address}';
+//
+//                        provinces.forEach(p => {
+//                            const o = document.createElement('option');
+//                            o.value = p.name;
+//                            o.text = p.name_with_type;
+//                            if (p.name === selectedProvince)
+//                                o.selected = true;
+//                            sel.appendChild(o);
+//                        });
+//                    })
+//                    .catch(console.error);       
                     function previewImage(event) {
                         const file = event.target.files[0];
                         if (file) {
